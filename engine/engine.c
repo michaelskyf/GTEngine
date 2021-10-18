@@ -86,10 +86,11 @@ void loop(void)
 
 static int engine_setup(int argc, char **argv)
 {
-	// Before we do any inits,we need to change the directory
-	// to executable's path, since data folder should be there.
-	// This changes argv[0], so if we need it, we should copy it
-	// (we don't need it for now)
+	// Before we do any inits, we need to change directory
+	// to the directory in which the main executable resides.
+	//
+	// This action changes argv[0], so if we need original path,
+	// we should copy it somewhere (not needed for now)
 	chdir(dirname(*argv));
 
 	// Overwrite default settings with
@@ -144,9 +145,6 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height)
 	glViewport(0, 0, width, height);
 }
 
-/*
-  * Gets called on key action
-*/
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
 	switch(key)
