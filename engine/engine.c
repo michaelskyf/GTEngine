@@ -106,6 +106,7 @@ static int opengl_setup(void)
 {
 	LOG("Starting openGL setup...");
 	glfwInit();
+	glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, opengl_version_major);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, opengl_version_minor);
 
@@ -123,6 +124,7 @@ static int opengl_setup(void)
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
 		LOGE("Failed to initialize GLAD");
+		glfwTerminate();
 		return -1;
 	}
 

@@ -10,8 +10,8 @@
 static const char *title = "GLTest";
 static const char *settings_path = "settings.conf";
 
-static const int opengl_version_major = 3;
-static const int opengl_version_minor = 3;
+static const int opengl_version_major = 2;
+static const int opengl_version_minor = 0;
 
 static const struct settings settings_default = {
 	/* Display */
