@@ -1,0 +1,219 @@
+# SPDX-License-Identifier: GPL-2.0
+# ==========================================================================
+# Building
+# ==========================================================================
+
+src := $(obj)
+
+PHONY := __build
+__build:
+
+# Init all relevant variables used in kbuild files so
+# 1) they have correct type
+# 2) they do not inherit any value from the environment
+obj-y :=
+lib-y :=
+always-y :=
+targets :=
+subdir-y :=
+EXTRA_AFLAGS   :=
+EXTRA_CFLAGS   :=
+EXTRA_CPPFLAGS :=
+EXTRA_LDFLAGS  :=
+asflags-y  :=
+ccflags-y  :=
+cppflags-y :=
+ldflags-y  :=
+
+subdir-asflags-y :=
+subdir-ccflags-y :=
+
+include $(srctree)/scripts/Pbuild.include
+include $(srctree)/scripts/Makefile.compiler
+
+pbuild-dir := $(if $(filter /%,$(src)),$(src),$(srctree)/$(src))
+pbuild-file := $(pbuild-dir)/Makefile
+include $(pbuild-file)
+
+include $(srctree)/scripts/Makefile.lib
+
+# Do not include hostprogs rules unless needed.
+# $(sort ...) is used here to remove duplicated words and excessive spaces.
+hostprogs := $(sort $(hostprogs))
+ifneq ($(hostprogs),)
+include $(srctree)/scripts/Makefile.host
+endif
+
+# Do not include userprogs rules unless needed.
+# $(sort ...) is used here to remove duplicated words and excessive spaces.
+userprogs := $(sort $(userprogs))
+ifneq ($(userprogs),)
+include $(srctree)/scripts/Makefile.userprogs
+endif
+
+ifndef obj
+$(warning pbuild: Makefile.build is included improperly)
+endif
+
+# ===========================================================================
+
+# subdir-builtin and subdir-modorder may contain duplications. Use $(sort ...)
+subdir-builtin := $(sort $(filter %/built-in.a, $(real-obj-y)))
+
+targets-for-builtin := $(extra-y)
+
+ifneq ($(strip $(lib-y) $(lib-)),)
+targets-for-builtin += $(obj)/lib.a
+endif
+
+ifdef need-builtin
+targets-for-builtin += $(obj)/built-in.a
+endif
+
+targets += $(targets-for-builtin)
+
+# Compile C sources (.c)
+# ---------------------------------------------------------------------------
+
+# C (.c) files
+# The C file is compiled and updated dependency information is generated.
+# (See cmd_cc_o_c + relevant part of rule_cc_o_c)
+
+quiet_cmd_cc_o_c = CC      $@
+      cmd_cc_o_c = $(CC) $(c_flags) -c -o $@ $<
+
+quiet_cmd_cxx_o_cpp = CXX     $@
+      cmd_cxx_o_cpp = $(CXX) $(cpp_flags) -c -o $@ $<
+
+
+quiet_cmd_as_o_S = AS      $@
+      cmd_as_o_S = $(CC) $(a_flags) -c -o $@ $<
+
+define rule_cc_o_c
+	$(call cmd_and_fixdep,cc_o_c)
+	$(call cmd,record_mcount)
+endef
+
+
+# Built-in and composite module parts
+.SECONDEXPANSION:
+$(obj)/%.o: $(src)/%.c $(recordmcount_source) $$(objtool_dep) FORCE
+	$(call if_changed_rule,cc_o_c)
+
+$(obj)/%.o: $(src)/%.cpp FORCE
+	$(call if_changed_dep,cxx_o_cpp)
+
+targets += $(filter-out $(subdir-builtin), $(real-obj-y))
+targets += $(lib-y) $(always-y) $(MAKECMDGOALS)
+
+# Build the compiled-in targets
+# ---------------------------------------------------------------------------
+
+# To build objects in subdirs, we need to descend into the directories
+$(subdir-builtin): $(obj)/%/built-in.a: $(obj)/% ;
+
+cmd_update_lto_symversions = echo >/dev/null
+
+#
+# Rule to compile a set of .o files into one .a file (without symbol table)
+#
+
+quiet_cmd_ar_builtin = AR      $@
+      cmd_ar_builtin = rm -f $@; $(AR) cDPrsT $@ $(real-prereqs)
+
+quiet_cmd_ar_and_symver = AR      $@
+      cmd_ar_and_symver = $(cmd_update_lto_symversions); $(cmd_ar_builtin)
+
+$(obj)/built-in.a: $(real-obj-y) FORCE
+	$(call if_changed,ar_and_symver)
+#
+# Rule to compile a set of .o files into one .a file (with symbol table)
+#
+quiet_cmd_ar_lib = AR      $@
+      cmd_ar_lib = $(cmd_update_lto_symversions); $(cmd_ar)
+
+$(obj)/lib.a: $(lib-y) FORCE
+	$(call if_changed,ar_lib)
+
+targets := $(filter-out $(PHONY), $(targets))
+
+# Add intermediate targets:
+# When building objects with specific suffix patterns, add intermediate
+# targets that the final targets are derived from.
+intermediate_targets = $(foreach sfx, $(2), \
+				$(patsubst %$(strip $(1)),%$(sfx), \
+					$(filter %$(strip $(1)), $(targets))))
+
+# Build
+# ---------------------------------------------------------------------------
+ifdef single-build
+
+PBUILD_SINGLE_TARGETS := $(filter $(obj)/%, $(PBUILD_SINGLE_TARGETS))
+
+curdir-single := $(sort $(foreach x, $(PBUILD_SINGLE_TARGETS), \
+			$(if $(filter $(x) $(basename $(x)).o, $(targets)), $(x))))
+
+# Handle single targets without any rule: show "Nothing to be done for ..." or
+# "No rule to make target ..." depending on whether the target exists.
+unknown-single := $(filter-out $(addsuffix /%, $(subdir-y)), \
+			$(filter-out $(curdir-single), $(PBUILD_SINGLE_TARGETS)))
+
+single-subdirs := $(foreach d, $(subdir-y), \
+			$(if $(filter $(d)/%, $(PBUILD_SINGLE_TARGETS)), $(d)))
+
+__build: $(curdir-single) $(single-subdirs)
+ifneq ($(unknown-single),)
+	$(Q)$(MAKE) -f /dev/null $(unknown-single)
+endif
+	@:
+
+ifeq ($(curdir-single),)
+# Nothing to do in this directory. Do not include any .*.cmd file for speed-up
+targets :=
+else
+targets += $(curdir-single)
+endif
+
+else
+
+__build: $(if $(PBUILD_BUILTIN), $(targets-for-builtin)) \
+	 $(subdir-y) $(always-y)
+	@:
+
+endif # single-build
+
+# Descending
+# ---------------------------------------------------------------------------
+
+PHONY += $(subdir-y)
+$(subdir-y):
+	$(Q)$(MAKE) $(build)=$@ \
+	$(if $(filter $@/, $(PBUILD_SINGLE_TARGETS)),single-build=) \
+	need-builtin=$(if $(filter $@/built-in.a, $(subdir-builtin)),1)
+
+# Add FORCE to the prequisites of a target to force it to be always rebuilt.
+# ---------------------------------------------------------------------------
+
+PHONY += FORCE
+
+FORCE:
+
+# Read all saved command lines and dependencies for the $(targets) we
+# may be building above, using $(if_changed{,_dep}). As an
+# optimization, we don't need to read them if the target does not
+# exist, we will rebuild anyway in that case.
+
+existing-targets := $(wildcard $(sort $(targets)))
+
+-include $(foreach f,$(existing-targets),$(dir $(f)).$(notdir $(f)).cmd)
+
+# Create directories for object files if they do not exist
+obj-dirs := $(sort $(patsubst %/,%, $(dir $(targets))))
+# If targets exist, their directories apparently exist. Skip mkdir.
+existing-dirs := $(sort $(patsubst %/,%, $(dir $(existing-targets))))
+obj-dirs := $(strip $(filter-out $(existing-dirs), $(obj-dirs)))
+ifneq ($(obj-dirs),)
+$(shell mkdir -p $(obj-dirs))
+endif
+
+.PHONY: $(PHONY)

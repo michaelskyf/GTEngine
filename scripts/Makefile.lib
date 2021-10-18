@@ -1,0 +1,112 @@
+# SPDX-License-Identifier: GPL-2.0
+
+# flags that take effect in current and sub directories
+PBUILD_AFLAGS += $(subdir-asflags-y)
+PBUILD_CFLAGS += $(subdir-ccflags-y)
+
+# Libraries are always collected in one lib file.
+# Filter out objects already built-in
+lib-y := $(filter-out $(obj-y), $(sort $(lib-y)))
+
+# Subdirectories we need to descend into
+subdir-y := $(sort $(subdir-y) \
+			$(patsubst %/,%, $(filter %/, $(obj-y))))
+
+ifdef need-builtin
+obj-y		:= $(patsubst %/, %/built-in.a, $(obj-y))
+else
+obj-y		:= $(filter-out %/, $(obj-y))
+endif
+
+# Expand $(foo-objs) $(foo-y) etc. by replacing their individuals
+suffix-search = $(strip $(foreach s, $3, $($(1:%$(strip $2)=%$s))))
+# List composite targets that are constructed by combining other targets
+multi-search = $(sort $(foreach m, $1, $(if $(call suffix-search, $m, $2, $3 -), $m)))
+# List primitive targets that are compiled from source files
+real-search = $(foreach m, $1, $(if $(call suffix-search, $m, $2, $3 -), $(call suffix-search, $m, $2, $3), $m))
+
+# If $(foo-objs), $(foo-y) or $(foo-) exists, foo.o is a composite object
+multi-obj-y := $(call multi-search, $(obj-y), .o, -objs -y)
+
+# Replace multi-part objects by their individual parts,
+# including built-in.a from subdirectories
+real-obj-y := $(call real-search, $(obj-y), .o, -objs -y)
+
+# hostprogs-always-y += foo
+# ... is a shorthand for
+# hostprogs += foo
+# always-y  += foo
+hostprogs += $(hostprogs-always-y)
+always-y += $(hostprogs-always-y)
+
+# userprogs-always-y is likewise.
+userprogs += $(userprogs-always-y)
+always-y += $(userprogs-always-y)
+
+# Add subdir path
+
+extra-y		:= $(addprefix $(obj)/,$(extra-y))
+always-y	:= $(addprefix $(obj)/,$(always-y))
+targets		:= $(addprefix $(obj)/,$(targets))
+lib-y		:= $(addprefix $(obj)/,$(lib-y))
+real-obj-y	:= $(addprefix $(obj)/,$(real-obj-y))
+subdir-y	:= $(addprefix $(obj)/,$(subdir-y))
+
+# target with $(obj)/ and its suffix stripped
+target-stem = $(basename $(patsubst $(obj)/%,%,$@))
+
+# These flags are needed for compiling
+name-fix-token = $(subst $(comma),_,$(subst -,_,$1))
+name-fix = $(call stringify,$(call name-fix-token,$1))
+basename_flags = -DPBUILD_BASENAME=$(call name-fix,$(basetarget))
+_c_flags       = $(filter-out $(CFLAGS_REMOVE_$(target-stem).o), \
+                     $(filter-out $(ccflags-remove-y), \
+                         $(PBUILD_CPPFLAGS) $(PBUILD_CFLAGS) $(ccflags-y)) \
+                     $(CFLAGS_$(target-stem).o))
+_a_flags       = $(filter-out $(AFLAGS_REMOVE_$(target-stem).o), \
+                     $(filter-out $(asflags-remove-y), \
+                         $(PBUILD_CPPFLAGS) $(PBUILD_AFLAGS) $(asflags-y)) \
+                     $(AFLAGS_$(target-stem).o))
+_cpp_flags     = $(PBUILD_CPPFLAGS) $(cppflags-y) $(CPPFLAGS_$(target-stem).lds)
+
+ifdef building_out_of_srctree
+_c_flags   += -I $(srctree)/$(src) -I $(objtree)/$(obj)
+_a_flags   += -I $(srctree)/$(src) -I $(objtree)/$(obj)
+_cpp_flags += -I $(srctree)/$(src) -I $(objtree)/$(obj)
+endif
+
+c_flags        = -Wp,-MMD,$(depfile) $(NOSTDINC_FLAGS) $(PROJECTINCLUDE)     \
+		 $(_c_flags)                       \
+		 $(basename_flags)
+
+a_flags        = -Wp,-MMD,$(depfile) $(NOSTDINC_FLAGS) $(PROJECTINCLUDE)     \
+		 $(_a_flags)
+
+cpp_flags      = -Wp,-MMD,$(depfile) $(NOSTDINC_FLAGS) $(PROJECTINCLUDE)     \
+		 $(_cpp_flags)
+
+ld_flags       = $(PBUILD_LDFLAGS) $(ldflags-y) $(LDFLAGS_$(@F))
+
+# Useful for describing the dependency of composite objects
+# Usage:
+#   $(call multi_depend, multi_used_targets, suffix_to_remove, suffix_to_add)
+define multi_depend
+$(foreach m, $(notdir $1), \
+	$(eval $(obj)/$m: \
+	$(addprefix $(obj)/, $(foreach s, $3, $($(m:%$(strip $2)=%$(s)))))))
+endef
+
+quiet_cmd_copy = COPY    $@
+      cmd_copy = cp $< $@
+
+# Linking
+# ---------------------------------------------------------------------------
+
+quiet_cmd_ld = LD      $@
+      cmd_ld = $(LD) $(ld_flags) $(real-prereqs) -o $@
+
+# Archive
+# ---------------------------------------------------------------------------
+
+quiet_cmd_ar = AR      $@
+      cmd_ar = rm -f $@; $(AR) cDPrsT $@ $(real-prereqs)
