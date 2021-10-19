@@ -32,7 +32,7 @@
 #include <GTEngine/settings.h>
 
 /* functions */
-static int engine_setup(int argc, char **argv);
+static int engine_setup(void);
 static int opengl_setup(void);
 static void loop(void);
 
@@ -49,19 +49,29 @@ static GLFWwindow *window;
 
 int main(int argc, char **argv)
 {
+	// Before we do any inits, we need to change working directory
+	// to the directory in which the main executable resides.
+	//
+	// This function changes argv[0], but we don't need it for anything
+	chdir(dirname(*argv));
+
 	/*
 	   Run setup funcions.
-	   If any function returns non-0, exit.
+	   If of the functions returns non-0, exit.
 	*/
-	if (
-		engine_setup(argc, argv)
-		||
-		opengl_setup()
-		||
-		program_setup()
-	) {
-		LOGE("Error during setup. Exiting.");
-		return -1;
+	int (* setup_func[])(void) = {
+		engine_setup,
+		opengl_setup,
+		program_setup,
+	};
+
+	for(unsigned int i = 0; i < sizeof(setup_func)/sizeof(*setup_func); i++)
+	{
+		if(setup_func[i]())
+		{
+			LOGE("Error during setup in function %d. Exiting.", i);
+			return -1;
+		}
 	}
 
 	// Everything is set-up,
@@ -88,14 +98,8 @@ void loop(void)
 	}
 }
 
-static int engine_setup(int argc, char **argv)
+static int engine_setup(void)
 {
-	// Before we do any inits, we need to change directory
-	// to the directory in which the main executable resides.
-	//
-	// This action changes argv[0], so if we need original path,
-	// we should copy it somewhere (not needed for now)
-	chdir(dirname(*argv));
 
 	// Overwrite default settings with
 	// those found in `settings_path`
