@@ -57,6 +57,8 @@ int main(int argc, char **argv)
 		engine_setup(argc, argv)
 		||
 		opengl_setup()
+		||
+		program_setup()
 	) {
 		LOGE("Error during setup. Exiting.");
 		return -1;
@@ -74,6 +76,8 @@ void loop(void)
 {
 	while(!glfwWindowShouldClose(window))
 	{
+		// Update program
+		program_update();
 
 		// Clear the back buffer
 		glClear(GL_COLOR_BUFFER_BIT);
