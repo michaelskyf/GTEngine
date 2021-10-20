@@ -81,7 +81,7 @@ int main(int argc, char **argv)
 	glfwTerminate();
 	return 0;
 }
-#include <GTEngine/shader.h>
+
 void loop(void)
 {
 	while(!glfwWindowShouldClose(window))
