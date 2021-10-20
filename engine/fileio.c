@@ -44,15 +44,15 @@ char *file_read(const char *path)
 
 	size_t read = fread(file, sizeof(char), fsize, fp);
 
+	fclose(fp);
+
 	if (fsize != read)
 	{
 		LOGE("Failed to read %s", path);
-		fclose(fp);
 		free(file);
 		return NULL;
 	}
 
-	fclose(fp);
 	return file;
 }
 
@@ -70,13 +70,13 @@ size_t file_write(const char *path, const char *content)
 
 	written = fwrite(content, sizeof(char), fsize, fp);
 
+	fclose(fp);
+
 	if(written != fsize)
 	{
 		LOGE("Failed to write to %s", path);
-		fclose(fp);
 		return -1;
 	}
 
-	fclose(fp);
 	return written;
 }

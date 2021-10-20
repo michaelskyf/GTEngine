@@ -69,7 +69,7 @@ int main(int argc, char **argv)
 	{
 		if(setup_func[i]())
 		{
-			LOGE("Error during setup in function %d. Exiting.", i);
+			LOGE("Error while running setup function %d. Exiting.", i);
 			return -1;
 		}
 	}
@@ -81,7 +81,7 @@ int main(int argc, char **argv)
 	glfwTerminate();
 	return 0;
 }
-
+#include <GTEngine/shader.h>
 void loop(void)
 {
 	while(!glfwWindowShouldClose(window))
@@ -100,7 +100,6 @@ void loop(void)
 
 static int engine_setup(void)
 {
-
 	// Overwrite default settings with
 	// those found in `settings_path`
 	evars.settings = settings_default;
@@ -112,7 +111,6 @@ static int engine_setup(void)
 
 static int opengl_setup(void)
 {
-	LOG("Starting openGL setup...");
 	glfwInit();
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, opengl_version_major);
@@ -146,7 +144,6 @@ static int opengl_setup(void)
 
 	glfwSetKeyCallback(window, key_callback);
 
-	LOG("...openGL setup done");
 	return 0;
 }
 

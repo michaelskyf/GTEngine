@@ -21,7 +21,12 @@ modpost_link()
 	local objects
 	local lds=""
 
-	objects="${PBUILD_PROJECT_OBJS} ${PBUILD_PROJECT_LIBS}"
+	objects="-Wl,--whole-archive				\
+		${PBUILD_PROJECT_OBJS}				\
+		-Wl,--no-whole-archive				\
+		-Wl,--start-group				\
+		${PBUILD_PROJECT_LIBS}				\
+		-Wl,--end-group"
 
 		info LD ${1}
 

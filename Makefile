@@ -251,7 +251,7 @@ PBUILD_CFLAGS	:= -Wall -Wundef -Werror=strict-prototypes -fPIE \
 		   -std=gnu99 -g
 #TODO add -Werror
 PBUILD_CPPFLAGS	:=
-PBUILD_LDFLAGS	:= -lGL -lglfw -ldl -lm -lpthread
+PBUILD_LDFLAGS	:= -lGL -lglfw -ldl -lm -lpthread -lc
 
 export CONFIG_SHELL BASH HOSTCC PBUILD_HOSTCFLAGS CROSS_COMPILE LD CC CXX
 export CPP AR YACC AWK PERL PYTHON3 MAKE HOSTCXX
