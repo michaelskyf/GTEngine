@@ -62,6 +62,17 @@ shader_t *shader_create(const char *v_path, const char *f_path, const char *g_pa
 
 	shader->id = glCreateProgram();
 
+	if(!shader->id)
+	{
+		LOGE("Failed to create shader program");
+		glDeleteShader(vertex);
+		glDeleteShader(fragment);
+		if(g_path)
+			glDeleteShader(geometry);
+		free(shader);
+		return NULL;
+	}
+
 	glAttachShader(shader->id, vertex);
 	glAttachShader(shader->id, fragment);
 	if(g_path)
