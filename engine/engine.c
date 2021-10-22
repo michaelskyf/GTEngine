@@ -86,11 +86,12 @@ void loop(void)
 {
 	while(!glfwWindowShouldClose(window))
 	{
+		// Clear the back buffer
+		// temporarly moved
+		glClear(GL_COLOR_BUFFER_BIT);
+
 		// Update program
 		program_update();
-
-		// Clear the back buffer
-		glClear(GL_COLOR_BUFFER_BIT);
 
 		// check and call events and swap the buffers
 		glfwPollEvents();

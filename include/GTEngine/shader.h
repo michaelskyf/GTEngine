@@ -18,7 +18,7 @@
 #ifndef GTE_SHADER_H
 #define GTE_SHADER_H
 
-typedef struct shader_t {
+typedef struct {
 	unsigned int id;
 } shader_t;
 

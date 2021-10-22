@@ -38,19 +38,22 @@ shader_t *shader_create(const char *v_path, const char *f_path, const char *g_pa
 
 	if(shader_piece_create(&vertex, v_path, GL_VERTEX_SHADER))
 	{
+		LOGE("Failed to create vertex shader");
 		free(shader);
 		return NULL;
 	}
 
 	if(shader_piece_create(&fragment, f_path, GL_FRAGMENT_SHADER))
 	{
+		LOGE("Failed to create fragment shader");
 		glDeleteShader(vertex);
 		free(shader);
 		return NULL;
 	}
 
-	if(shader_piece_create(&geometry, g_path, GL_GEOMETRY_SHADER))
+	if(g_path && shader_piece_create(&geometry, g_path, GL_GEOMETRY_SHADER))
 	{
+		LOGE("Failed to create geometry shader");
 		glDeleteShader(vertex);
 		glDeleteShader(fragment);
 		free(shader);
@@ -62,7 +65,7 @@ shader_t *shader_create(const char *v_path, const char *f_path, const char *g_pa
 	glAttachShader(shader->id, vertex);
 	glAttachShader(shader->id, fragment);
 	if(g_path)
-		glAttachShader(shader->id, fragment);
+		glAttachShader(shader->id, geometry);
 
 	glLinkProgram(shader->id);
 
@@ -72,7 +75,7 @@ shader_t *shader_create(const char *v_path, const char *f_path, const char *g_pa
 		glDeleteShader(geometry);
 
 	int success;
-	glGetShaderiv(shader->id, GL_COMPILE_STATUS, &success);
+	glGetProgramiv(shader->id, GL_LINK_STATUS, &success);
 
 	if(!success)
 	{
