@@ -1,2 +1,7 @@
 -I
 include
+-Wall
+-Wundef
+-Werror=strict-prototypes
+-fPIE
+-std=gnu99
