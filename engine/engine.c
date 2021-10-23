@@ -144,7 +144,6 @@ static int opengl_setup(void)
 		glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
 	glfwSetKeyCallback(window, key_callback);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	return 0;
 }
