@@ -50,6 +50,9 @@ int program_setup()
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glVertexAttribPointer(vertexPositionAttribute, 3,  GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
 
 	return 0;
 }
@@ -58,6 +61,6 @@ void program_update()
 {
 	glUseProgram(shader->id);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-	glBindVertexArray(0);
 }
