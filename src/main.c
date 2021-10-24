@@ -20,11 +20,14 @@ unsigned int indices[] = {
     1, 2, 3    // second triangle
 };
 
-unsigned int ebo, vbo, vao;
+unsigned int ebo, vbo;
 static shader_t *shader;
 
 int program_setup()
 {
+	glGenBuffers(1, &vbo);
+	glGenBuffers(1, &ebo);
+
 	shader = shader_create("data/shaders/test.vs", "data/shaders/test.fs", NULL);
 
 	if(!shader)
@@ -33,19 +36,23 @@ int program_setup()
 		return -1;
 	}
 
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
-
-	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	glGenBuffers(1, &ebo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), NULL);
+	glUseProgram(shader->id);
+	unsigned int vertexPositionAttribute = glGetAttribLocation(shader->id, "aPos");
+	glEnableVertexAttribArray(vertexPositionAttribute);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glVertexAttribPointer(vertexPositionAttribute, 3,  GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
 
 	return 0;
 }
@@ -53,7 +60,7 @@ int program_setup()
 void program_update()
 {
 	glUseProgram(shader->id);
-	glBindVertexArray(vao);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 }
