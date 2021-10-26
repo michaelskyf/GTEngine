@@ -19,24 +19,27 @@
 #define GTE_MESH_H
 
 #include "vector.h"
+#include "shader.h"
 
-typedef struct{
+typedef struct Vertex {
 	float position[3];
-	float normal[3];
-	float texture_coords[3];
-}vertex_t;
+//	float normal[3];
+//	float texture_coords[3];
+} vertex_t;
 
-typedef struct{
+typedef struct Texture {
 	unsigned int id;
-}texture_t;
+} texture_t;
 
-typedef struct {
+typedef struct Mesh {
 	Vector *vertices;
 	Vector *indices;
 	Vector *textures;
-}mesh_t;
 
-mesh_t *mesh_create(void);
+	unsigned int ebo, vbo;
+} mesh_t;
+
+mesh_t *mesh_create(Vector *vertices, Vector *indices, Vector *textures, shader_t *);
 void mesh_destroy(mesh_t *);
 
 #endif

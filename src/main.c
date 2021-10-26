@@ -2,32 +2,31 @@
   * This file is for testing only, since I'm trying to relearn openGL.
 */
 
+#include "GTEngine/vector.h"
 #include <GTEngine/engine.h>
 #include <GTEngine/shader.h>
 #include <GTEngine/fileio.h>
+#include <GTEngine/mesh.h>
 
 #include <glad/glad.h>
-#include <GLFW/glfw3.h>
 
-float vertices[] = {
+float vertices_d[] = {
      0.5f,  0.5f, 0.0f,  // top right
      0.5f, -0.5f, 0.0f,  // bottom right
     -0.5f, -0.5f, 0.0f,  // bottom left
     -0.5f,  0.5f, 0.0f   // top left
 };
-unsigned int indices[] = {
+unsigned int indices_d[] = {
     0, 1, 3,   // first triangle
     1, 2, 3    // second triangle
 };
 
-unsigned int ebo, vbo;
+
+static mesh_t *mesh;
 static shader_t *shader;
 
 int program_setup()
 {
-	glGenBuffers(1, &vbo);
-	glGenBuffers(1, &ebo);
-
 	shader = shader_create("data/shaders/test.vs", "data/shaders/test.fs", NULL);
 
 	if(!shader)
@@ -36,23 +35,25 @@ int program_setup()
 		return -1;
 	}
 
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	Vector *vertices = vector_create(0, sizeof(vertex_t));
+	Vector *indices = vector_create(0, sizeof(unsigned int));
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	for(int i = 0; i < sizeof(vertices_d)/sizeof(*vertices_d); i += 3)
+	{
+		vertex_t vertex;
+		vertex.position[0] = vertices_d[i];
+		vertex.position[1] = vertices_d[i+1];
+		vertex.position[2] = vertices_d[i+2];
 
-	glUseProgram(shader->id);
-	unsigned int vertexPositionAttribute = glGetAttribLocation(shader->id, "aPos");
-	glEnableVertexAttribArray(vertexPositionAttribute);
+		vector_push(vertices, &vertex);
+	}
 
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glVertexAttribPointer(vertexPositionAttribute, 3,  GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	for(int i = 0; i < sizeof(indices_d)/sizeof(*indices_d); i++)
+	{
+		vector_push(indices, &indices_d[i]);
+	}
 
+	mesh = mesh_create(vertices, indices, NULL, shader);
 
 	return 0;
 }
@@ -60,7 +61,7 @@ int program_setup()
 void program_update()
 {
 	glUseProgram(shader->id);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->ebo);
+	glBindBuffer(GL_ARRAY_BUFFER, mesh->vbo);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }

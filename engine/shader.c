@@ -21,7 +21,6 @@
 
 #include <stdlib.h>
 #include <glad/glad.h>
-#include <GLFW/glfw3.h>
 
 static int shader_piece_create(unsigned int *shader, const char *path, int type);
 
