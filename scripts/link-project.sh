@@ -16,7 +16,7 @@ info()
 }
 
 # ${1} output file
-modpost_link()
+project_link()
 {
 	local objects
 	local lds=""
@@ -28,38 +28,9 @@ modpost_link()
 		${PBUILD_PROJECT_LIBS}				\
 		-Wl,--end-group"
 
-		info LD ${1}
+		info LINK ${1}
 
-		gcc ${PBUILD_LDFLAGS} -o ${1} ${lds} ${objects}
-}
-
-# Link of project
-# ${1} - output file
-# ${2}, ${3}, ... - optional extra .o files
-project_link()
-{
-    local output=${1}
-	local objs
-	local libs
-	local ld
-	local ldflags
-	local ldlibs
-
-    info LD ${output}
-
-    # skip output file argument
-	shift
-
-    objs=${PBUILD_PROJECTNAME}.o
-	libs=
-	wl=
-	ld="${LD}"
-	ldflags="${PBUILD_LDFLAGS} ${LDFLAGS_project}"
-	ldlibs=
-
-    ldflags="${ldflags} ${wl}--script=${objtree}/${PBUILD_LDS}"
-
-	${ld} -o ${output} ${objs} $@ ${ldlibs}
+		${CC} ${PBUILD_LDFLAGS} -o ${1} ${lds} ${objects}
 }
 
 # Delete output files in case of error
@@ -84,8 +55,8 @@ if [ "$1" = "clean" ]; then
 	exit 0
 fi
 
-#link vmlinux.o
-modpost_link ${PBUILD_PROJECTNAME}
+# link project
+project_link ${PBUILD_PROJECTNAME}
 
 # For fixdep
 echo "${PBUILD_PROJECTNAME}: $0" > .${PBUILD_PROJECTNAME}.d
