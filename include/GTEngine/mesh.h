@@ -23,8 +23,8 @@
 
 typedef struct {
 	float position[3];
-//	float normal[3];
-//	float texture_coords[3];
+	float normal[3];
+	float texture_coords[3];
 } vertex_t;
 
 typedef struct {

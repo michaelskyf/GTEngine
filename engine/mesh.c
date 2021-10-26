@@ -76,7 +76,7 @@ static int mesh_setup(mesh_t *m, shader_t *s)
 	glEnableVertexAttribArray(vertex_position);
 
 	glBindBuffer(GL_ARRAY_BUFFER, m->vbo);
-	glVertexAttribPointer(vertex_position, 3,  GL_FLOAT, GL_FALSE, 0, 0);
+	glVertexAttribPointer(vertex_position, 3,  GL_FLOAT, GL_FALSE, sizeof(vertex_t), 0);
 
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
