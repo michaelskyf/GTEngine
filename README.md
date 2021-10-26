@@ -1,5 +1,7 @@
 # GTEngine
-## _Simple OpenGL game engine_
+## _Just an simple OpenGL game engine_
+
+This project is in its really early stages, if you're looking for something that works, good luck :)
 
 ## Building
 At the moment Windows/Wine build is not supported
