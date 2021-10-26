@@ -69,7 +69,7 @@ static int mesh_setup(mesh_t *m, shader_t *s)
 	glBufferData(GL_ARRAY_BUFFER, vector_size(m->vertices) * sizeof(vertex_t), vector_start(m->vertices), GL_STATIC_DRAW);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m->ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, vector_size(m->indices) * sizeof(vertex_t), vector_start(m->indices), GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, vector_size(m->indices) * sizeof(unsigned int), vector_start(m->indices), GL_STATIC_DRAW);
 
 	// Get attributes
 	unsigned int vertex_position = glGetAttribLocation(s->id, "position");
