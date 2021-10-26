@@ -1,4 +1,13 @@
-Windows/Wine: not supported
-BSD/MacOS/Unix: may work (haven't tested)
-GNU/Linux: works great ;)
-TempleOS: 0_0
+# GTEngine
+## _Simple OpenGL game engine_
+
+## Building
+At the moment Windows/Wine build is not supported
+
+Install [glfw](https://github.com/glfw/glfw)
+
+```
+git clone https://github.com/michaelskyf/GTEngine.git
+cd GTEngine
+make
+```
