@@ -21,17 +21,17 @@
 #include "vector.h"
 #include "shader.h"
 
-typedef struct Vertex {
+typedef struct {
 	float position[3];
 //	float normal[3];
 //	float texture_coords[3];
 } vertex_t;
 
-typedef struct Texture {
+typedef struct {
 	unsigned int id;
 } texture_t;
 
-typedef struct Mesh {
+typedef struct {
 	Vector *vertices;
 	Vector *indices;
 	Vector *textures;
