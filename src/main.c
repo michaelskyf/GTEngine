@@ -54,14 +54,6 @@ int program_setup()
 	}
 
 	mesh = mesh_create(vertices, indices, NULL, shader);
-	LOGE("teste");
-	LOG("ok");
-	LOGW("testw");
-	LOG("ok");
-	LOGD("testd");
-	LOG("ok");
-	LOGI("testi");
-	LOG("ok");
 
 	return 0;
 }
