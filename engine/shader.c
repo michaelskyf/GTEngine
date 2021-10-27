@@ -17,7 +17,7 @@
 
 #include <GTEngine/shader.h>
 #include <GTEngine/fileio.h>
-#include <GTEngine/macros.h>
+#include <GTEngine/output.h>
 
 #include <stdlib.h>
 #include <glad/glad.h>

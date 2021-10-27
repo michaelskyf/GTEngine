@@ -16,7 +16,7 @@
 */
 
 #include <GTEngine/fileio.h>
-#include <GTEngine/macros.h>
+#include <GTEngine/output.h>
 
 #include <stdlib.h>
 #include <stdio.h>

@@ -60,6 +60,7 @@ int main(int argc, char **argv)
 	   If of the functions returns non-0, exit.
 	*/
 	int (* setup_func[])(void) = {
+		print_setup,
 		engine_setup,
 		opengl_setup,
 		program_setup,

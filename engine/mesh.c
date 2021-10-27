@@ -16,7 +16,7 @@
 */
 
 #include <GTEngine/mesh.h>
-#include <GTEngine/macros.h>
+#include <GTEngine/output.h>
 
 #include <glad/glad.h>
 #include <stdlib.h>

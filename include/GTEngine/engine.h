@@ -19,7 +19,7 @@
 #define GTE_ENGINE_H
 
 #include <GTEngine/settings.h>
-#include "macros.h"
+#include "output.h"
 
 struct engine_variables {
 	struct settings settings;
