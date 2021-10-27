@@ -42,5 +42,5 @@ int settings_read(const char *path, struct settings *set)
 
 static void settings_parse(struct settings *set, const char *file)
 {
-
+	LOGW("Parsing settings is not supported yet");
 }
