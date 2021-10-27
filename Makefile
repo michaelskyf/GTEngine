@@ -247,9 +247,8 @@ PROJECTINCLUDE	:= \
 		   -I$(objtree)/include \
 
 PBUILD_AFLAGS	:=
-PBUILD_CFLAGS	:= -Wall -Wundef -Werror=strict-prototypes -fPIE \
+PBUILD_CFLAGS	:= -Wall -Werror -Wundef -Werror=strict-prototypes -fPIE \
 		   -std=gnu99 -g
-#TODO add -Werror
 PBUILD_CPPFLAGS	:=
 PBUILD_LDFLAGS	:= -lGL -lglfw -ldl -lm -lpthread -lc
 
