@@ -35,6 +35,8 @@ typedef struct {
 	Vector *vertices;
 	Vector *indices;
 	Vector *textures;
+
+	unsigned int vbo, ebo;
 } mesh_t;
 
 mesh_t *mesh_create(Vector *vertices, Vector *indices, Vector *textures, shader_t *);
