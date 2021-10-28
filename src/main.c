@@ -61,7 +61,5 @@ int program_setup()
 void program_update()
 {
 	glUseProgram(shader->id);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->ebo);
-	glBindBuffer(GL_ARRAY_BUFFER, mesh->vbo);
-	glDrawElements(GL_TRIANGLES, vector_size(mesh->indices), GL_UNSIGNED_INT, 0);
+	mesh_draw(mesh);
 }

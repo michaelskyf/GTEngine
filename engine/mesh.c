@@ -21,6 +21,8 @@
 #include <glad/glad.h>
 #include <stdlib.h>
 
+static unsigned int vbo, ebo;
+
 static int mesh_setup(mesh_t *, shader_t *);
 
 mesh_t *mesh_create(Vector *vertices, Vector *indices, Vector *textures, shader_t *shader)
@@ -59,23 +61,35 @@ mesh_t *mesh_create(Vector *vertices, Vector *indices, Vector *textures, shader_
 	return m;
 }
 
+void mesh_draw(mesh_t *m)
+{
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glDrawElements(GL_TRIANGLES, vector_size(m->indices), GL_UNSIGNED_INT, 0);
+}
+
+void mesh_destroy(mesh_t *m)
+{
+
+}
+
 static int mesh_setup(mesh_t *m, shader_t *s)
 {
 	// Generate buffers
-	glGenBuffers(1, &m->vbo);
-	glGenBuffers(1, &m->ebo);
+	glGenBuffers(1, &vbo);
+	glGenBuffers(1, &ebo);
 
-	glBindBuffer(GL_ARRAY_BUFFER, m->vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, vector_size(m->vertices) * sizeof(vertex_t), vector_start(m->vertices), GL_STATIC_DRAW);
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m->ebo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, vector_size(m->indices) * sizeof(unsigned int), vector_start(m->indices), GL_STATIC_DRAW);
 
 	// Get attributes
 	unsigned int vertex_position = glGetAttribLocation(s->id, "position");
 	glEnableVertexAttribArray(vertex_position);
 
-	glBindBuffer(GL_ARRAY_BUFFER, m->vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glVertexAttribPointer(vertex_position, 3,  GL_FLOAT, GL_FALSE, sizeof(vertex_t), 0);
 
 	glEnableVertexAttribArray(0);

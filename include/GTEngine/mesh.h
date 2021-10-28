@@ -35,11 +35,11 @@ typedef struct {
 	Vector *vertices;
 	Vector *indices;
 	Vector *textures;
-
-	unsigned int ebo, vbo;
 } mesh_t;
 
 mesh_t *mesh_create(Vector *vertices, Vector *indices, Vector *textures, shader_t *);
 void mesh_destroy(mesh_t *);
+
+void mesh_draw(mesh_t *);
 
 #endif
