@@ -68,7 +68,13 @@ void mesh_draw(mesh_t *m)
 
 void mesh_destroy(mesh_t *m)
 {
-	LOGW("TODO destroy mesh");
+	vector_destroy(m->vertices);
+	vector_destroy(m->indices);
+	// m->textures can be NULL, if there are none
+	if(m->textures)
+		vector_destroy(m->textures);
+
+	free(m);
 }
 
 static int mesh_setup(mesh_t *m, shader_t *s)

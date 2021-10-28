@@ -79,6 +79,9 @@ int main(int argc, char **argv)
 	// start render loop
 	loop();
 
+	// Clean-up then exit
+	program_exit();
+
 	glfwTerminate();
 	return 0;
 }

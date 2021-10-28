@@ -29,6 +29,7 @@ extern struct engine_variables evars;
 
 
 int program_setup(void);
+void program_exit(void);
 void program_update(void);
 
 #endif

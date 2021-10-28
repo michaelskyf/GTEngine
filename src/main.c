@@ -58,6 +58,11 @@ int program_setup()
 	return 0;
 }
 
+void program_exit(void)
+{
+	mesh_destroy(mesh);
+}
+
 void program_update()
 {
 	glUseProgram(shader->id);
