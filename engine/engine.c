@@ -26,7 +26,7 @@
 #include <unistd.h> // For chdir
 
 /* Internal headers */
-#include <GTEngine/config.h> // For title
+#include <GTEngine/config.h>
 #include <GTEngine/engine.h>
 #include <GTEngine/vector.h>
 #include <GTEngine/settings.h>
@@ -35,6 +35,8 @@
 static int engine_setup(void);
 static int opengl_setup(void);
 static void loop(void);
+static void engine_exit(void);
+static void opengl_exit(void);
 
 /* callback functions */
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
@@ -81,8 +83,9 @@ int main(int argc, char **argv)
 
 	// Clean-up then exit
 	program_exit();
+	opengl_exit();
+	engine_exit();
 
-	glfwTerminate();
 	return 0;
 }
 
@@ -150,6 +153,16 @@ static int opengl_setup(void)
 	glfwSetKeyCallback(window, key_callback);
 
 	return 0;
+}
+
+static void engine_exit(void)
+{
+	
+}
+
+static void opengl_exit(void)
+{
+	glfwTerminate();
 }
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height)
