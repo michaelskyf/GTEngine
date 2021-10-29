@@ -18,6 +18,8 @@
 #include <GTEngine/output.h>
 #include <unistd.h>
 #include <stdarg.h>
+#include <string.h>
+#include <stdlib.h>
 
 static int is_tty_stdout;
 static int is_tty_stderr;
@@ -29,37 +31,40 @@ int print_setup(void)
 	return 0;
 }
 
-int print_core(FILE *stream, const char *color, const char *prefix, const char *fmt, ...)
+int print_core(FILE *stream, const char *color, const char *fmt, ...)
 {
+	int ret;
 	int print_color = 0;
 
-	va_list arg;
-	va_start(arg, fmt);
+	va_list args;
+	va_start(args, fmt);
 
 	if(color)
 	{
 		if(stream == stdout)
 			print_color = is_tty_stdout;
-		if(stream == stderr)
+		else if(stream == stderr)
 			print_color = is_tty_stderr;
 	}
 
+	// If printing to tty, add color
 	if(print_color)
 	{
-		fprintf(stream, "%s", color);
+		size_t color_offset = strlen(color);
+		size_t fmt_offset = strlen(fmt);
+		char *new_fmt = malloc(color_offset + fmt_offset + sizeof(TERMINAL_COLOR_RESET) + 1);
+
+		memcpy(new_fmt, color, color_offset);
+		memcpy(new_fmt + color_offset, fmt, fmt_offset);
+		memcpy(new_fmt + color_offset + fmt_offset, TERMINAL_COLOR_RESET, sizeof(TERMINAL_COLOR_RESET));
+		new_fmt[color_offset + fmt_offset + sizeof(TERMINAL_COLOR_RESET)] = '\0';
+
+		ret = vfprintf(stream, new_fmt, args);
+		free(new_fmt);
 	}
-
-	if(prefix)
+	else
 	{
-		fprintf(stream, "%s ", prefix);
-	}
-
-	int ret = vfprintf(stream, fmt, arg);
-	putc('\n', stream);
-
-	if(print_color)
-	{
-		fprintf(stream, "%s", TERMINAL_COLOR_RESET);
+		ret = vfprintf(stream, fmt, args);
 	}
 
 	return ret;

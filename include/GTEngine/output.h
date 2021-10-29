@@ -31,16 +31,16 @@
 #define TERMINAL_COLOR_RESET	"\e[0m"
 
 
-#define LOG(fmt, ...)  print_core(stdout, NULL, NULL, fmt, ##__VA_ARGS__)
+#define LOG(fmt, ...)  print_core(stdout, NULL, fmt "\n", ##__VA_ARGS__)
 
-#define LOGI(fmt, ...) print_core(stdout, TERMINAL_COLOR_BLUE, "[INF]", fmt, ##__VA_ARGS__)
-#define LOGD(fmt, ...) print_core(stdout, TERMINAL_COLOR_GREEN, "[DBG]", "%s:%d->%s() " fmt, __FILE__, __LINE__, __func__, ##__VA_ARGS__)
+#define LOGI(fmt, ...) print_core(stdout, TERMINAL_COLOR_BLUE, "[INF] " fmt "\n", ##__VA_ARGS__)
+#define LOGD(fmt, ...) print_core(stdout, TERMINAL_COLOR_GREEN, "[DBG] %s:%d->%s() " fmt "\n", __FILE__, __LINE__, __func__, ##__VA_ARGS__)
 
-#define LOGW(fmt, ...) print_core(stdout, TERMINAL_COLOR_YELLOW, "[WARN]", fmt, ##__VA_ARGS__)
-#define LOGE(fmt, ...) print_core(stderr, TERMINAL_COLOR_RED, "[ERR]", "%s(): " fmt, __func__, ##__VA_ARGS__)
+#define LOGW(fmt, ...) print_core(stdout, TERMINAL_COLOR_YELLOW, "[WARN] " fmt "\n", ##__VA_ARGS__)
+#define LOGE(fmt, ...) print_core(stderr, TERMINAL_COLOR_RED, "[ERR] %s(): " fmt "\n", __func__, ##__VA_ARGS__)
 
 int print_setup(void);
 
-int print_core(FILE *stream, const char *color, const char *prefix, const char *fmt, ...);
+int print_core(FILE *stream, const char *color, const char *fmt, ...);
 
 #endif
