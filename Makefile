@@ -1,9 +1,6 @@
 # SPDX-License-Identifier: GPL-2.0
 export PBUILD_PROJECTNAME = gltest
 
-# I put it in here for now, since we don't have Pconfig (Kconfig) yet
-PBUILD_OUTPUT = build
-
 $(if $(filter __%, $(MAKECMDGOALS)), \
 	$(error targets prefixed with '__' are only for internal use))
 
