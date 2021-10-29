@@ -27,4 +27,6 @@ typedef struct {
 model_t *model_create(void);
 void model_destroy(model_t *);
 
+void model_draw(model_t *);
+
 #endif

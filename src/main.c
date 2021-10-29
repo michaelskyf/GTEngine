@@ -7,6 +7,7 @@
 #include <GTEngine/shader.h>
 #include <GTEngine/fileio.h>
 #include <GTEngine/mesh.h>
+#include <GTEngine/model.h>
 
 #include <glad/glad.h>
 
@@ -22,7 +23,7 @@ unsigned int indices_d[] = {
 };
 
 
-static mesh_t *mesh;
+static model_t *model;
 static shader_t *shader;
 
 int program_setup()
@@ -53,18 +54,21 @@ int program_setup()
 		vector_push(indices, &indices_d[i]);
 	}
 
-	mesh = mesh_create(vertices, indices, NULL, shader);
+	mesh_t *mesh = mesh_create(vertices, indices, NULL, shader);
+
+	model = model_create();
+	vector_push(model->meshes, &mesh);
 
 	return 0;
 }
 
 void program_exit(void)
 {
-	mesh_destroy(mesh);
+	model_destroy(model);
 }
 
 void program_update()
 {
 	glUseProgram(shader->id);
-	mesh_draw(mesh);
+	model_draw(model);
 }
