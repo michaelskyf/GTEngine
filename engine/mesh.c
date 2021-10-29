@@ -37,12 +37,13 @@ mesh_t *mesh_create(Vector *vertices, Vector *indices, Vector *textures, shader_
 		return NULL;
 	}
 
+	mesh_t *m = malloc(sizeof(mesh_t));
+
 	if(!textures)
 	{
 		LOGW("Creating a mesh with no texture");
+		m->textures = NULL;
 	}
-
-	mesh_t *m = malloc(sizeof(mesh_t));
 
 	m->vertices = vertices;
 	m->indices = indices;
