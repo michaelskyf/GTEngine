@@ -22,6 +22,7 @@
 /* External headers */
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <stdlib.h>
 #include <libgen.h> // For dirname
 #include <unistd.h> // For chdir
 
@@ -30,6 +31,8 @@
 #include <GTEngine/engine.h>
 #include <GTEngine/vector.h>
 #include <GTEngine/settings.h>
+#include <GTEngine/game_object.h>
+#include <GTEngine/shader.h>
 
 /* functions */
 static int engine_setup(void);
@@ -46,7 +49,6 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action, int mod
 struct engine_variables evars;
 
 /* local/static variables */
-static struct settings *settings;
 static GLFWwindow *window;
 
 int main(int argc, char **argv)
@@ -111,8 +113,10 @@ static int engine_setup(void)
 	// Overwrite default settings with
 	// those found in `settings_path`
 	evars.settings = settings_default;
-	settings = &evars.settings;
-	settings_read(settings_path, settings);
+	settings_read(settings_path, &evars.settings);
+	
+	evars.game_objects = vector_create(0, sizeof(game_object_t));
+	evars.shaders = vector_create(0, sizeof(shader_t));
 
 	return 0;
 }
@@ -124,7 +128,7 @@ static int opengl_setup(void)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, opengl_version_major);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, opengl_version_minor);
 
-	window = glfwCreateWindow(settings->width, settings->height, title, NULL, NULL);
+	window = glfwCreateWindow(evars.settings.width, evars.settings.height, title, NULL, NULL);
 
 	if (!window)
 	{
@@ -144,10 +148,10 @@ static int opengl_setup(void)
 
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 
-	glViewport(0, 0, settings->width, settings->height);
+	glViewport(0, 0, evars.settings.width, evars.settings.height);
 
 	/* Bind callback functions */
-	if(settings->resizable)
+	if(evars.settings.resizable)
 		glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
 	glfwSetKeyCallback(window, key_callback);
@@ -157,7 +161,9 @@ static int opengl_setup(void)
 
 static void engine_exit(void)
 {
-	
+	// Destroy evars
+	vector_destroy(evars.game_objects);
+	vector_destroy(evars.shaders);
 }
 
 static void opengl_exit(void)

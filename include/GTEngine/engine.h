@@ -18,11 +18,15 @@
 #ifndef GTE_ENGINE_H
 #define GTE_ENGINE_H
 
-#include <GTEngine/settings.h>
+#include "settings.h"
 #include "output.h"
+#include "vector.h"
 
 struct engine_variables {
 	struct settings settings;
+
+	Vector *game_objects;
+	Vector *shaders;
 };
 
 extern struct engine_variables evars;
