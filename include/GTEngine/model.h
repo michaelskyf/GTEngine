@@ -21,7 +21,6 @@
 #include "vector.h"
 
 typedef struct {
-	Vector *textures;
 	Vector *meshes;
 }model_t;
 
