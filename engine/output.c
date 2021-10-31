@@ -61,11 +61,11 @@ int print_core(FILE *stream, const char *color, const char *fmt, ...)
 		if(fmt[fmt_offset-1] == '\n')
 		{
 			fmt_offset--;
-			add_newline = 1;
 			color_reset_offset--; // since instead of '\0' end of new_fmt will be '\n','\0'
+			add_newline = 2; // we need space for '\n' and '\0'
 		}
 
-		char *new_fmt = malloc(color_offset + fmt_offset + color_reset_offset + add_newline + 1);
+		char *new_fmt = malloc(color_offset + fmt_offset + color_reset_offset + add_newline);
 		char *new_fmt_start = new_fmt;
 
 		memcpy(new_fmt, color, color_offset);
