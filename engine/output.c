@@ -51,9 +51,21 @@ int print_core(FILE *stream, const char *color, const char *fmt, ...)
 	if(print_color)
 	{
 		size_t color_offset = sizeof(TERMINAL_COLOR_BLUE) - 1; // Assuming that all colors are equal in length
+		size_t color_reset_offset = sizeof(TERMINAL_COLOR_RESET);
 		size_t fmt_offset = strlen(fmt);
+		int add_newline = 0;
 
-		char *new_fmt = malloc(color_offset + fmt_offset + sizeof(TERMINAL_COLOR_RESET) + 1);
+		// If the last charracter of fmt is '\n' (not including '\0')
+		// we need to move that '\n' to the end of new_fmt
+		// otherwise it can print improperly
+		if(fmt[fmt_offset-1] == '\n')
+		{
+			fmt_offset--;
+			add_newline = 1;
+			color_reset_offset--; // since instead of '\0' end of new_fmt will be '\n','\0'
+		}
+
+		char *new_fmt = malloc(color_offset + fmt_offset + color_reset_offset + add_newline + 1);
 		char *new_fmt_start = new_fmt;
 
 		memcpy(new_fmt, color, color_offset);
@@ -62,8 +74,15 @@ int print_core(FILE *stream, const char *color, const char *fmt, ...)
 		memcpy(new_fmt, fmt, fmt_offset);
 		new_fmt += fmt_offset;
 
-		memcpy(new_fmt, TERMINAL_COLOR_RESET, sizeof(TERMINAL_COLOR_RESET));
-		// Important: since we call sizeof() insted of strlen(), memcpy will also copy '\0'
+		// Important: since we call sizeof() insted of strlen(), memcpy will also copy '\0' (if add_newline != 0)
+		memcpy(new_fmt, TERMINAL_COLOR_RESET, color_reset_offset);
+
+		if(add_newline)
+		{
+			new_fmt += color_reset_offset;
+			new_fmt[0] = '\n';
+			new_fmt[1] = '\0';
+		}
 
 		ret = vfprintf(stream, new_fmt_start, args);
 		free(new_fmt_start);
