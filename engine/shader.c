@@ -125,7 +125,7 @@ static int shader_piece_create(unsigned int *shader, const char *path, int type)
 	{
 		char infolog[1024];
 		glGetShaderInfoLog(*shader, 1024, NULL, infolog);
-		LOGE("Shader compilation failed:\n%s:\n%s", path, infolog);
+		LOGE("Shader compilation failed (%s):\n%s", path, infolog);
 		return -1;
 	}
 
