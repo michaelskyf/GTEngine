@@ -65,6 +65,7 @@ int program_setup()
 void program_exit(void)
 {
 	model_destroy(model);
+	shader_destroy(shader);
 }
 
 void program_update()

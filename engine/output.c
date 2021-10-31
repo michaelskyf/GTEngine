@@ -52,15 +52,21 @@ int print_core(FILE *stream, const char *color, const char *fmt, ...)
 	{
 		size_t color_offset = strlen(color);
 		size_t fmt_offset = strlen(fmt);
+
 		char *new_fmt = malloc(color_offset + fmt_offset + sizeof(TERMINAL_COLOR_RESET) + 1);
+		char *new_fmt_start = new_fmt;
 
 		memcpy(new_fmt, color, color_offset);
-		memcpy(new_fmt + color_offset, fmt, fmt_offset);
-		memcpy(new_fmt + color_offset + fmt_offset, TERMINAL_COLOR_RESET, sizeof(TERMINAL_COLOR_RESET));
-		new_fmt[color_offset + fmt_offset + sizeof(TERMINAL_COLOR_RESET)] = '\0';
+		new_fmt += color_offset;
 
-		ret = vfprintf(stream, new_fmt, args);
-		free(new_fmt);
+		memcpy(new_fmt, fmt, fmt_offset);
+		new_fmt += fmt_offset;
+
+		memcpy(new_fmt, TERMINAL_COLOR_RESET, sizeof(TERMINAL_COLOR_RESET));
+		// Important: since we call sizeof() insted of strlen(), memcpy will also copy '\0'
+
+		ret = vfprintf(stream, new_fmt_start, args);
+		free(new_fmt_start);
 	}
 	else
 	{
