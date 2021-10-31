@@ -50,7 +50,7 @@ int print_core(FILE *stream, const char *color, const char *fmt, ...)
 	// If printing to tty, add color
 	if(print_color)
 	{
-		size_t color_offset = strlen(color);
+		size_t color_offset = sizeof(TERMINAL_COLOR_BLUE) - 1; // Assuming that all colors are equal in length
 		size_t fmt_offset = strlen(fmt);
 
 		char *new_fmt = malloc(color_offset + fmt_offset + sizeof(TERMINAL_COLOR_RESET) + 1);
