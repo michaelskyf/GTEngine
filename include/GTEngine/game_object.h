@@ -19,18 +19,19 @@
 #define GTE_GAME_OBJECT_H
 
 #include "model.h"
+#include "math.h"
 
 typedef struct {
-	float position[3];
-	float size[3];
-	float velocity[3];
-	float rotation[3];
+	vec3 position;
+	vec3 size;
+	vec3 velocity;
+	vec3 rotation;
 	_Bool destroyed;
 
 	model_t *model;
 } game_object_t;
 
-game_object_t *game_object_create(float *pos, _Bool destroyed);
+game_object_t *game_object_create(vec3 pos, _Bool destroyed);
 void game_object_destroy(game_object_t *);
 
 #endif

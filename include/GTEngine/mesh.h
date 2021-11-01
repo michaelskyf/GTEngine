@@ -20,11 +20,12 @@
 
 #include "vector.h"
 #include "shader.h"
+#include "math.h"
 
 typedef struct {
-	float position[3];
-	float normal[3];
-	float texture_coords[3];
+	vec3 position;
+	vec3 normal;
+	vec3 texture_coords;
 } vertex_t;
 
 typedef struct {

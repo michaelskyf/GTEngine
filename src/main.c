@@ -42,9 +42,9 @@ int program_setup()
 	for(int i = 0; i < sizeof(vertices_d)/sizeof(*vertices_d); i += 3)
 	{
 		vertex_t vertex;
-		vertex.position[0] = vertices_d[i];
-		vertex.position[1] = vertices_d[i+1];
-		vertex.position[2] = vertices_d[i+2];
+		vertex.position.x = vertices_d[i];
+		vertex.position.y = vertices_d[i+1];
+		vertex.position.z = vertices_d[i+2];
 
 		vector_push(vertices, &vertex);
 	}
