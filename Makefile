@@ -493,6 +493,14 @@ quiet_cmd_tags = GEN     $@
 tags TAGS cscope gtags: FORCE
 	$(call cmd,tags)
 
+# Run valgrind to test for memory leaks
+# ---------------------------------------------------------------------------
+quiet_cmd_test = TEST    $<
+      cmd_test = valgrind $(abs_objtree)/$<
+
+test: $(PBUILD_PROJECTNAME) FORCE
+	$(call cmd,test)
+
 # read saved command lines for existing targets
 existing-targets := $(wildcard $(sort $(targets)))
 
