@@ -20,9 +20,13 @@
 
 typedef struct {
 	unsigned int id;
+
+	// Tags are meant for finding the correct shader.
+	// e.g. default, water, grass
+	const char *tag;
 } shader_t;
 
-shader_t *shader_create(const char *v_path, const char *f_path);
+shader_t *shader_create(const char *v_path, const char *f_path, const char *tag);
 void shader_destroy(shader_t *);
 
 #endif

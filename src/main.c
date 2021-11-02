@@ -28,7 +28,7 @@ static shader_t *shader;
 
 int program_setup()
 {
-	shader = shader_create("data/shaders/test.vs", "data/shaders/test.fs");
+	shader = shader_create("data/shaders/test.vs", "data/shaders/test.fs", "default");
 
 	if(!shader)
 	{

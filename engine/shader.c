@@ -18,23 +18,19 @@
 #include <GTEngine/shader.h>
 #include <GTEngine/fileio.h>
 #include <GTEngine/output.h>
+#include <glad/glad.h>
 
 #include <stdlib.h>
-#include <glad/glad.h>
+#include <string.h>
 
 static int shader_piece_create(unsigned int *shader, const char *path, int type);
 
-void shader_destroy(shader_t *shader)
-{
-	glDeleteShader(shader->id);
-	free(shader);
-}
-
-shader_t *shader_create(const char *v_path, const char *f_path)
+shader_t *shader_create(const char *v_path, const char *f_path, const char *tag)
 {
 	shader_t *shader = malloc(sizeof(shader_t));
 	unsigned int vertex, fragment;
 
+	// Shader stuff
 	if(shader_piece_create(&vertex, v_path, GL_VERTEX_SHADER))
 	{
 		LOGE("Failed to create vertex shader");
@@ -82,7 +78,22 @@ shader_t *shader_create(const char *v_path, const char *f_path)
 		return NULL;
 	}
 
+	// Copy tag to shader->tag
+	if(!tag)
+		tag = "NULL";
+
+	size_t tag_len = strlen(tag) + 1;
+	shader->tag = malloc(tag_len);
+	memcpy((char *)shader->tag, tag, tag_len);
+
 	return shader;
+}
+
+void shader_destroy(shader_t *shader)
+{
+	glDeleteShader(shader->id);
+	free((char *)shader->tag);
+	free(shader);
 }
 
 static int shader_piece_create(unsigned int *shader, const char *path, int type)
