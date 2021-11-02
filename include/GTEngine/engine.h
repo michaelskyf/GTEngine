@@ -28,8 +28,17 @@ struct engine_variables {
 	Vector *game_objects;
 	Vector *shaders;
 };
-
 extern struct engine_variables evars;
+
+// Probably should be somewhere else, but for now it's here
+#include "shader.h"
+
+typedef struct {
+	shader_t *shader;
+	Vector *instances;
+	Vector *game_objects;
+	Vector *models;
+} renderinfo_t;
 
 
 int program_setup(void);

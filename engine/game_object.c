@@ -14,14 +14,26 @@
     You should have received a copy of the GNU General Public License
     along with GTEngine. If not, see <https://www.gnu.org/licenses/>.
 */
-
+#include "cglm/mat4.h"
+#include <GTEngine/vector.h>
 #include <GTEngine/game_object.h>
 #include <GTEngine/output.h>
+#include <cglm/cglm.h>
+#include <glad/glad.h>
 
-game_object_t *game_object_create(vec3 pos, _Bool destroyed)
+#include <stdlib.h>
+
+game_object_t *game_object_create(model_t *model, vec3 pos, _Bool destroyed)
 {
+	game_object_t *game_object = malloc(sizeof(game_object_t));
+	if(game_object)
+	{
+		game_object->model = model;
+		game_object->model_matrix = vector_get_element(model->model_matrices, vector_create_element(model->model_matrices));
+		glm_mat4_identity(*game_object->model_matrix);
+	}
 	LOGD("TODO");
-	return NULL;
+	return game_object;
 }
 
 void game_object_destroy(game_object_t *game_object)
