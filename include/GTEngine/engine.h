@@ -23,7 +23,7 @@
 #include "vector.h"
 
 struct engine_variables {
-	struct settings settings;
+	struct settings *settings;
 
 	Vector *game_objects;
 	Vector *shaders;

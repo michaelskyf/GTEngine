@@ -23,6 +23,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <stdlib.h>
+#include <string.h>
 #include <libgen.h> // For dirname
 #include <unistd.h> // For chdir
 
@@ -33,23 +34,27 @@
 #include <GTEngine/settings.h>
 #include <GTEngine/game_object.h>
 #include <GTEngine/shader.h>
+#include <GTEngine/camera.h>
 
-/* functions */
+/* Functions */
 static int engine_setup(void);
 static int opengl_setup(void);
-static void loop(void);
 static void engine_exit(void);
 static void opengl_exit(void);
+static void loop(void);
+static void opengl_draw(void);
 
-/* callback functions */
+/* Callback functions */
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
 
 /* Global variables */
 struct engine_variables evars;
 
-/* local/static variables */
+/* Local variables */
 static GLFWwindow *window;
+static Vector *shaders;
+static Vector *game_objects;
 
 int main(int argc, char **argv)
 {
@@ -91,7 +96,7 @@ int main(int argc, char **argv)
 	return 0;
 }
 
-void loop(void)
+static void loop(void)
 {
 	while(!glfwWindowShouldClose(window))
 	{
@@ -102,21 +107,35 @@ void loop(void)
 		// Update program
 		program_update();
 
+		// Draw objects
+		opengl_draw();
+
 		// check and call events and swap the buffers
 		glfwPollEvents();
 		glfwSwapBuffers(window);
 	}
 }
 
+static void opengl_draw(void)
+{
+
+}
+
 static int engine_setup(void)
 {
+	// Allocate memory and copy default settings to evars
+	evars.settings = malloc(sizeof(struct engine_variables));
+	memcpy(evars.settings, &settings_default, sizeof(struct settings));
+
 	// Overwrite default settings with
 	// those found in `settings_path`
-	evars.settings = settings_default;
-	settings_read(settings_path, &evars.settings);
-	
-	evars.game_objects = vector_create(0, sizeof(game_object_t));
-	evars.shaders = vector_create(0, sizeof(shader_t));
+	settings_read(settings_path, evars.settings);
+
+	// Initialize shaders and game_objects
+	game_objects = vector_create(0, sizeof(game_object_t));
+	shaders = vector_create(0, sizeof(shader_t));
+	evars.game_objects = game_objects;
+	evars.shaders = shaders;
 
 	return 0;
 }
@@ -129,7 +148,7 @@ static int opengl_setup(void)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, opengl_version_minor);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	window = glfwCreateWindow(evars.settings.width, evars.settings.height, title, NULL, NULL);
+	window = glfwCreateWindow(evars.settings->width, evars.settings->height, title, NULL, NULL);
 
 	if (!window)
 	{
@@ -149,10 +168,10 @@ static int opengl_setup(void)
 
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 
-	glViewport(0, 0, evars.settings.width, evars.settings.height);
+	glViewport(0, 0, evars.settings->width, evars.settings->height);
 
 	/* Bind callback functions */
-	if(evars.settings.resizable)
+	if(evars.settings->resizable)
 		glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
 	glfwSetKeyCallback(window, key_callback);
