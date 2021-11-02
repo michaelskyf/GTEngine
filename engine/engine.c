@@ -123,9 +123,8 @@ static void opengl_draw(void)
 
 static int engine_setup(void)
 {
-	// Allocate memory and copy default settings to evars
-	evars.settings = malloc(sizeof(struct engine_variables));
-	memcpy(evars.settings, &settings_default, sizeof(struct settings));
+	// Initialize settings
+	evars.settings = settings_create();
 
 	// Overwrite default settings with
 	// those found in `settings_path`
@@ -182,6 +181,8 @@ static int opengl_setup(void)
 static void engine_exit(void)
 {
 	// Destroy evars
+	settings_destroy(evars.settings);
+
 	vector_destroy(evars.game_objects);
 	vector_destroy(evars.shaders);
 }

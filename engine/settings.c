@@ -20,14 +20,25 @@
 #include <GTEngine/fileio.h>
 
 #include <stdlib.h>
+#include <string.h>
 
-int settings_read(const char *, struct settings *);
-int settings_write(const char *, struct settings *);
+static void settings_parse(settings_t *, const char *);
 
-static void settings_parse(struct settings *, const char *);
+settings_t *settings_create(void)
+{
+	settings_t *set = malloc(sizeof(settings_t));
 
+	memcpy(set, &default_settings, sizeof(settings_t));
 
-int settings_read(const char *path, struct settings *set)
+	return set;
+}
+
+void settings_destroy(settings_t *set)
+{
+	free(set);
+}
+
+int settings_read(const char *path, settings_t *set)
 {
 	char *file = file_read(path);
 
@@ -40,7 +51,7 @@ int settings_read(const char *path, struct settings *set)
 	return 0;
 }
 
-static void settings_parse(struct settings *set, const char *file)
+static void settings_parse(settings_t *set, const char *file)
 {
 	LOGW("Parsing settings is not supported yet");
 }

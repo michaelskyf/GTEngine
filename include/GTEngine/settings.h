@@ -18,7 +18,7 @@
 #ifndef GTE_SETTINGS_H
 #define GTE_SETTINGS_H
 
-struct settings {
+typedef struct {
 
 	/* Display-related */
 	unsigned int width, height;
@@ -29,11 +29,27 @@ struct settings {
 	float viewport;
 
 	/* Graphics quality related */
+} settings_t;
+
+static const settings_t default_settings = {
+	/* Display */
+	.width = 800,
+	.height = 600,
+	.fullscreen = 0,
+	.resizable = 1,
+
+	/* Camera */
+	.viewport = 45.0f,
+
+	/* Quality */
 };
 
+settings_t *settings_create(void);
+void settings_destroy(settings_t *);
+
 // Reads settings from given file
-int settings_read(const char *, struct settings *);
+int settings_read(const char *, settings_t *);
 // Writes settings into given file
-int settings_write(const char *, struct settings *);
+int settings_write(const char *, settings_t *);
 
 #endif
