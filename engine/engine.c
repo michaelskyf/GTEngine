@@ -127,6 +127,7 @@ static int opengl_setup(void)
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, opengl_version_major);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, opengl_version_minor);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	window = glfwCreateWindow(evars.settings.width, evars.settings.height, title, NULL, NULL);
 
