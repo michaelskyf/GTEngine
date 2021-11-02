@@ -50,7 +50,7 @@ shader_t *shader_create(const char *v_path, const char *f_path, const char *g_pa
 		return NULL;
 	}
 
-	if(g_path && shader_piece_create(&geometry, g_path, GL_GEOMETRY_SHADER))
+	if(g_path && shader_piece_create(&geometry, g_path, GL_GEOMETRY_SHADER_OES))
 	{
 		LOGE("Failed to create geometry shader");
 		glDeleteShader(vertex);
