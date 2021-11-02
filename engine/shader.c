@@ -30,10 +30,10 @@ void shader_destroy(shader_t *shader)
 	free(shader);
 }
 
-shader_t *shader_create(const char *v_path, const char *f_path, const char *g_path)
+shader_t *shader_create(const char *v_path, const char *f_path)
 {
 	shader_t *shader = malloc(sizeof(shader_t));
-	unsigned int vertex, fragment, geometry;
+	unsigned int vertex, fragment;
 
 	if(shader_piece_create(&vertex, v_path, GL_VERTEX_SHADER))
 	{
@@ -50,15 +50,6 @@ shader_t *shader_create(const char *v_path, const char *f_path, const char *g_pa
 		return NULL;
 	}
 
-	if(g_path && shader_piece_create(&geometry, g_path, GL_GEOMETRY_SHADER_OES))
-	{
-		LOGE("Failed to create geometry shader");
-		glDeleteShader(vertex);
-		glDeleteShader(fragment);
-		free(shader);
-		return NULL;
-	}
-
 	shader->id = glCreateProgram();
 
 	if(!shader->id)
@@ -66,23 +57,17 @@ shader_t *shader_create(const char *v_path, const char *f_path, const char *g_pa
 		LOGE("Failed to create shader program");
 		glDeleteShader(vertex);
 		glDeleteShader(fragment);
-		if(g_path)
-			glDeleteShader(geometry);
 		free(shader);
 		return NULL;
 	}
 
 	glAttachShader(shader->id, vertex);
 	glAttachShader(shader->id, fragment);
-	if(g_path)
-		glAttachShader(shader->id, geometry);
 
 	glLinkProgram(shader->id);
 
 	glDeleteShader(vertex);
 	glDeleteShader(fragment);
-	if(g_path)
-		glDeleteShader(geometry);
 
 	int success;
 	glGetProgramiv(shader->id, GL_LINK_STATUS, &success);
