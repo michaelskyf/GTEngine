@@ -139,7 +139,7 @@ static int opengl_setup(void)
 
 	glfwMakeContextCurrent(window);
 
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+	if (!gladLoadGLES2Loader((GLADloadproc)glfwGetProcAddress))
 	{
 		LOGE("Failed to initialize GLAD");
 		glfwTerminate();
