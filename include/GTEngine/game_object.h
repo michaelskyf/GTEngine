@@ -19,19 +19,19 @@
 #define GTE_GAME_OBJECT_H
 
 #include "model.h"
-#include "cglm/types-struct.h"
+#include <cglm/types.h>
 
 typedef struct {
-	vec3s position;
-	vec3s size;
-	vec3s velocity;
-	vec3s rotation;
+	vec3 position;
+	vec3 size;
+	vec3 velocity;
+	vec3 rotation;
 	_Bool destroyed;
 
 	model_t *model;
 } game_object_t;
 
-game_object_t *game_object_create(vec3s pos, _Bool destroyed);
+game_object_t *game_object_create(vec3 pos, _Bool destroyed);
 void game_object_destroy(game_object_t *);
 
 #endif

@@ -20,12 +20,12 @@
 
 #include "vector.h"
 #include "shader.h"
-#include "cglm/types-struct.h"
+#include <cglm/types.h>
 
 typedef struct {
-	vec3s position;
-	vec3s normal;
-	vec3s texture_coords;
+	vec3 position;
+	vec3 normal;
+	vec3 texture_coords;
 } vertex_t;
 
 typedef struct {
