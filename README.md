@@ -12,4 +12,5 @@ Install [glfw](https://github.com/glfw/glfw)
 git clone https://github.com/michaelskyf/GTEngine.git
 cd GTEngine
 make
+make run #test, debug
 ```
