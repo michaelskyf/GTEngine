@@ -14,7 +14,6 @@
     You should have received a copy of the GNU General Public License
     along with GTEngine. If not, see <https://www.gnu.org/licenses/>.
 */
-
 #ifndef GTE_MODEL_H
 #define GTE_MODEL_H
 
@@ -23,9 +22,11 @@
 
 typedef struct {
 	Vector *meshes;
+	const char *tag;
 } model_t;
 
-model_t *model_create(void);
+model_t *model_create(const char *tag);
+model_t *model_load_obj(const char *tag, const char *obj_path);
 void model_destroy(model_t *);
 
 void model_draw(model_t *, mat4 *model_matrix);

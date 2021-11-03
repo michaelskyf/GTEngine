@@ -41,7 +41,7 @@ typedef struct {
 	unsigned int vbo, ebo;
 } mesh_t;
 
-mesh_t *mesh_create(Vector *vertices, Vector *indices, Vector *textures, shader_t *);
+mesh_t *mesh_create(Vector *vertices, Vector *indices, Vector *textures);
 void mesh_destroy(mesh_t *);
 
 void mesh_draw(mesh_t *, mat4 *model_matrix);

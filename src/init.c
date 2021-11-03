@@ -14,37 +14,34 @@
     You should have received a copy of the GNU General Public License
     along with GTEngine. If not, see <https://www.gnu.org/licenses/>.
 */
+#include <GTEngine/engine.h>
+#include <GTEngine/shader.h>
+#include <GTEngine/vector.h>
+#include <GTEngine/model.h>
+#include <GTEngine/mesh.h>
 #include <GTEngine/game_object.h>
-#include <GTEngine/output.h>
-#include <cglm/cglm.h>
+#include "init.h"
 
-#include <stdlib.h>
-
-game_object_t *game_object_create(model_t *model, vec3 pos, _Bool enabled)
+int shaders_setup(void)
 {
-	game_object_t *g = malloc(sizeof(game_object_t));
-	if(g)
-	{
-		glm_vec3_copy(pos, g->position);
-		glm_vec3_one(g->size);
-		glm_vec3_zero(g->rotation);
-
-		g->enabled = enabled;
-
-		glm_mat4_identity(g->model_matrix);
-		g->model = model;
-	}
-	return g;
+	shader_t *shader = shader_create("data/shaders/test.vs", "data/shaders/test.fs", "default");
+	vector_push(evars.shaders, &shader);
+	return 0;
 }
 
-void game_object_destroy(game_object_t *g)
+int models_setup(void)
 {
-	// We shouldn't destroy model, since it can be tied
-	// to many game_objects
-	free(g);
+	model_t *model = model_load_obj("square", "some/path.obj");
+	vector_push(evars.models, &model);
+
+	return 0;
 }
 
-void game_object_draw(game_object_t *g)
+int game_objects_setup(void)
 {
-	model_draw(g->model, &g->model_matrix);
+	model_t **model = vector_start(evars.models);
+	game_object_t *go = game_object_create(*model, (vec3){0,0,0}, 1);
+	vector_push(evars.game_objects, &go);
+
+	return 0;
 }

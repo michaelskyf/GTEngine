@@ -15,15 +15,18 @@
     along with GTEngine. If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include "GTEngine/shader.h"
+#include "GTEngine/vector.h"
 #include <GTEngine/mesh.h>
 #include <GTEngine/output.h>
+#include <GTEngine/engine.h>
 
 #include <glad/glad.h>
 #include <stdlib.h>
 
 static int mesh_setup(mesh_t *, shader_t *);
 
-mesh_t *mesh_create(Vector *vertices, Vector *indices, Vector *textures, shader_t *shader)
+mesh_t *mesh_create(Vector *vertices, Vector *indices, Vector *textures)
 {
 	if(!vertices || !indices)
 	{
@@ -31,6 +34,9 @@ mesh_t *mesh_create(Vector *vertices, Vector *indices, Vector *textures, shader_
 		return NULL;
 	}
 
+	// TODO: look up how meshes can find shaders
+	shader_t *shader = vector_start(evars.shaders);
+	shader = *(shader_t **)shader;
 	if(!shader)
 	{
 		LOGE("Invalid shader");

@@ -14,7 +14,6 @@
     You should have received a copy of the GNU General Public License
     along with GTEngine. If not, see <https://www.gnu.org/licenses/>.
 */
-
 #ifndef GTE_GAME_OBJECT_H
 #define GTE_GAME_OBJECT_H
 
@@ -26,13 +25,13 @@ typedef struct {
 	vec3 size;
 	vec3 velocity;
 	vec3 rotation;
-	_Bool destroyed;
+	_Bool enabled;
 
 	mat4 model_matrix;
 	model_t *model;
 } game_object_t;
 
-game_object_t *game_object_create(model_t *model, vec3 pos, _Bool destroyed);
+game_object_t *game_object_create(model_t *model, vec3 pos, _Bool enabled);
 void game_object_destroy(game_object_t *);
 
 void game_object_draw(game_object_t *);

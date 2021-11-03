@@ -54,11 +54,6 @@ struct engine_variables evars;
 /* Local variables */
 static GLFWwindow *window;
 
-// Contains pointers to shader programs
-static Vector *shaders;
-// Contains pointers to game_objects
-static Vector *game_objects;
-
 int main(int argc, char **argv)
 {
 	// Before we do any inits, we need to change working directory
@@ -121,7 +116,11 @@ static void loop(void)
 
 static void opengl_draw(void)
 {
-
+	game_object_t **go = vector_start(evars.game_objects);
+	for(size_t n = 0; n < vector_size(evars.game_objects); n++)
+	{
+		game_object_draw(go[n]);
+	}
 }
 
 static int engine_setup(void)
@@ -134,10 +133,9 @@ static int engine_setup(void)
 	settings_read(settings_path, evars.settings);
 
 	// Initialize shaders and game_objects
-	game_objects = vector_create(0, sizeof(game_object_t *));
-	shaders = vector_create(0, sizeof(shader_t *));
-	evars.game_objects = game_objects;
-	evars.shaders = shaders;
+	evars.game_objects = vector_create(0, sizeof(game_object_t *));
+	evars.shaders = vector_create(0, sizeof(shader_t *));
+	evars.models = vector_create(0, sizeof(model_t *));
 
 	return 0;
 }
@@ -184,14 +182,19 @@ static int opengl_setup(void)
 static void engine_exit(void)
 {
 	// Destroy all shaders
-	shader_t *shader = vector_start(shaders);
-	for(size_t i = 0; i < vector_size(shaders); i++)
-		shader_destroy(&shader[i]);
+	shader_t **shader = vector_start(evars.shaders);
+	for(size_t i = 0; i < vector_size(evars.shaders); i++)
+		shader_destroy(shader[i]);
 
 	// Destroy all game objects
-	game_object_t *g_obj = vector_start(game_objects);
-	for(size_t i = 0; i < vector_size(game_objects); i++)
-		game_object_destroy(&g_obj[i]);
+	game_object_t **g_obj = vector_start(evars.game_objects);
+	for(size_t i = 0; i < vector_size(evars.game_objects); i++)
+		game_object_destroy(g_obj[i]);
+
+	// Destroy all models
+	model_t **model = vector_start(evars.models);
+	for(size_t i = 0; i < vector_size(evars.models); i++)
+		model_destroy(model[i]);
 
 	// Destroy evars
 	settings_destroy(evars.settings);

@@ -14,27 +14,12 @@
     You should have received a copy of the GNU General Public License
     along with GTEngine. If not, see <https://www.gnu.org/licenses/>.
 */
+#ifndef GTE_INIT_H
+#define GTE_INIT_H
 
-#ifndef GTE_ENGINE_H
-#define GTE_ENGINE_H
-
-#include "settings.h"
-#include "output.h"
-#include "vector.h"
-
-struct engine_variables {
-	settings_t *settings;
-
-	Vector *models;
-	Vector *game_objects;
-	Vector *shaders;
-};
-
-extern struct engine_variables evars;
-
-
-int program_setup(void);
-void program_exit(void);
-void program_update(void);
+// In these functions we load and setup approprete things
+int shaders_setup(void);
+int models_setup(void);
+int game_objects_setup(void);
 
 #endif
