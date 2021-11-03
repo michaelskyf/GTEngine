@@ -8,6 +8,7 @@
 #include <GTEngine/fileio.h>
 #include <GTEngine/mesh.h>
 #include <GTEngine/model.h>
+#include <GTEngine/game_object.h>
 
 #include <glad/glad.h>
 
@@ -25,6 +26,7 @@ unsigned int indices_d[] = {
 
 static model_t *model;
 static shader_t *shader;
+static game_object_t *game_object;
 
 int program_setup()
 {
@@ -59,6 +61,8 @@ int program_setup()
 	model = model_create();
 	vector_push(model->meshes, &mesh);
 
+	game_object = game_object_create(model, 0, 0);
+
 	return 0;
 }
 
@@ -70,6 +74,5 @@ void program_exit(void)
 
 void program_update()
 {
-	glUseProgram(shader->id);
-	model_draw(model);
+	game_object_draw(game_object);
 }

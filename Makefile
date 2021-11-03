@@ -496,7 +496,7 @@ tags TAGS cscope gtags: FORCE
 # Run valgrind to test for memory leaks
 # ---------------------------------------------------------------------------
 quiet_cmd_test = TEST    $<
-      cmd_test = valgrind $(abs_objtree)/$<
+      cmd_test = valgrind --leak-check=full $(abs_objtree)/$<
 
 test: $(PBUILD_PROJECTNAME) FORCE
 	$(call cmd,test)

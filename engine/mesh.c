@@ -38,32 +38,38 @@ mesh_t *mesh_create(Vector *vertices, Vector *indices, Vector *textures, shader_
 	}
 
 	mesh_t *m = malloc(sizeof(mesh_t));
-
-	if(!textures)
+	if(m)
 	{
-		LOGW("Creating a mesh with no texture");
-		m->textures = NULL;
+
+		if(!textures)
+		{
+			LOGW("Creating a mesh with no texture");
+			m->textures = NULL;
+		}
+
+		m->vertices = vertices;
+		m->indices = indices;
+		m->shader = shader;
+		if(textures)
+			m->textures = textures;
+
+		if(mesh_setup(m, shader))
+		{
+			LOGE("Error while setting up mesh");
+			free(m);
+			return NULL;
+		}
 	}
-
-	m->vertices = vertices;
-	m->indices = indices;
-	if(textures)
-		m->textures = textures;
-
-	if(mesh_setup(m, shader))
-	{
-		LOGE("Error while setting up mesh");
-		free(m);
-		return NULL;
-	}
-
 	return m;
 }
 
-void mesh_draw(mesh_t *m)
+void mesh_draw(mesh_t *m, mat4 *model_matrix)
 {
+	glUseProgram(m->shader->id);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m->ebo);
 	glBindBuffer(GL_ARRAY_BUFFER, m->vbo);
+	unsigned int model_matrix_loc = glGetUniformLocation(m->shader->id, "model_matrix");
+	glUniformMatrix4fv(model_matrix_loc, 1, GL_FALSE, **model_matrix);
 	glDrawElements(GL_TRIANGLES, vector_size(m->indices), GL_UNSIGNED_INT, 0);
 }
 
@@ -74,6 +80,8 @@ void mesh_destroy(mesh_t *m)
 	// m->textures can be NULL, if there are none
 	if(m->textures)
 		vector_destroy(m->textures);
+
+	// We shouldn't destroy shader here, since other meshes can still be using it
 
 	free(m);
 }

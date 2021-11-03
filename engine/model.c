@@ -1,3 +1,4 @@
+#include "cglm/types.h"
 #include <GTEngine/output.h>
 #include <GTEngine/model.h>
 #include <GTEngine/mesh.h>
@@ -7,7 +8,7 @@
 model_t *model_create()
 {
 	model_t *model = malloc(sizeof(model_t));
-	
+
 	if(!model)
 		return NULL;
 
@@ -28,11 +29,11 @@ void model_destroy(model_t *model)
 	free(model);
 }
 
-void model_draw(model_t *model)
+void model_draw(model_t *model, mat4 *model_matrix)
 {
 	size_t size = vector_size(model->meshes);
 	mesh_t **mesh = vector_start(model->meshes);
 
 	for(size_t i = 0; i < size; i++)
-		mesh_draw(mesh[i]);
+		mesh_draw(mesh[i], model_matrix);
 }

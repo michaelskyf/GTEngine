@@ -19,14 +19,15 @@
 #define GTE_MODEL_H
 
 #include "vector.h"
+#include "cglm/cglm.h"
 
 typedef struct {
 	Vector *meshes;
-}model_t;
+} model_t;
 
 model_t *model_create(void);
 void model_destroy(model_t *);
 
-void model_draw(model_t *);
+void model_draw(model_t *, mat4 *model_matrix);
 
 #endif
