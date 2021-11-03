@@ -20,7 +20,6 @@
 */
 
 /* External headers */
-#include "GTEngine/model.h"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <stdlib.h>
@@ -54,12 +53,11 @@ struct engine_variables evars;
 
 /* Local variables */
 static GLFWwindow *window;
+
 // Contains pointers to shader programs
-//static Vector *shaders;
+static Vector *shaders;
 // Contains pointers to game_objects
-//static Vector *game_objects;
-//
-static Vector *renderinfo;
+static Vector *game_objects;
 
 int main(int argc, char **argv)
 {
@@ -123,23 +121,7 @@ static void loop(void)
 
 static void opengl_draw(void)
 {
-	// TODO: send position, rotation, etc. to shader
-	renderinfo_t *renderinfo_start = vector_start(renderinfo);
-	for(size_t rinfo_n = 0; rinfo_n < vector_size(renderinfo); rinfo_n++)
-	{
-		// Bind shader program
-		glUseProgram(renderinfo_start[rinfo_n].shader->id);
 
-		Vector *models = renderinfo_start[rinfo_n].models;
-
-		// For each model
-		for(size_t model_nr = 0; model_nr < vector_size(models); model_nr++)
-		{
-//			model_t *model = vector_get_element(models, model_nr);
-
-
-		}
-	}
 }
 
 static int engine_setup(void)
@@ -152,11 +134,10 @@ static int engine_setup(void)
 	settings_read(settings_path, evars.settings);
 
 	// Initialize shaders and game_objects
-	evars.game_objects = vector_create(0, sizeof(game_object_t *));
-	evars.shaders = vector_create(0, sizeof(shader_t *));
-
-	// Initialize renderinfo
-	renderinfo = vector_create(0, sizeof(renderinfo_t));
+	game_objects = vector_create(0, sizeof(game_object_t *));
+	shaders = vector_create(0, sizeof(shader_t *));
+	evars.game_objects = game_objects;
+	evars.shaders = shaders;
 
 	return 0;
 }
@@ -203,13 +184,13 @@ static int opengl_setup(void)
 static void engine_exit(void)
 {
 	// Destroy all shaders
-	shader_t *shader = vector_start(evars.shaders);
-	for(size_t i = 0; i < vector_size(evars.shaders); i++)
+	shader_t *shader = vector_start(shaders);
+	for(size_t i = 0; i < vector_size(shaders); i++)
 		shader_destroy(&shader[i]);
 
 	// Destroy all game objects
-	game_object_t *g_obj = vector_start(evars.game_objects);
-	for(size_t i = 0; i < vector_size(evars.game_objects); i++)
+	game_object_t *g_obj = vector_start(game_objects);
+	for(size_t i = 0; i < vector_size(game_objects); i++)
 		game_object_destroy(&g_obj[i]);
 
 	// Destroy evars

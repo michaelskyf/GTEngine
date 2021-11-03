@@ -1,12 +1,11 @@
 #version 100
-attribute vec3 position;
 
-uniform mat4 model_matrix;
+attribute vec3 position;
 
 varying vec3 Color;
 
 void main()
 {
-	gl_Position = model_matrix * vec4(position, 1.0f);
-	Color = vec3(1.0, 0.5, 0.2);
+	gl_Position = vec4(position.x, position.y, position.z, 1.0);
+	Color = position;
 }

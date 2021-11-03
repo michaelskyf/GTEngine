@@ -4,14 +4,15 @@
 
 #include <stdlib.h>
 
-model_t *model_create(void)
+model_t *model_create()
 {
 	model_t *model = malloc(sizeof(model_t));
-	if(model)
-	{
-		model->meshes = vector_create(0, sizeof(mesh_t *));
-		model->model_matrices = vector_create(0, sizeof(mat4));
-	}
+	
+	if(!model)
+		return NULL;
+
+	model->meshes = vector_create(0, sizeof(mesh_t *));
+
 	return model;
 }
 
@@ -24,7 +25,6 @@ void model_destroy(model_t *model)
 		mesh_destroy(mesh[i]);
 
 	vector_destroy(model->meshes);
-	vector_destroy(model->model_matrices);
 	free(model);
 }
 

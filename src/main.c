@@ -8,8 +8,6 @@
 #include <GTEngine/fileio.h>
 #include <GTEngine/mesh.h>
 #include <GTEngine/model.h>
-#include <GTEngine/game_object.h>
-#include "cglm/cglm.h"
 
 #include <glad/glad.h>
 
@@ -60,7 +58,6 @@ int program_setup()
 
 	model = model_create();
 	vector_push(model->meshes, &mesh);
-	game_object_create(model, NULL, 0);
 
 	return 0;
 }
@@ -74,10 +71,5 @@ void program_exit(void)
 void program_update()
 {
 	glUseProgram(shader->id);
-	mat4 test;
-	glm_mat4_identity(test);
-	unsigned int model_matrix_position = glGetUniformLocation(shader->id, "model_matrix");
-	LOGD("%d", model_matrix_position);
-	glUniformMatrix4fv(model_matrix_position, 1, GL_FALSE, *test);
 	model_draw(model);
 }

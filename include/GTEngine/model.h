@@ -22,7 +22,6 @@
 
 typedef struct {
 	Vector *meshes;
-	Vector *model_matrices;
 }model_t;
 
 model_t *model_create(void);

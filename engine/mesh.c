@@ -15,10 +15,8 @@
     along with GTEngine. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "cglm/mat4.h"
 #include <GTEngine/mesh.h>
 #include <GTEngine/output.h>
-#include <cglm/cglm.h>
 
 #include <glad/glad.h>
 #include <stdlib.h>
@@ -96,14 +94,8 @@ static int mesh_setup(mesh_t *m, shader_t *s)
 	unsigned int vertex_position = glGetAttribLocation(s->id, "position");
 	glEnableVertexAttribArray(vertex_position);
 
+	glBindBuffer(GL_ARRAY_BUFFER, m->vbo);
 	glVertexAttribPointer(vertex_position, 3,  GL_FLOAT, GL_FALSE, sizeof(vertex_t), 0);
-
-	mat4 test;
-	glm_mat4_identity(test);
-	unsigned int model_matrix_position = glGetUniformLocation(s->id, "model_matrix");
-	LOGD("%d", model_matrix_position);
-	glUniformMatrix4fv(model_matrix_position, 1, GL_FALSE, *test);
-
 
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
