@@ -509,6 +509,14 @@ quiet_cmd_debug = DEBUG   $<
 debug: $(PBUILD_PROJECTNAME) FORCE
 	$(call cmd,debug)
 
+# Run program
+# ---------------------------------------------------------------------------
+quiet_cmd_run = RUN     $<
+      cmd_run = $(abs_objtree)/$<
+
+run: $(PBUILD_PROJECTNAME) FORCE
+	$(call cmd,run)
+
 # read saved command lines for existing targets
 existing-targets := $(wildcard $(sort $(targets)))
 
