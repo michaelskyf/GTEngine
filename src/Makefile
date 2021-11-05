@@ -1,2 +1,2 @@
-obj-y := main.o
+obj-y := game.o
 obj-y += init.o

@@ -28,13 +28,9 @@
 #include <unistd.h> // For chdir
 
 /* Internal headers */
-#include <GTEngine/config.h>
+#include <GTEngine/output.h>
 #include <GTEngine/engine.h>
-#include <GTEngine/vector.h>
-#include <GTEngine/settings.h>
-#include <GTEngine/game_object.h>
-#include <GTEngine/shader.h>
-#include <GTEngine/camera.h>
+#include <GTEngine/game.h>
 
 /* Functions */
 static int engine_setup(void);
@@ -42,17 +38,18 @@ static int opengl_setup(void);
 static void engine_exit(void);
 static void opengl_exit(void);
 static void loop(void);
-static void opengl_draw(void);
+static void draw(void);
 
 /* Callback functions */
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
 
 /* Global variables */
-struct engine_variables evars;
+engine_variables_t evars;
 
 /* Local variables */
 static GLFWwindow *window;
+static float delta_time;
 
 int main(int argc, char **argv)
 {
@@ -70,7 +67,7 @@ int main(int argc, char **argv)
 		print_setup,
 		engine_setup,
 		opengl_setup,
-		program_setup,
+		game_setup,
 	};
 
 	for(unsigned int i = 0; i < sizeof(setup_func)/sizeof(*setup_func); i++)
@@ -87,7 +84,7 @@ int main(int argc, char **argv)
 	loop();
 
 	// Clean-up then exit
-	program_exit();
+	game_exit();
 	opengl_exit();
 	engine_exit();
 
@@ -96,17 +93,23 @@ int main(int argc, char **argv)
 
 static void loop(void)
 {
+	// Time-keeping variables
+	float last_time = 0, current_time = 0;
 	while(!glfwWindowShouldClose(window))
 	{
+		// Calculate delta-time
+		current_time = glfwGetTime();
+		delta_time = current_time - last_time;
+		last_time = current_time;
+
 		// Clear the back buffer
-		// temporarly moved
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		// Update program
-		program_update();
+		game_update();
 
 		// Draw objects
-		opengl_draw();
+		draw();
 
 		// check and call events and swap the buffers
 		glfwPollEvents();
@@ -114,50 +117,13 @@ static void loop(void)
 	}
 }
 
-static void opengl_draw(void)
+static void draw(void)
 {
-	// For now we have only one shader
-	// That should be changed in the future
-	shader_t **shaders = vector_start(evars.shaders);
-	if(!vector_size(evars.shaders))
-		return;
 
-	glUseProgram(shaders[0]->id);
-
-	// For now we have only one camera
-	// That should be changed in the future
-	camera_t **cameras = vector_start(evars.cameras);
-	if(!vector_size(evars.cameras))
-		return;
-
-	unsigned int view_matrix_loc = glGetUniformLocation(shaders[0]->id, "view_matrix");
-	glUniformMatrix4fv(view_matrix_loc, 1, GL_FALSE, *cameras[0]->view);
-
-
-	game_object_t **game_objects = vector_start(evars.game_objects);
-	for(size_t n = 0; n < vector_size(evars.game_objects); n++)
-	{
-		unsigned int model_matrix_loc = glGetUniformLocation(shaders[0]->id, "model_matrix");
-		glUniformMatrix4fv(model_matrix_loc, 1, GL_FALSE, *game_objects[n]->model_matrix);
-		game_object_draw(game_objects[n]);
-	}
 }
 
 static int engine_setup(void)
 {
-	// Initialize settings
-	evars.settings = settings_create();
-
-	// Overwrite default settings with
-	// those found in `settings_path`
-	settings_read(settings_path, evars.settings);
-
-	// Initialize shaders and game_objects
-	evars.game_objects = vector_create(0, sizeof(game_object_t *));
-	evars.shaders = vector_create(0, sizeof(shader_t *));
-	evars.models = vector_create(0, sizeof(model_t *));
-	evars.cameras = vector_create(0, sizeof(camera_t *));
-
 	return 0;
 }
 
@@ -165,11 +131,11 @@ static int opengl_setup(void)
 {
 	glfwInit();
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, opengl_version_major);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, opengl_version_minor);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	window = glfwCreateWindow(evars.settings->width, evars.settings->height, title, NULL, NULL);
+	window = glfwCreateWindow(800, 600, "GLTest", NULL, NULL);
 
 	if (!window)
 	{
@@ -189,12 +155,10 @@ static int opengl_setup(void)
 
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 
-	glViewport(0, 0, evars.settings->width, evars.settings->height);
+	glViewport(0, 0, 800, 600);
 
 	/* Bind callback functions */
-	if(evars.settings->resizable)
-		glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-
+	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	glfwSetKeyCallback(window, key_callback);
 
 	return 0;
@@ -202,30 +166,7 @@ static int opengl_setup(void)
 
 static void engine_exit(void)
 {
-	// Destroy all shaders
-	shader_t **shader = vector_start(evars.shaders);
-	for(size_t i = 0; i < vector_size(evars.shaders); i++)
-		shader_destroy(shader[i]);
 
-	// Destroy all game objects
-	game_object_t **g_obj = vector_start(evars.game_objects);
-	for(size_t i = 0; i < vector_size(evars.game_objects); i++)
-		game_object_destroy(g_obj[i]);
-
-	// Destroy all models
-	model_t **model = vector_start(evars.models);
-	for(size_t i = 0; i < vector_size(evars.models); i++)
-		model_destroy(model[i]);
-
-	// Destroy all cameras
-	camera_t **camera = vector_start(evars.cameras);
-	for(size_t i = 0; i < vector_size(evars.cameras); i++)
-		camera_destroy(camera[i]);
-
-	// Destroy evars
-	settings_destroy(evars.settings);
-	vector_destroy(evars.game_objects);
-	vector_destroy(evars.shaders);
 }
 
 static void opengl_exit(void)
