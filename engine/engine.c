@@ -34,6 +34,7 @@
 
 /* Functions */
 static int engine_setup(void);
+static void engine_update(void);
 static int opengl_setup(void);
 static void engine_exit(void);
 static void opengl_exit(void);
@@ -45,11 +46,13 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
 
 /* Global variables */
-engine_variables_t evars;
+engine_variables_t *evars;
+
+/* Pointers to evars->* */
+static float *delta_time;
 
 /* Local variables */
 static GLFWwindow *window;
-static float delta_time;
 
 int main(int argc, char **argv)
 {
@@ -94,18 +97,25 @@ int main(int argc, char **argv)
 static void loop(void)
 {
 	// Time-keeping variables
-	float last_time = 0, current_time = 0;
+	// We init last_time here, because
+	// otherwise delta_time would be really big
+	// on the first frame
+	float last_time = glfwGetTime();
+	float current_time;
+
 	while(!glfwWindowShouldClose(window))
 	{
 		// Calculate delta-time
 		current_time = glfwGetTime();
-		delta_time = current_time - last_time;
+		*delta_time = current_time - last_time;
 		last_time = current_time;
 
 		// Clear the back buffer
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		// Update program
+		// Update the engine
+		engine_update();
+		// Update the game
 		game_update();
 
 		// Draw objects
@@ -119,11 +129,17 @@ static void loop(void)
 
 static void draw(void)
 {
-
+	LOG("FPS: %d", (int)(1/evars->deltaTime));
 }
 
 static int engine_setup(void)
 {
+	// Create and init evars
+	evars = malloc(sizeof(engine_variables_t));
+
+	// Init evars->* pointers
+	delta_time = &evars->deltaTime;
+
 	return 0;
 }
 
@@ -166,12 +182,18 @@ static int opengl_setup(void)
 
 static void engine_exit(void)
 {
-
+	// Destroy evars
+	free(evars);
 }
 
 static void opengl_exit(void)
 {
 	glfwTerminate();
+}
+
+static void engine_update(void)
+{
+
 }
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height)

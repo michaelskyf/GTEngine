@@ -16,7 +16,10 @@
 #define GTE_ENGINE_H
 
 typedef struct engine_variables_t {
+	// deltaTime
+	// tells how much time we spent drawing last frame
+	float deltaTime;
 } engine_variables_t;
-extern engine_variables_t evars;
+extern engine_variables_t *evars;
 
 #endif
