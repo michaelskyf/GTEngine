@@ -17,6 +17,7 @@ int program_setup()
 {
 	int (* setup_func[])(void) = {
 		shaders_setup,
+		cameras_setup,
 		models_setup,
 		game_objects_setup,
 	};

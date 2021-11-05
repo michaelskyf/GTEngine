@@ -116,10 +116,30 @@ static void loop(void)
 
 static void opengl_draw(void)
 {
-	game_object_t **go = vector_start(evars.game_objects);
+	// For now we have only one shader
+	// That should be changed in the future
+	shader_t **shaders = vector_start(evars.shaders);
+	if(!vector_size(evars.shaders))
+		return;
+
+	glUseProgram(shaders[0]->id);
+
+	// For now we have only one camera
+	// That should be changed in the future
+	camera_t **cameras = vector_start(evars.cameras);
+	if(!vector_size(evars.cameras))
+		return;
+
+	unsigned int view_matrix_loc = glGetUniformLocation(shaders[0]->id, "view_matrix");
+	glUniformMatrix4fv(view_matrix_loc, 1, GL_FALSE, *cameras[0]->view);
+
+
+	game_object_t **game_objects = vector_start(evars.game_objects);
 	for(size_t n = 0; n < vector_size(evars.game_objects); n++)
 	{
-		game_object_draw(go[n]);
+		unsigned int model_matrix_loc = glGetUniformLocation(shaders[0]->id, "model_matrix");
+		glUniformMatrix4fv(model_matrix_loc, 1, GL_FALSE, *game_objects[n]->model_matrix);
+		game_object_draw(game_objects[n]);
 	}
 }
 
@@ -136,6 +156,7 @@ static int engine_setup(void)
 	evars.game_objects = vector_create(0, sizeof(game_object_t *));
 	evars.shaders = vector_create(0, sizeof(shader_t *));
 	evars.models = vector_create(0, sizeof(model_t *));
+	evars.cameras = vector_create(0, sizeof(camera_t *));
 
 	return 0;
 }
@@ -195,6 +216,11 @@ static void engine_exit(void)
 	model_t **model = vector_start(evars.models);
 	for(size_t i = 0; i < vector_size(evars.models); i++)
 		model_destroy(model[i]);
+
+	// Destroy all cameras
+	camera_t **camera = vector_start(evars.cameras);
+	for(size_t i = 0; i < vector_size(evars.cameras); i++)
+		camera_destroy(camera[i]);
 
 	// Destroy evars
 	settings_destroy(evars.settings);

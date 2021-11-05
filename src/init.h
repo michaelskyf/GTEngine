@@ -20,6 +20,7 @@
 // In these functions we load and setup approprete things
 int shaders_setup(void);
 int models_setup(void);
+int cameras_setup(void);
 int game_objects_setup(void);
 
 #endif

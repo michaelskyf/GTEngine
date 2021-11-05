@@ -55,7 +55,6 @@ mesh_t *mesh_create(Vector *vertices, Vector *indices, Vector *textures)
 
 		m->vertices = vertices;
 		m->indices = indices;
-		m->shader = shader;
 		if(textures)
 			m->textures = textures;
 
@@ -71,11 +70,8 @@ mesh_t *mesh_create(Vector *vertices, Vector *indices, Vector *textures)
 
 void mesh_draw(mesh_t *m, mat4 *model_matrix)
 {
-	glUseProgram(m->shader->id);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m->ebo);
 	glBindBuffer(GL_ARRAY_BUFFER, m->vbo);
-	unsigned int model_matrix_loc = glGetUniformLocation(m->shader->id, "model_matrix");
-	glUniformMatrix4fv(model_matrix_loc, 1, GL_FALSE, **model_matrix);
 	glDrawElements(GL_TRIANGLES, vector_size(m->indices), GL_UNSIGNED_INT, 0);
 }
 

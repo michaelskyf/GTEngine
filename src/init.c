@@ -19,6 +19,7 @@
 #include <GTEngine/vector.h>
 #include <GTEngine/model.h>
 #include <GTEngine/mesh.h>
+#include <GTEngine/camera.h>
 #include <GTEngine/game_object.h>
 #include "init.h"
 
@@ -33,6 +34,14 @@ int models_setup(void)
 {
 	model_t *model = model_load_obj("square", "some/path.obj");
 	vector_push(evars.models, &model);
+
+	return 0;
+}
+
+int cameras_setup(void)
+{
+	camera_t *camera = camera_create((vec3){0,0,0});
+	vector_push(evars.cameras, &camera);
 
 	return 0;
 }

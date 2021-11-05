@@ -14,27 +14,25 @@
     You should have received a copy of the GNU General Public License
     along with GTEngine. If not, see <https://www.gnu.org/licenses/>.
 */
-#ifndef GTE_ENGINE_H
-#define GTE_ENGINE_H
+#include <GTEngine/camera.h>
+#include <GTEngine/output.h>
+#include <cglm/cglm.h>
 
-#include "settings.h"
-#include "output.h"
-#include "vector.h"
-#include "camera.h"
+#include <stdlib.h>
 
-struct engine_variables {
-	settings_t *settings;
+camera_t *camera_create(vec3 position)
+{
+	LOGD("TODO");
+	camera_t *camera = malloc(sizeof(camera_t));
+	if(camera)
+	{
+		glm_vec3_copy(position, camera->position);
+		glm_mat4_identity(camera->view);
+	}
+	return camera;
+}
 
-	Vector *models;
-	Vector *game_objects;
-	Vector *cameras;
-	Vector *shaders;
-};
-extern struct engine_variables evars;
-
-
-int program_setup(void);
-void program_exit(void);
-void program_update(void);
-
-#endif
+void camera_destroy(camera_t *camera)
+{
+	free(camera);
+}

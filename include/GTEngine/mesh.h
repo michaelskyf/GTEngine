@@ -37,7 +37,6 @@ typedef struct {
 	Vector *indices;
 	Vector *textures;
 
-	shader_t *shader;
 	unsigned int vbo, ebo;
 } mesh_t;
 
