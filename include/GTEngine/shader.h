@@ -1,4 +1,3 @@
-
 /*
     This file is part of GTEngine.
     GTEngine is free software: you can redistribute it and/or modify
@@ -12,13 +11,14 @@
     You should have received a copy of the GNU General Public License
     along with GTEngine. If not, see <https://www.gnu.org/licenses/>.
 */
-#ifndef GTE_ENGINE_H
-#define GTE_ENGINE_H
+#ifndef GTE_SHADER_H
+#define GTE_SHADER_H
 
-typedef struct engine_variables_t {
-	// deltaTime tells how much time we spent drawing last frame
-	float deltaTime;
-} engine_variables_t;
-extern engine_variables_t *evars;
+typedef struct {
+	unsigned int id;
+} shader_t;
+
+shader_t *shader_create(const char *v_path, const char *f_path);
+void shader_destroy(shader_t *);
 
 #endif
