@@ -18,7 +18,7 @@
 static int mesh_setup(mesh_t *);
 
 mesh_t *mesh_create(vertex_t *vertices, size_t vCount, unsigned int *indices, size_t iCount,
-		texture_t *textures, size_t tCount, material_t *material)
+		material_t *material)
 {
 	mesh_t *m = malloc(sizeof(mesh_t));
 	if(m)
@@ -27,8 +27,6 @@ mesh_t *mesh_create(vertex_t *vertices, size_t vCount, unsigned int *indices, si
 		m->vCount = vCount;
 		m->indices = indices;
 		m->iCount = iCount;
-		m->textures = textures;
-		m->tCount = tCount;
 		m->material = material;
 
 		// If setup failed, destroy mesh and
@@ -46,8 +44,8 @@ mesh_t *mesh_create(vertex_t *vertices, size_t vCount, unsigned int *indices, si
 static int mesh_setup(mesh_t *m)
 {
 	// If no texture, warn the user
-	if(!m->tCount)
-		LOGW("Creating a mesh with no texture");
+	if(!m->material->tCount)
+		LOGW("Mesh using a material with no texture");
 
 	// Generate buffers
 	glGenBuffers(1, &m->vbo);

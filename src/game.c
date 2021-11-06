@@ -16,6 +16,7 @@
 // For testing only
 #include <GTEngine/mesh.h>
 #include <GTEngine/vector.h>
+#include <GTEngine/model.h>
 
 static float vertices[] = {
      0.5f,  0.5f, 0.0f,  // top right
@@ -53,7 +54,9 @@ int game_setup(void)
 
 	material->shader = shader;
 
-	mesh = mesh_create(vector_start(vv), vector_size(vv), vector_start(iv), vector_size(iv), NULL, 0, material);
+	mesh = mesh_create(vector_start(vv), vector_size(vv), vector_start(iv), vector_size(iv), material);
+
+	model_load(__FILE__);
 
 	return 0;
 }
