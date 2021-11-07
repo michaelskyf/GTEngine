@@ -36,10 +36,14 @@ typedef struct material_t {
 
 typedef struct mesh_t {
 	vertex_t *vertices;
-	size_t vCount;
+	size_t verticesCount;
 	unsigned int *indices;
-	size_t iCount;
+	size_t indicesCount;
 	material_t *material;
+
+	struct mesh_t *parent;
+	struct mesh_t *children;
+	size_t childrenCount;
 
 	unsigned int vbo, ebo;
 } mesh_t;
