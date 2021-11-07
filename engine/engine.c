@@ -129,7 +129,7 @@ static void loop(void)
 
 static void draw(void)
 {
-	LOG("FPS: %d", (int)(1/evars->deltaTime));
+	//LOG("FPS: %d", (int)(1/evars->deltaTime));
 }
 
 static int engine_setup(void)
@@ -151,7 +151,7 @@ static int opengl_setup(void)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	window = glfwCreateWindow(800, 600, "GLTest", NULL, NULL);
+	window = glfwCreateWindow(1920, 1080, "GLTest", NULL, NULL);
 
 	if (!window)
 	{
@@ -171,7 +171,7 @@ static int opengl_setup(void)
 
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 
-	glViewport(0, 0, 800, 600);
+	glViewport(0, 0, 1920, 1080);
 
 	/* Bind callback functions */
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);

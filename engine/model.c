@@ -11,6 +11,7 @@
     You should have received a copy of the GNU General Public License
     along with GTEngine. If not, see <https://www.gnu.org/licenses/>.
 */
+#include "GTEngine/mesh.h"
 #include <GTEngine/model.h>
 #include <GTEngine/output.h>
 #include <assimp/cimport.h>
@@ -18,9 +19,11 @@
 #include <assimp/postprocess.h>
 
 #include <stdlib.h>
+#include <string.h>
 
 static int model_setup(model_t *model, const char *path);
-static void process_node(struct aiNode *node, const struct aiScene *scene);
+static void process_node(model_t *model, struct aiNode *node, const struct aiScene *scene);
+static mesh_t *process_mesh(struct aiMesh *mesh, const struct aiScene *scene);
 
 model_t *model_load(const char *path)
 /* Despite its name model_load only inits model */
@@ -29,6 +32,8 @@ model_t *model_load(const char *path)
 	model_t *m = malloc(sizeof(model_t));
 	if(m)
 	{
+		m->meshes = malloc(0);
+		m->mCount = 0;
 		model_setup(m, path);
 	}
 	return m;
@@ -66,12 +71,90 @@ static int model_setup(model_t *model, const char *path)
 		return -1;
 	}
 
-	process_node(scene->mRootNode, scene);
+	model->path = path;
+
+	process_node(model, scene->mRootNode, scene);
 
 	return 0;
 }
 
-static void process_node(struct aiNode *node, const struct aiScene *scene)
+void model_draw(model_t *m)
 {
+	for(size_t i = 0; i < m->mCount; i++)
+		mesh_draw(&m->meshes[i]);
+}
 
+static void process_node(model_t *model, struct aiNode *node, const struct aiScene *scene)
+{
+	// Process all of the node's meshes
+
+	for(size_t i = 0; i < node->mNumMeshes; i++)
+	{
+		struct aiMesh *mMesh = scene->mMeshes[node->mMeshes[i]];
+		mesh_t *mesh = process_mesh(mMesh, scene);
+		model->meshes = realloc(model->meshes, ++model->mCount * sizeof(mesh_t));
+		memcpy(&model->meshes[model->mCount-1], mesh, sizeof(mesh_t));
+	}
+
+	// Process the rest recursively
+	for(size_t i = 0; i < node->mNumChildren; i++)
+		process_node(model, node->mChildren[i], scene);
+}
+
+static mesh_t *process_mesh(struct aiMesh *mMesh, const struct aiScene *scene)
+{
+	// Process vertex positions, normals and texture coordinates
+	size_t vCount = mMesh->mNumVertices;
+	vertex_t *vertex = malloc(vCount * sizeof(vertex_t));
+	for(size_t i = 0; i < mMesh->mNumVertices; i++)
+	{
+		// positions
+		vertex->position[0] = mMesh->mVertices[i].x;
+		vertex->position[1] = mMesh->mVertices[i].y;
+		vertex->position[2] = mMesh->mVertices[i].z;
+		// normals
+		vertex->normals[0] = mMesh->mNormals[i].x;
+		vertex->normals[1] = mMesh->mNormals[i].y;
+		vertex->normals[2] = mMesh->mNormals[i].z;
+		// texture coordinates
+		if(mMesh->mTextureCoords[0])
+		{
+			vertex->texCoords[0] = mMesh->mTextureCoords[0][i].x;
+			vertex->texCoords[1] = mMesh->mTextureCoords[0][i].y;
+		} else {
+			vertex->texCoords[0] = 0;
+			vertex->texCoords[1] = 0;
+		}
+		vertex++;
+	}
+	vertex -= vCount;
+	// All vertices are processed
+	// Now, it's time for indices
+
+	// We need to malloc sizeof(uint) * number of faces * number of indices on each face
+	size_t iCount = 0;
+	iCount = mMesh->mFaces[0].mNumIndices * mMesh->mNumFaces;
+	unsigned int *indices = malloc(iCount * sizeof(unsigned int));
+	for(size_t i = 0; i < mMesh->mNumFaces; i++)
+	{
+		struct aiFace face = mMesh->mFaces[i];
+		for(size_t j = 0; j < face.mNumIndices; j++)
+		{
+			indices[j] = face.mIndices[j];
+		}
+		indices += face.mNumIndices;
+	}
+	indices -= iCount;
+
+	// Create dummy material
+	static material_t *material;
+	if(!material)
+	{
+		material = malloc(sizeof(material_t));
+		shader_t *shader = shader_create("data/shaders/test.vs", "data/shaders/test.fs");
+		material->shader = shader;
+		material->tCount = 0;
+	}
+	mesh_t *mesh = mesh_create(vertex, vCount, indices, iCount, material);
+	return mesh;
 }

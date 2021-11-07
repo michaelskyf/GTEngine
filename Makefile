@@ -248,7 +248,7 @@ PROJECTINCLUDE	:= \
 
 PBUILD_AFLAGS	:=
 PBUILD_CFLAGS	:= -Wall -Werror -Wundef -Werror=strict-prototypes -fPIE \
-		   -std=gnu99 -g
+		   -std=gnu99 -g -O0
 PBUILD_CPPFLAGS	:=
 PBUILD_LDFLAGS	:= -lGL -lglfw -ldl -lm -lpthread -lc -lassimp
 
@@ -322,12 +322,6 @@ libs-y		:= libs/
 # The all: target is the default when no target is given on the command line.
 # This allows a user to issue only 'make' to build the project
 all: $(PBUILD_PROJECTNAME)
-
-#TODO
-PBUILD_CFLAGS	+= -O3
-
-DEBUG_CFLAGS	:=
-#TODO
 
 # Add user supplied CPPFLAGS, AFLAGS and CFLAGS as the last assignments
 PBUILD_CPPFLAGS += $(PCPPFLAGS)

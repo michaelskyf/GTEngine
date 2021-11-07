@@ -11,6 +11,8 @@
     You should have received a copy of the GNU General Public License
     along with GTEngine. If not, see <https://www.gnu.org/licenses/>.
 */
+#include "cglm/clipspace/persp_rh_no.h"
+#include "cglm/util.h"
 #include <GTEngine/mesh.h>
 #include <GTEngine/output.h>
 #include <glad/glad.h>
@@ -91,6 +93,11 @@ void mesh_draw(mesh_t *m)
 	// Bind buffers
 	glBindBuffer(GL_ARRAY_BUFFER, m->vbo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m->ebo);
+
+	mat4 projection;
+	glm_perspective_rh_no(glm_rad(45.0f), (float)1920/1080, 0, 100, projection);
+	int pLoc = glGetUniformLocation(m->material->shader->id, "projection");
+	glad_glUniformMatrix4fv(pLoc, 1, GL_FALSE, *projection);
 	// Draw elements
 	glDrawElements(GL_TRIANGLES, m->iCount, GL_UNSIGNED_INT, 0);
 }
