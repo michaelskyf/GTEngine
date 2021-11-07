@@ -28,6 +28,7 @@
 static const char *basename(const char *path);
 // Returns mesh_t array of size node->mNumMeshes
 static mesh_t *process_meshes(const struct aiNode *node, const struct aiScene *scene);
+static void process_root_node(model_t *model, const struct aiScene *scene);
 static vertex_t *process_vertices(const struct aiMesh *mMesh);
 static unsigned int *process_indices(const struct aiMesh *mMesh);
 static material_t *process_material(const struct aiMesh *mMesh);
@@ -39,7 +40,7 @@ model_t *model_load(const char *path)
 	if(m)
 	{
 		// Init variables
-		m->mCount = 0;
+		m->meshCount = 0;
 		m->meshes = NULL;
 		m->path = path;
 
@@ -68,9 +69,8 @@ model_t *model_load(const char *path)
 			model_destroy(m);
 			return NULL;
 		}
-		// Init meshes
-		m->meshes = process_meshes(scene->mRootNode, scene);
-		m->mCount = scene->mRootNode->mNumMeshes;
+		// Init meshes and meshCount
+		process_root_node(m, scene);
 
 		// Destroy scene
 		aiReleaseImport(scene);
@@ -87,7 +87,7 @@ void model_destroy(model_t *m)
 
 void model_draw(model_t *m)
 {
-	for(size_t i = 0; i < m->mCount; i++)
+	for(size_t i = 0; i < m->meshCount; i++)
 		mesh_draw(&m->meshes[i]);
 }
 
@@ -96,6 +96,38 @@ static const char *basename(const char *path)
 {
 	char *base = strrchr(path, '/');
 	return base ? base+1 : path;
+}
+
+static void process_root_node(model_t *model, const struct aiScene *scene)
+{
+	const struct aiNode *root = scene->mRootNode;
+	size_t array_size = 0;
+	// For each child of the root node:
+	for(size_t i = 0; i < root->mNumChildren; i++)
+	{
+		// Count number of meshes
+		const struct aiNode *child = root->mChildren[i];
+		array_size += child->mNumMeshes;
+	}
+
+	mesh_t *mesh_array = malloc(array_size * sizeof(mesh_t));
+	size_t array_index = 0;
+	mesh_t *new_array;
+	// For each child of the root node:
+	for(size_t i = 0; i < root->mNumChildren; i++)
+	{
+		// Get meshes
+		const struct aiNode *child = root->mChildren[i];
+		new_array = process_meshes(child, scene);
+
+		// Copy meshes to mesh_array
+		memcpy(&mesh_array[array_index], new_array, child->mNumMeshes * sizeof(mesh_t));
+		array_index++;
+		free(new_array);
+	}
+	// Set meshes and meshCount
+	model->meshes = mesh_array;
+	model->meshCount = array_size;
 }
 
 static mesh_t *process_meshes(const struct aiNode *node, const struct aiScene *scene)
@@ -121,10 +153,6 @@ static mesh_t *process_meshes(const struct aiNode *node, const struct aiScene *s
 		//Finally, setup the mesh
 		mesh_setup(mesh);
 	}
-
-	// For each child:
-	for(size_t i = 0; i < )
-
 	return mesh_array;
 }
 

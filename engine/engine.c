@@ -24,7 +24,6 @@
 #include <GLFW/glfw3.h>
 #include <stdlib.h>
 #include <string.h>
-#include <libgen.h> // For dirname
 #include <unistd.h> // For chdir
 
 /* Internal headers */
@@ -54,13 +53,21 @@ static float *delta_time;
 /* Local variables */
 static GLFWwindow *window;
 
+static const char *dirname(char *path)
+{
+	char *base = strrchr(path, '/');
+	if(base)
+		*base='\0';
+	return path;
+}
+
 int main(int argc, char **argv)
 {
 	// Before we do any inits, we need to change working directory
 	// to the directory in which the main executable resides.
-	//
-	// This function changes argv[0], but we don't need it for anything
 	chdir(dirname(*argv));
+	// Restore argv[0]
+	argv[0][strlen(*argv)] = '/';
 
 	/*
 	   Run setup funcions.

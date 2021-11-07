@@ -18,7 +18,7 @@
 
 typedef struct {
 	mesh_t *meshes;
-	size_t mCount;
+	size_t meshCount;
 	const char *path;
 } model_t;
 

@@ -31,5 +31,4 @@ void mesh_draw(mesh_t *m)
 	glad_glUniformMatrix4fv(pLoc, 1, GL_FALSE, *projection);
 	// Draw elements
 	glDrawElements(GL_TRIANGLES, m->indicesCount, GL_UNSIGNED_INT, 0);
-	LOGD("%ld %ld", m->indicesCount, m->verticesCount);
 }
