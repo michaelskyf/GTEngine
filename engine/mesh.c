@@ -32,9 +32,10 @@ void mesh_draw(mesh_t *m)
 	glBindBuffer(GL_ARRAY_BUFFER, m->vbo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m->ebo);
 
-	glVertexAttribPointer(m->vPos, 3,  GL_FLOAT, GL_FALSE, sizeof(vertex_t), 0);
-	glVertexAttribPointer(m->nPos, 3,  GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)offsetof(vertex_t, normals));
-	glVertexAttribPointer(m->tPos, 2,  GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)offsetof(vertex_t, texCoords));
+	glVertexAttribPointer(m->material->vPos, 3,  GL_FLOAT, GL_FALSE, sizeof(vertex_t), 0);
+	glVertexAttribPointer(m->material->nPos, 3,  GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)offsetof(vertex_t, normals));
+	glVertexAttribPointer(m->material->tPos, 2,  GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)offsetof(vertex_t, texCoords));
+	glEnableVertexAttribArray(0);
 
 	// Draw elements
 	glDrawElements(GL_TRIANGLES, m->indicesCount, GL_UNSIGNED_SHORT, 0);

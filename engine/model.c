@@ -62,7 +62,8 @@ model_t *model_load(const char *path)
 		}
 
 		// Load the model file
-		const struct aiScene *scene = aiImportFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
+		const struct aiScene *scene = aiImportFile(path, aiProcess_Triangulate | aiProcess_FlipUVs
+				| aiProcessPreset_TargetRealtime_Fast);
 		if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene ->mRootNode)
 		{
 			LOGE("Assimp failed to load %s", path);
@@ -82,6 +83,7 @@ void model_destroy(model_t *m)
 {
 	if(m->meshes)
 		free(m->meshes);
+	// TODO remove children
 	free(m);
 }
 
@@ -214,6 +216,15 @@ static material_t *process_material(const struct aiMesh *mMesh)
 			return NULL;
 		}
 
+		// Get attributes
+		// vertex position
+		material->vPos = glGetAttribLocation(shader->id, "vPos");
+		// normals position
+		material->nPos = glGetAttribLocation(shader->id, "nPos");
+		// texture coords position
+		material->tPos = glGetAttribLocation(shader->id, "tPos");
+		glEnableVertexAttribArray(0);
+
 		material->shader = shader;
 		material->tCount = 0;
 
@@ -240,15 +251,6 @@ static int mesh_setup(mesh_t *m)
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m->ebo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m->indicesCount * sizeof(*m->indices), m->indices, GL_STATIC_DRAW);
 
-	// Get attributes
-	// vertex position
-	m->vPos = glGetAttribLocation(m->material->shader->id, "vPos");
-	// normals position
-	m->nPos = glGetAttribLocation(m->material->shader->id, "nPos");
-	// texture coords position
-	m->tPos = glGetAttribLocation(m->material->shader->id, "tPos");
-
-	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	return 0;
