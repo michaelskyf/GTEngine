@@ -14,6 +14,7 @@
 #include "cglm/clipspace/persp_rh_no.h"
 #include "cglm/util.h"
 #include <GTEngine/mesh.h>
+#include <GTEngine/engine.h>
 #include <GTEngine/output.h>
 #include <glad/glad.h>
 
@@ -21,14 +22,20 @@ void mesh_draw(mesh_t *m)
 {
 	// Bind shader
 	glUseProgram(m->material->shader->id);
+
+	mat4 projection;
+	glm_perspective_rh_no(glm_rad(45.0f), evars->window->aspect_ratio, 0, 100, projection);
+	int pLoc = glGetUniformLocation(m->material->shader->id, "projection");
+	glad_glUniformMatrix4fv(pLoc, 1, GL_FALSE, *projection);
+
 	// Bind buffers
 	glBindBuffer(GL_ARRAY_BUFFER, m->vbo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m->ebo);
 
-	mat4 projection;
-	glm_perspective_rh_no(glm_rad(89.0f), (float)1920/1080, 0, 100, projection);
-	int pLoc = glGetUniformLocation(m->material->shader->id, "projection");
-	glad_glUniformMatrix4fv(pLoc, 1, GL_FALSE, *projection);
+	glVertexAttribPointer(m->vPos, 3,  GL_FLOAT, GL_FALSE, sizeof(vertex_t), 0);
+	glVertexAttribPointer(m->nPos, 3,  GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)offsetof(vertex_t, normals));
+	glVertexAttribPointer(m->tPos, 2,  GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)offsetof(vertex_t, texCoords));
+
 	// Draw elements
-	glDrawElements(GL_TRIANGLES, m->indicesCount, GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, m->indicesCount, GL_UNSIGNED_SHORT, 0);
 }

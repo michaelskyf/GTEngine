@@ -118,7 +118,7 @@ static void loop(void)
 		last_time = current_time;
 
 		// Clear the back buffer
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Update the engine
 		engine_update();
@@ -144,8 +144,15 @@ static int engine_setup(void)
 	// Create and init evars
 	evars = malloc(sizeof(engine_variables_t));
 
-	// Init evars->* pointers
-	delta_time = &evars->deltaTime;
+	delta_time = (float *)&evars->deltaTime;
+
+	// Create and init window_s
+	struct window_s *win = malloc(sizeof(struct window_s));
+	// This values will get overwritten by framebuffer_size_callback
+	win->width = 800;
+	win->height = 600;
+	win->aspect_ratio = (float)win->width/win->height;
+	evars->window = win;
 
 	return 0;
 }
@@ -158,7 +165,7 @@ static int opengl_setup(void)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	window = glfwCreateWindow(1920, 1080, "GLTest", NULL, NULL);
+	window = glfwCreateWindow(800, 600, "GLTest", NULL, NULL);
 
 	if (!window)
 	{
@@ -178,7 +185,8 @@ static int opengl_setup(void)
 
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 
-	glViewport(0, 0, 1920, 1080);
+	// Enable depth testing
+	//glEnable(GL_DEPTH_TEST);
 
 	/* Bind callback functions */
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
@@ -190,6 +198,7 @@ static int opengl_setup(void)
 static void engine_exit(void)
 {
 	// Destroy evars
+	free((void*)evars->window);
 	free(evars);
 }
 
@@ -206,6 +215,12 @@ static void engine_update(void)
 void framebuffer_size_callback(GLFWwindow *window, int width, int height)
 {
 	glViewport(0, 0, width, height);
+
+	// Update window struct
+	struct window_s *win = (struct window_s *)evars->window;
+	win->width = width;
+	win->height = height;
+	win->aspect_ratio = (float)width/height;
 }
 
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)

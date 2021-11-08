@@ -30,7 +30,7 @@ static const char *basename(const char *path);
 static mesh_t *process_meshes(const struct aiNode *node, const struct aiScene *scene);
 static void process_root_node(model_t *model, const struct aiScene *scene);
 static vertex_t *process_vertices(const struct aiMesh *mMesh);
-static unsigned int *process_indices(const struct aiMesh *mMesh);
+static unsigned short *process_indices(const struct aiMesh *mMesh);
 static material_t *process_material(const struct aiMesh *mMesh);
 static int mesh_setup(mesh_t *m);
 
@@ -179,12 +179,12 @@ static vertex_t *process_vertices(const struct aiMesh *mMesh)
 	return vertex_array;
 }
 
-static unsigned int *process_indices(const struct aiMesh *mMesh)
+static unsigned short *process_indices(const struct aiMesh *mMesh)
 {
 	// Create an array of unsigned ints
 	// Since we used 'aiProcess_Triangulate' flag, size of indices is equal to faces * 3
 	size_t array_size = mMesh->mNumFaces * 3;
-	unsigned int *index_array = malloc(array_size * sizeof(unsigned int));
+	unsigned short *index_array = malloc(array_size * sizeof(unsigned int));
 
 	// For each face:
 	for(size_t f = 0; f < mMesh->mNumFaces; f++)
@@ -208,8 +208,15 @@ static material_t *process_material(const struct aiMesh *mMesh)
 	{
 		material = malloc(sizeof(material_t));
 		shader_t *shader = shader_create("data/shaders/test.vs", "data/shaders/test.fs");
+		if(!shader)
+		{
+			free(material);
+			return NULL;
+		}
+
 		material->shader = shader;
 		material->tCount = 0;
+
 	}
 	return material;
 }
@@ -225,31 +232,21 @@ static int mesh_setup(mesh_t *m)
 	glGenBuffers(1, &m->ebo);
 
 	// Bind the buffers
-	glBindBuffer(GL_ARRAY_BUFFER, m->vbo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m->ebo);
 
 	// Setup buffers data
+	glBindBuffer(GL_ARRAY_BUFFER, m->vbo);
 	glBufferData(GL_ARRAY_BUFFER, m->verticesCount * sizeof(vertex_t), m->vertices, GL_STATIC_DRAW);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m->indicesCount * sizeof(unsigned int), m->indices, GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m->ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m->indicesCount * sizeof(*m->indices), m->indices, GL_STATIC_DRAW);
 
 	// Get attributes
 	// vertex position
-	unsigned int vPos = glGetAttribLocation(m->material->shader->id, "vPos");
+	m->vPos = glGetAttribLocation(m->material->shader->id, "vPos");
 	// normals position
-	unsigned int nPos = glGetAttribLocation(m->material->shader->id, "nPos");
+	m->nPos = glGetAttribLocation(m->material->shader->id, "nPos");
 	// texture coords position
-	unsigned int tPos = glGetAttribLocation(m->material->shader->id, "tPos");
-
-	// Setup attribute pointers
-	// vertex position
-	glEnableVertexAttribArray(vPos);
-	glVertexAttribPointer(vPos, 3,  GL_FLOAT, GL_FALSE, sizeof(vertex_t), 0);
-	// normals position
-	glEnableVertexAttribArray(nPos);
-	glVertexAttribPointer(nPos, 3,  GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)offsetof(vertex_t, normals));
-	// texture coords position
-	glEnableVertexAttribArray(tPos);
-	glVertexAttribPointer(tPos, 2,  GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)offsetof(vertex_t, texCoords));
+	m->tPos = glGetAttribLocation(m->material->shader->id, "tPos");
 
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);

@@ -37,15 +37,16 @@ typedef struct material_t {
 typedef struct mesh_t {
 	vertex_t *vertices;
 	size_t verticesCount;
-	unsigned int *indices;
+	unsigned short *indices;
 	size_t indicesCount;
-	material_t *material;
-
-	struct mesh_t *parent;
 	struct mesh_t *children;
 	size_t childrenCount;
 
+	material_t *material;
+	struct mesh_t *parent;
+
 	unsigned int vbo, ebo;
+	unsigned int vPos, nPos, tPos; // Shader vertex attribute positions
 } mesh_t;
 
 mesh_t *mesh_create(vertex_t *, size_t vCount, unsigned int *, size_t iCount,

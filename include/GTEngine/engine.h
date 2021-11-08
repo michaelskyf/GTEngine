@@ -15,9 +15,16 @@
 #ifndef GTE_ENGINE_H
 #define GTE_ENGINE_H
 
+struct window_s {
+	unsigned short width, height;
+	float aspect_ratio;
+	const char *name;
+};
+
 typedef struct engine_variables_t {
 	// deltaTime tells how much time we spent drawing last frame
-	float deltaTime;
+	const float deltaTime;
+	const struct window_s *window;
 } engine_variables_t;
 extern engine_variables_t *evars;
 
