@@ -317,7 +317,7 @@ export PBUILD_BUILTIN := 1
 
 # Objects we will link into main executable / subdirs we need to visit
 core-y		:= engine/ src/
-libs-y		:= libs/
+libs-y		:= lib/
 
 # The all: target is the default when no target is given on the command line.
 # This allows a user to issue only 'make' to build the project

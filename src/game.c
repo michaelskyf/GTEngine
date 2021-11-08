@@ -11,11 +11,8 @@
     You should have received a copy of the GNU General Public License
     along with GTEngine. If not, see <https://www.gnu.org/licenses/>.
 */
-#include "GTEngine/shader.h"
 #include <GTEngine/output.h>
 // For testing only
-#include <GTEngine/mesh.h>
-#include <GTEngine/vector.h>
 #include <GTEngine/model.h>
 
 model_t *model;
