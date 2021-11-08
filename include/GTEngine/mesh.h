@@ -1,49 +1,57 @@
 /*
     This file is part of GTEngine.
-
     GTEngine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-
     GTEngine is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
-
     You should have received a copy of the GNU General Public License
     along with GTEngine. If not, see <https://www.gnu.org/licenses/>.
 */
-
 #ifndef GTE_MESH_H
 #define GTE_MESH_H
+#include <cglm/cglm.h>
 
-#include "vector.h"
 #include "shader.h"
-#include <cglm/types.h>
 
-typedef struct {
+typedef struct vertex_t {
 	vec3 position;
-	vec3 normal;
-	vec3 texture_coords;
+	vec3 normals;
+	vec2 texCoords;
 } vertex_t;
 
-typedef struct {
+typedef struct texture_t {
 	unsigned int id;
+	const char *type;
 } texture_t;
 
-typedef struct {
-	Vector *vertices;
-	Vector *indices;
-	Vector *textures;
-
+typedef struct material_t {
 	shader_t *shader;
+	texture_t *textures;
+	size_t tCount;
+} material_t;
+
+typedef struct mesh_t {
+	vertex_t *vertices;
+	size_t verticesCount;
+	unsigned short *indices;
+	size_t indicesCount;
+	struct mesh_t *children;
+	size_t childrenCount;
+
+	material_t *material;
+	struct mesh_t *parent;
+
 	unsigned int vbo, ebo;
+	unsigned int vPos, nPos, tPos; // Shader vertex attribute positions
 } mesh_t;
 
-mesh_t *mesh_create(Vector *vertices, Vector *indices, Vector *textures);
+mesh_t *mesh_create(vertex_t *, size_t vCount, unsigned int *, size_t iCount,
+			material_t *);
 void mesh_destroy(mesh_t *);
-
-void mesh_draw(mesh_t *, mat4 *model_matrix);
+void mesh_draw(mesh_t *);
 
 #endif

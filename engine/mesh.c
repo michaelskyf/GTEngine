@@ -1,119 +1,41 @@
 /*
     This file is part of GTEngine.
-
     GTEngine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-
     GTEngine is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
-
     You should have received a copy of the GNU General Public License
     along with GTEngine. If not, see <https://www.gnu.org/licenses/>.
 */
-
-#include "GTEngine/shader.h"
-#include "GTEngine/vector.h"
+#include "cglm/clipspace/persp_rh_no.h"
+#include "cglm/util.h"
 #include <GTEngine/mesh.h>
-#include <GTEngine/output.h>
 #include <GTEngine/engine.h>
-
+#include <GTEngine/output.h>
 #include <glad/glad.h>
-#include <stdlib.h>
 
-static int mesh_setup(mesh_t *, shader_t *);
-
-mesh_t *mesh_create(Vector *vertices, Vector *indices, Vector *textures)
+void mesh_draw(mesh_t *m)
 {
-	if(!vertices || !indices)
-	{
-		LOGE("Invalid vertices or indices");
-		return NULL;
-	}
+	// Bind shader
+	glUseProgram(m->material->shader->id);
 
-	// TODO: look up how meshes can find shaders
-	shader_t *shader = vector_start(evars.shaders);
-	shader = *(shader_t **)shader;
-	if(!shader)
-	{
-		LOGE("Invalid shader");
-		return NULL;
-	}
+	mat4 projection;
+	glm_perspective_rh_no(glm_rad(45.0f), evars->window->aspect_ratio, 0, 100, projection);
+	int pLoc = glGetUniformLocation(m->material->shader->id, "projection");
+	glad_glUniformMatrix4fv(pLoc, 1, GL_FALSE, *projection);
 
-	mesh_t *m = malloc(sizeof(mesh_t));
-	if(m)
-	{
-
-		if(!textures)
-		{
-			LOGW("Creating a mesh with no texture");
-			m->textures = NULL;
-		}
-
-		m->vertices = vertices;
-		m->indices = indices;
-		m->shader = shader;
-		if(textures)
-			m->textures = textures;
-
-		if(mesh_setup(m, shader))
-		{
-			LOGE("Error while setting up mesh");
-			free(m);
-			return NULL;
-		}
-	}
-	return m;
-}
-
-void mesh_draw(mesh_t *m, mat4 *model_matrix)
-{
-	glUseProgram(m->shader->id);
+	// Bind buffers
+	glBindBuffer(GL_ARRAY_BUFFER, m->vbo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m->ebo);
-	glBindBuffer(GL_ARRAY_BUFFER, m->vbo);
-	unsigned int model_matrix_loc = glGetUniformLocation(m->shader->id, "model_matrix");
-	glUniformMatrix4fv(model_matrix_loc, 1, GL_FALSE, **model_matrix);
-	glDrawElements(GL_TRIANGLES, vector_size(m->indices), GL_UNSIGNED_INT, 0);
-}
 
-void mesh_destroy(mesh_t *m)
-{
-	vector_destroy(m->vertices);
-	vector_destroy(m->indices);
-	// m->textures can be NULL, if there are none
-	if(m->textures)
-		vector_destroy(m->textures);
+	glVertexAttribPointer(m->vPos, 3,  GL_FLOAT, GL_FALSE, sizeof(vertex_t), 0);
+	glVertexAttribPointer(m->nPos, 3,  GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)offsetof(vertex_t, normals));
+	glVertexAttribPointer(m->tPos, 2,  GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)offsetof(vertex_t, texCoords));
 
-	// We shouldn't destroy shader here, since other meshes can still be using it
-
-	free(m);
-}
-
-static int mesh_setup(mesh_t *m, shader_t *s)
-{
-	// Generate buffers
-	glGenBuffers(1, &m->vbo);
-	glGenBuffers(1, &m->ebo);
-
-	glBindBuffer(GL_ARRAY_BUFFER, m->vbo);
-	glBufferData(GL_ARRAY_BUFFER, vector_size(m->vertices) * sizeof(vertex_t), vector_start(m->vertices), GL_STATIC_DRAW);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m->ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, vector_size(m->indices) * sizeof(unsigned int), vector_start(m->indices), GL_STATIC_DRAW);
-
-	// Get attributes
-	unsigned int vertex_position = glGetAttribLocation(s->id, "position");
-	glEnableVertexAttribArray(vertex_position);
-
-	glBindBuffer(GL_ARRAY_BUFFER, m->vbo);
-	glVertexAttribPointer(vertex_position, 3,  GL_FLOAT, GL_FALSE, sizeof(vertex_t), 0);
-
-	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-	return 0;
+	// Draw elements
+	glDrawElements(GL_TRIANGLES, m->indicesCount, GL_UNSIGNED_SHORT, 0);
 }

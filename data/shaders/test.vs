@@ -1,12 +1,15 @@
 #version 100
-attribute vec3 position;
+attribute vec3 vPos; // vertex
+attribute vec3 nPos; // normals
+attribute vec2 tPos; // texture coordinates
 
-uniform mat4 model_matrix;
+uniform mat4 projection;
 
 varying vec3 Color;
 
 void main()
 {
-	gl_Position = model_matrix * vec4(position, 1.0);
-	Color = position;
+	//gl_Position = projection * vec4(vPos, 1.0);
+	gl_Position = projection * vec4(vPos.x, vPos.y, vPos.z - 5.0, 1.0);
+	Color = vPos;
 }

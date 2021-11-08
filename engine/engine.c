@@ -24,43 +24,50 @@
 #include <GLFW/glfw3.h>
 #include <stdlib.h>
 #include <string.h>
-#include <libgen.h> // For dirname
 #include <unistd.h> // For chdir
 
 /* Internal headers */
-#include <GTEngine/config.h>
+#include <GTEngine/output.h>
 #include <GTEngine/engine.h>
-#include <GTEngine/vector.h>
-#include <GTEngine/settings.h>
-#include <GTEngine/game_object.h>
-#include <GTEngine/shader.h>
-#include <GTEngine/camera.h>
+#include <GTEngine/game.h>
 
 /* Functions */
 static int engine_setup(void);
+static void engine_update(void);
 static int opengl_setup(void);
 static void engine_exit(void);
 static void opengl_exit(void);
 static void loop(void);
-static void opengl_draw(void);
+static void draw(void);
 
 /* Callback functions */
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
 
 /* Global variables */
-struct engine_variables evars;
+engine_variables_t *evars;
+
+/* Pointers to evars->* */
+static float *delta_time;
 
 /* Local variables */
 static GLFWwindow *window;
+
+static const char *dirname(char *path)
+{
+	char *base = strrchr(path, '/');
+	if(base)
+		*base='\0';
+	return path;
+}
 
 int main(int argc, char **argv)
 {
 	// Before we do any inits, we need to change working directory
 	// to the directory in which the main executable resides.
-	//
-	// This function changes argv[0], but we don't need it for anything
 	chdir(dirname(*argv));
+	// Restore argv[0]
+	argv[0][strlen(*argv)] = '/';
 
 	/*
 	   Run setup funcions.
@@ -70,7 +77,7 @@ int main(int argc, char **argv)
 		print_setup,
 		engine_setup,
 		opengl_setup,
-		program_setup,
+		game_setup,
 	};
 
 	for(unsigned int i = 0; i < sizeof(setup_func)/sizeof(*setup_func); i++)
@@ -87,7 +94,7 @@ int main(int argc, char **argv)
 	loop();
 
 	// Clean-up then exit
-	program_exit();
+	game_exit();
 	opengl_exit();
 	engine_exit();
 
@@ -96,17 +103,30 @@ int main(int argc, char **argv)
 
 static void loop(void)
 {
+	// Time-keeping variables
+	// We init last_time here, because
+	// otherwise delta_time would be really big
+	// on the first frame
+	float last_time = glfwGetTime();
+	float current_time;
+
 	while(!glfwWindowShouldClose(window))
 	{
-		// Clear the back buffer
-		// temporarly moved
-		glClear(GL_COLOR_BUFFER_BIT);
+		// Calculate delta-time
+		current_time = glfwGetTime();
+		*delta_time = current_time - last_time;
+		last_time = current_time;
 
-		// Update program
-		program_update();
+		// Clear the back buffer
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		// Update the engine
+		engine_update();
+		// Update the game
+		game_update();
 
 		// Draw objects
-		opengl_draw();
+		draw();
 
 		// check and call events and swap the buffers
 		glfwPollEvents();
@@ -114,28 +134,25 @@ static void loop(void)
 	}
 }
 
-static void opengl_draw(void)
+static void draw(void)
 {
-	game_object_t **go = vector_start(evars.game_objects);
-	for(size_t n = 0; n < vector_size(evars.game_objects); n++)
-	{
-		game_object_draw(go[n]);
-	}
+	//LOG("FPS: %d", (int)(1/evars->deltaTime));
 }
 
 static int engine_setup(void)
 {
-	// Initialize settings
-	evars.settings = settings_create();
+	// Create and init evars
+	evars = malloc(sizeof(engine_variables_t));
 
-	// Overwrite default settings with
-	// those found in `settings_path`
-	settings_read(settings_path, evars.settings);
+	delta_time = (float *)&evars->deltaTime;
 
-	// Initialize shaders and game_objects
-	evars.game_objects = vector_create(0, sizeof(game_object_t *));
-	evars.shaders = vector_create(0, sizeof(shader_t *));
-	evars.models = vector_create(0, sizeof(model_t *));
+	// Create and init window_s
+	struct window_s *win = malloc(sizeof(struct window_s));
+	// This values will get overwritten by framebuffer_size_callback
+	win->width = 800;
+	win->height = 600;
+	win->aspect_ratio = (float)win->width/win->height;
+	evars->window = win;
 
 	return 0;
 }
@@ -144,11 +161,11 @@ static int opengl_setup(void)
 {
 	glfwInit();
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, opengl_version_major);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, opengl_version_minor);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	window = glfwCreateWindow(evars.settings->width, evars.settings->height, title, NULL, NULL);
+	window = glfwCreateWindow(800, 600, "GLTest", NULL, NULL);
 
 	if (!window)
 	{
@@ -168,12 +185,11 @@ static int opengl_setup(void)
 
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 
-	glViewport(0, 0, evars.settings->width, evars.settings->height);
+	// Enable depth testing
+	//glEnable(GL_DEPTH_TEST);
 
 	/* Bind callback functions */
-	if(evars.settings->resizable)
-		glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-
+	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	glfwSetKeyCallback(window, key_callback);
 
 	return 0;
@@ -181,25 +197,9 @@ static int opengl_setup(void)
 
 static void engine_exit(void)
 {
-	// Destroy all shaders
-	shader_t **shader = vector_start(evars.shaders);
-	for(size_t i = 0; i < vector_size(evars.shaders); i++)
-		shader_destroy(shader[i]);
-
-	// Destroy all game objects
-	game_object_t **g_obj = vector_start(evars.game_objects);
-	for(size_t i = 0; i < vector_size(evars.game_objects); i++)
-		game_object_destroy(g_obj[i]);
-
-	// Destroy all models
-	model_t **model = vector_start(evars.models);
-	for(size_t i = 0; i < vector_size(evars.models); i++)
-		model_destroy(model[i]);
-
 	// Destroy evars
-	settings_destroy(evars.settings);
-	vector_destroy(evars.game_objects);
-	vector_destroy(evars.shaders);
+	free((void*)evars->window);
+	free(evars);
 }
 
 static void opengl_exit(void)
@@ -207,9 +207,20 @@ static void opengl_exit(void)
 	glfwTerminate();
 }
 
+static void engine_update(void)
+{
+
+}
+
 void framebuffer_size_callback(GLFWwindow *window, int width, int height)
 {
 	glViewport(0, 0, width, height);
+
+	// Update window struct
+	struct window_s *win = (struct window_s *)evars->window;
+	win->width = width;
+	win->height = height;
+	win->aspect_ratio = (float)width/height;
 }
 
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)

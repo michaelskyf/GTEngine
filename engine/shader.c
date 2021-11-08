@@ -1,16 +1,13 @@
 /*
     This file is part of GTEngine.
-
     GTEngine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-
     GTEngine is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
-
     You should have received a copy of the GNU General Public License
     along with GTEngine. If not, see <https://www.gnu.org/licenses/>.
 */
@@ -25,7 +22,7 @@
 
 static int shader_piece_create(unsigned int *shader, const char *path, int type);
 
-shader_t *shader_create(const char *v_path, const char *f_path, const char *tag)
+shader_t *shader_create(const char *v_path, const char *f_path)
 {
 	shader_t *shader = malloc(sizeof(shader_t));
 	unsigned int vertex, fragment;
@@ -78,21 +75,12 @@ shader_t *shader_create(const char *v_path, const char *f_path, const char *tag)
 		return NULL;
 	}
 
-	// Copy tag to shader->tag
-	if(!tag)
-		tag = "NULL";
-
-	size_t tag_len = strlen(tag) + 1;
-	shader->tag = malloc(tag_len);
-	memcpy((char *)shader->tag, tag, tag_len);
-
 	return shader;
 }
 
 void shader_destroy(shader_t *shader)
 {
 	glDeleteShader(shader->id);
-	free((char *)shader->tag);
 	free(shader);
 }
 

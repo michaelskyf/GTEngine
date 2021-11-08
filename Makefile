@@ -230,14 +230,14 @@ PBUILD_HOSTLDFLAGS  := $(HOSTLDFLAGS)
 PBUILD_HOSTLDLIBS   := $(HOSTLDLIBS)
 
 # Make variables (CC, etc...)
-CXX			= $(CROSS_COMPILE)g++
-CC			= $(CROSS_COMPILE)gcc
-LD			= $(CROSS_COMPILE)ld
-AR			= $(CROSS_COMPILE)ar
-NM			= $(CROSS_COMPILE)nm
+CXX		= $(CROSS_COMPILE)g++
+CC		= $(CROSS_COMPILE)gcc
+LD		= $(CC)
+AR		= $(CROSS_COMPILE)ar
+NM		= $(CROSS_COMPILE)nm
 
 YACC		= yacc
-AWK			= awk
+AWK		= awk
 PERL		= perl
 PYTHON3		= python3
 BASH		= bash
@@ -247,10 +247,10 @@ PROJECTINCLUDE	:= \
 		   -I$(objtree)/include \
 
 PBUILD_AFLAGS	:=
-PBUILD_CFLAGS	:= -Wall -Werror -Wundef -Werror=strict-prototypes -fPIE \
-		   -std=gnu99 -g
-PBUILD_CPPFLAGS	:=
-PBUILD_LDFLAGS	:= -lGL -lglfw -ldl -lm -lpthread -lc
+PBUILD_C_CPP_FLAGS := -Wall -Werror -Wundef -fPIE -g -O0
+PBUILD_CFLAGS	:=  $(PBUILD_C_CPP_FLAGS) -Werror=strict-prototypes -std=gnu99
+PBUILD_CPPFLAGS	:= $(PBUILD_C_CPP_FLAGS)
+PBUILD_LDFLAGS	:= -lGL -lglfw -ldl -lm -lpthread -lassimp -lstdc++
 
 export CONFIG_SHELL BASH HOSTCC PBUILD_HOSTCFLAGS CROSS_COMPILE LD CC CXX
 export CPP AR YACC AWK PERL PYTHON3 MAKE HOSTCXX
@@ -317,17 +317,11 @@ export PBUILD_BUILTIN := 1
 
 # Objects we will link into main executable / subdirs we need to visit
 core-y		:= engine/ src/
-libs-y		:=
+libs-y		:= libs/
 
 # The all: target is the default when no target is given on the command line.
 # This allows a user to issue only 'make' to build the project
 all: $(PBUILD_PROJECTNAME)
-
-#TODO
-PBUILD_CFLAGS	+= -O3
-
-DEBUG_CFLAGS	:=
-#TODO
 
 # Add user supplied CPPFLAGS, AFLAGS and CFLAGS as the last assignments
 PBUILD_CPPFLAGS += $(PCPPFLAGS)
