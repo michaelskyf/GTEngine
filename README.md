@@ -1,5 +1,5 @@
 # GTEngine
-## _Just an simple OpenGL game engine_
+## _OpenGL game engine written in C (with support for C++)_
 
 This project is in its really early stages, if you're looking for something that works, good luck :)
 
