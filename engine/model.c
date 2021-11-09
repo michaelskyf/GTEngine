@@ -204,10 +204,10 @@ static unsigned short *process_indices(const struct aiMesh *mMesh)
 static material_t *process_material(const struct aiMesh *mMesh)
 {
 	// Create a dummy material
-	LOGW("Creating a dummy material");
 	static material_t *material;
 	if(!material)
 	{
+		LOGW("Creating a dummy material");
 		material = malloc(sizeof(material_t));
 		material->tCount = 0;
 	}
