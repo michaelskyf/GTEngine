@@ -2,6 +2,7 @@
 include
 -Wall
 -Wundef
+-Werror=return-type
 -Werror=strict-prototypes
--fPIE
--std=gnu99
+-Werror=implicit-function-declaration
+-Werror=implicit-int

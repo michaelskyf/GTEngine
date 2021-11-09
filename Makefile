@@ -231,6 +231,7 @@ PBUILD_HOSTLDLIBS   := $(HOSTLDLIBS)
 
 # Make variables (CC, etc...)
 CXX		= $(CROSS_COMPILE)g++
+CPP		= $(CC) -E
 CC		= $(CROSS_COMPILE)gcc
 LD		= $(CC)
 AR		= $(CROSS_COMPILE)ar
@@ -247,9 +248,14 @@ PROJECTINCLUDE	:= \
 		   -I$(objtree)/include \
 
 PBUILD_AFLAGS	:=
-PBUILD_C_CPP_FLAGS := -Wall -Werror -Wundef -fPIE -g -O0
-PBUILD_CFLAGS	:=  $(PBUILD_C_CPP_FLAGS) -Werror=strict-prototypes -std=gnu99
-PBUILD_CPPFLAGS	:= $(PBUILD_C_CPP_FLAGS)
+PBUILD_CXXFLAGS	:=
+PBUILD_C_CXX_FLAGS := -Wall -Werror -Wundef -fPIE -g -O0 \
+		      -Werror=return-type
+PBUILD_CFLAGS	:= $(PBUILD_C_CXX_FLAGS) \
+		   -Werror=strict-prototypes -Werror=implicit-function-declaration \
+		   -Werror=implicit-int \
+		   -std=gnu99
+PBUILD_CXXFLAGS	:= $(PBUILD_C_CXX_FLAGS)
 PBUILD_LDFLAGS	:= -lGL -lglfw -ldl -lm -lpthread -lassimp -lstdc++
 
 export CONFIG_SHELL BASH HOSTCC PBUILD_HOSTCFLAGS CROSS_COMPILE LD CC CXX
@@ -258,6 +264,7 @@ export PBUILD_HOSTCXXFLAGS PBUILD_HOSTLDFLAGS PBUILD_HOSTLDLIBS
 
 export PBUILD_CPPFLAGS PROJECTINCLUDE PBUILD_LDFLAGS
 export PBUILD_CFLAGS
+export PBUILD_CXXFLAGS
 export PBUILD_AFLAGS
 
 export RCS_FIND_IGNORE := \( -name SCCS -o -name BitKeeper -o -name .svn -o    \

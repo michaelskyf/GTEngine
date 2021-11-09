@@ -56,9 +56,6 @@ subdir-y	:= $(addprefix $(obj)/,$(subdir-y))
 target-stem = $(basename $(patsubst $(obj)/%,%,$@))
 
 # These flags are needed for compiling
-name-fix-token = $(subst $(comma),_,$(subst -,_,$1))
-name-fix = $(call stringify,$(call name-fix-token,$1))
-basename_flags = -DPBUILD_BASENAME=$(call name-fix,$(basetarget))
 _c_flags       = $(filter-out $(CFLAGS_REMOVE_$(target-stem).o), \
                      $(filter-out $(ccflags-remove-y), \
                          $(PBUILD_CPPFLAGS) $(PBUILD_CFLAGS) $(ccflags-y)) \
@@ -68,22 +65,26 @@ _a_flags       = $(filter-out $(AFLAGS_REMOVE_$(target-stem).o), \
                          $(PBUILD_CPPFLAGS) $(PBUILD_AFLAGS) $(asflags-y)) \
                      $(AFLAGS_$(target-stem).o))
 _cpp_flags     = $(PBUILD_CPPFLAGS) $(cppflags-y) $(CPPFLAGS_$(target-stem).lds)
+_cxx_flags     = $(PBUILD_CXXFLAGS) $(cxxflags-y) $(CXXFLAGS_$(target-stem).lds)
 
 ifdef building_out_of_srctree
 _c_flags   += -I $(srctree)/$(src) -I $(objtree)/$(obj)
 _a_flags   += -I $(srctree)/$(src) -I $(objtree)/$(obj)
 _cpp_flags += -I $(srctree)/$(src) -I $(objtree)/$(obj)
+_cxx_flags += -I $(srctree)/$(src) -I $(objtree)/$(obj)
 endif
 
 c_flags        = -Wp,-MMD,$(depfile) $(NOSTDINC_FLAGS) $(PROJECTINCLUDE)     \
-		 $(_c_flags)                       \
-		 $(basename_flags)
+		 $(_c_flags)
 
 a_flags        = -Wp,-MMD,$(depfile) $(NOSTDINC_FLAGS) $(PROJECTINCLUDE)     \
 		 $(_a_flags)
 
 cpp_flags      = -Wp,-MMD,$(depfile) $(NOSTDINC_FLAGS) $(PROJECTINCLUDE)     \
 		 $(_cpp_flags)
+
+cxx_flags      = -Wp,-MMD,$(depfile) $(NOSTDINC_FLAGS) $(PROJECTINCLUDE)     \
+		 $(_cxx_flags)
 
 ld_flags       = $(PBUILD_LDFLAGS) $(ldflags-y) $(LDFLAGS_$(@F))
 

@@ -83,7 +83,7 @@ quiet_cmd_cc_o_c = CC      $@
       cmd_cc_o_c = $(CC) $(c_flags) -c -o $@ $<
 
 quiet_cmd_cxx_o_cpp = CXX     $@
-      cmd_cxx_o_cpp = $(CXX) $(cpp_flags) -c -o $@ $<
+      cmd_cxx_o_cpp = $(CXX) $(cxx_flags) -c -o $@ $<
 
 
 quiet_cmd_as_o_S = AS      $@
