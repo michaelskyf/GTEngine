@@ -87,10 +87,10 @@ void model_destroy(model_t *m)
 	free(m);
 }
 
-void model_draw(model_t *m)
+void model_draw(model_t *m, shader_t *s)
 {
 	for(size_t i = 0; i < m->meshCount; i++)
-		mesh_draw(&m->meshes[i]);
+		mesh_draw(&m->meshes[i], s);
 }
 
 static const char *basename(const char *path)
@@ -209,25 +209,7 @@ static material_t *process_material(const struct aiMesh *mMesh)
 	if(!material)
 	{
 		material = malloc(sizeof(material_t));
-		shader_t *shader = shader_create("data/shaders/test.vs", "data/shaders/test.fs");
-		if(!shader)
-		{
-			free(material);
-			return NULL;
-		}
-
-		// Get attributes
-		// vertex position
-		material->vPos = glGetAttribLocation(shader->id, "vPos");
-		// normals position
-		material->nPos = glGetAttribLocation(shader->id, "nPos");
-		// texture coords position
-		material->tPos = glGetAttribLocation(shader->id, "tPos");
-		glEnableVertexAttribArray(0);
-
-		material->shader = shader;
 		material->tCount = 0;
-
 	}
 	return material;
 }

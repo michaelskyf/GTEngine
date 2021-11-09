@@ -18,23 +18,15 @@
 #include <GTEngine/output.h>
 #include <glad/glad.h>
 
-void mesh_draw(mesh_t *m)
+void mesh_draw(mesh_t *m, shader_t *s)
 {
-	// Bind shader
-	glUseProgram(m->material->shader->id);
-
-	mat4 projection;
-	glm_perspective_rh_no(glm_rad(45.0f), evars->window->aspect_ratio, 0, 100, projection);
-	int pLoc = glGetUniformLocation(m->material->shader->id, "projection");
-	glad_glUniformMatrix4fv(pLoc, 1, GL_FALSE, *projection);
-
 	// Bind buffers
 	glBindBuffer(GL_ARRAY_BUFFER, m->vbo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m->ebo);
 
-	glVertexAttribPointer(m->material->vPos, 3,  GL_FLOAT, GL_FALSE, sizeof(vertex_t), 0);
-	glVertexAttribPointer(m->material->nPos, 3,  GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)offsetof(vertex_t, normals));
-	glVertexAttribPointer(m->material->tPos, 2,  GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)offsetof(vertex_t, texCoords));
+	glVertexAttribPointer(s->vPos, 3,  GL_FLOAT, GL_FALSE, sizeof(vertex_t), 0);
+	glVertexAttribPointer(s->nPos, 3,  GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)offsetof(vertex_t, normals));
+	glVertexAttribPointer(s->tPos, 2,  GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)offsetof(vertex_t, texCoords));
 	glEnableVertexAttribArray(0);
 
 	// Draw elements

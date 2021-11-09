@@ -24,6 +24,6 @@ typedef struct {
 
 model_t *model_load(const char *path);
 void model_destroy(model_t *);
-void model_draw(model_t *);
+void model_draw(model_t *, shader_t *);
 
 #endif

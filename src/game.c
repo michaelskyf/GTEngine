@@ -11,48 +11,28 @@
     You should have received a copy of the GNU General Public License
     along with GTEngine. If not, see <https://www.gnu.org/licenses/>.
 */
-extern "C"
-{
+#include "GTEngine/shader.h"
 #include <GTEngine/output.h>
 // For testing only
 #include <GTEngine/model.h>
-}
 
-class Model
+model_t *model;
+shader_t *shader;
+
+int game_setup(void)
 {
-	public:
-		Model(const char *path)
-		{
-			model = model_load(path);
-		}
-		~Model(void)
-		{
-			model_destroy(model);
-		}
-		void Draw()
-		{
-			model_draw(model);
-		}
-
-	private:
-		model_t *model;
-};
-
-Model *t;
-
-extern "C" int game_setup(void)
-{
-	t = new Model("data/backpack.obj");
+	model = model_load("data/backpack.obj");
+	shader = shader_create("data/shaders/test.vs", "data/shaders/test.fs");
 
 	return 0;
 }
 
-extern "C" void game_exit(void)
+void game_exit(void)
 {
 
 }
 
-extern "C" void game_update(void)
+void game_update(void)
 {
-	t->Draw();
+	model_draw(model, shader);
 }
