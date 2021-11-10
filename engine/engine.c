@@ -20,6 +20,7 @@
 */
 
 /* External headers */
+#include "GTEngine/shader.h"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <stdlib.h>
@@ -28,6 +29,7 @@
 
 /* Internal headers */
 #include <GTEngine/output.h>
+#include <GTEngine/game_object.h>
 #include <GTEngine/engine.h>
 #include <GTEngine/game.h>
 
@@ -137,6 +139,11 @@ static void loop(void)
 static void draw(void)
 {
 	//LOG("FPS: %d", (int)(1/evars->deltaTime));
+	glUseProgram(evars->shader->id);
+
+	// For each loaded game_object (TODO: implement in renderer.c)
+	for(size_t i = 0; i < evars->objectCount; i++)
+		game_object_draw(evars->objects[i], evars->shader);
 }
 
 static int engine_setup(void)
@@ -144,16 +151,19 @@ static int engine_setup(void)
 	// Create and init evars
 	evars = malloc(sizeof(engine_variables_t));
 
-	delta_time = (float *)&evars->deltaTime;
+	evars->objects = malloc(0);
+	evars->objectCount = 0;
 
 	// Create and init window_s
 	struct window_s *win = malloc(sizeof(struct window_s));
-	// This values will get overwritten by framebuffer_size_callback
-	win->width = 800;
-	win->height = 600;
-	win->aspect_ratio = (float)win->width/win->height;
-	evars->window = win;
+		// This values will get overwritten by framebuffer_size_callback
+		win->width = 800;
+		win->height = 600;
+		win->aspect_ratio = (float)win->width/win->height;
+		evars->window = win;
 
+	// Init engine.c static variables
+	delta_time = (float *)&evars->deltaTime;
 	return 0;
 }
 
@@ -165,7 +175,7 @@ static int opengl_setup(void)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	window = glfwCreateWindow(800, 600, "GLTest", NULL, NULL);
+	window = glfwCreateWindow(evars->window->width, evars->window->height, "GLTest", NULL, NULL);
 
 	if (!window)
 	{
@@ -192,13 +202,22 @@ static int opengl_setup(void)
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	glfwSetKeyCallback(window, key_callback);
 
+	// TODO: shaders
+	evars->shader = shader_create("data/shaders/test.vs", "data/shaders/test.fs");
+
 	return 0;
 }
 
 static void engine_exit(void)
 {
+	// Free all game objects
+	for(size_t i = 0; i < evars->objectCount; i++)
+		game_object_destroy(evars->objects[i]);
+
 	// Destroy evars
 	free((void*)evars->window);
+	free(evars->objects);
+	shader_destroy(evars->shader);
 	free(evars);
 }
 
@@ -231,4 +250,21 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action, int mod
 			glfwSetWindowShouldClose(window, 1);
 		break;
 	}
+}
+
+size_t game_object_push(game_object_t *g)
+{
+	size_t index = evars->objectCount;
+	evars->objectCount++;
+	evars->objects = realloc(evars->objects, evars->objectCount * sizeof(game_object_t));
+	evars->objects[index] = g;
+
+	return index;
+}
+
+void game_object_pop(size_t index)
+{
+	memcpy(evars->objects[index], evars->objects[evars->objectCount], sizeof(game_object_t));
+	evars->objectCount--;
+	evars->objects = realloc(evars->objects, evars->objectCount * sizeof(game_object_t));
 }

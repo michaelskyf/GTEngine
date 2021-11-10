@@ -11,7 +11,8 @@
     You should have received a copy of the GNU General Public License
     along with GTEngine. If not, see <https://www.gnu.org/licenses/>.
 */
-#include "GTEngine/shader.h"
+#include <GTEngine/shader.h>
+#include <GTEngine/game_object.h>
 #include <GTEngine/output.h>
 // For testing only
 #include <GTEngine/model.h>
@@ -22,7 +23,8 @@ shader_t *shader;
 int game_setup(void)
 {
 	model = model_load("data/backpack.obj");
-	shader = shader_create("data/shaders/test.vs", "data/shaders/test.fs");
+	game_object_t *GO = game_object_create(model);
+	game_object_push(GO);
 
 	return 0;
 }
@@ -34,5 +36,5 @@ void game_exit(void)
 
 void game_update(void)
 {
-	model_draw(model, shader);
+
 }

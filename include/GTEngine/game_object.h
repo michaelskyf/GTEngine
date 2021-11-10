@@ -18,6 +18,7 @@
 #define GTE_GAME_OBJECT_H
 
 #include <cglm/types.h>
+#include "shader.h"
 #include "model.h"
 
 typedef struct game_object_t {
@@ -32,7 +33,13 @@ typedef struct game_object_t {
 	_Bool enabled;
 } game_object_t;
 
-game_object_t *game_object_create(void);
+game_object_t *game_object_create(model_t *model);
 void game_object_destroy(game_object_t *);
+
+void game_object_draw(game_object_t *, shader_t *);
+
+// Don't free objects after push!
+size_t game_object_push(game_object_t *);
+void game_object_pop(size_t index);
 
 #endif

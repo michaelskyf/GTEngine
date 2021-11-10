@@ -14,10 +14,13 @@
 #ifndef GTE_SHADER_H
 #define GTE_SHADER_H
 
+#include <cglm/types.h>
+
 typedef struct {
 	unsigned int id;
 
 	unsigned int vPos, nPos, tPos; // Shader vertex attribute positions
+	unsigned int umPos, uvpPos;// Transformation matrix positions
 } shader_t;
 
 shader_t *shader_create(const char *v_path, const char *f_path);

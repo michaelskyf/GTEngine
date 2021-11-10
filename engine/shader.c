@@ -83,6 +83,12 @@ shader_t *shader_create(const char *v_path, const char *f_path)
 		shader->nPos = glGetAttribLocation(shader->id, "nPos");
 		// texture coords position
 		shader->tPos = glGetAttribLocation(shader->id, "tPos");
+
+		// Get uniform transformation matrix positions
+		// model matrix
+		shader->umPos = glGetUniformLocation(shader->id, "model_matrix");
+		// view * projection matrix
+		shader->uvpPos = glGetUniformLocation(shader->id, "VP_matrix");
 	}
 	return shader;
 }
