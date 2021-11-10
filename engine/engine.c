@@ -20,7 +20,8 @@
 */
 
 /* External headers */
-#include "GTEngine/shader.h"
+#include "cglm/clipspace/persp_rh_no.h"
+#include "cglm/vec3.h"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <stdlib.h>
@@ -29,6 +30,7 @@
 
 /* Internal headers */
 #include <GTEngine/output.h>
+#include <GTEngine/camera.h>
 #include <GTEngine/game_object.h>
 #include <GTEngine/engine.h>
 #include <GTEngine/game.h>
@@ -45,6 +47,7 @@ static void draw(void);
 /* Callback functions */
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
+static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
 
 /* Global variables */
 engine_variables_t *evars;
@@ -141,6 +144,15 @@ static void draw(void)
 	//LOG("FPS: %d", (int)(1/evars->deltaTime));
 	glUseProgram(evars->shader->id);
 
+	const float radius = 10.0f;
+	float camX = sin(glfwGetTime()) * radius;
+	float camZ = cos(glfwGetTime()) * radius;
+
+	glm_vec3_copy((vec3){camX, 0, camZ}, evars->camera->position);
+	camera_update(evars->camera);
+
+	camera_bind(evars->camera, evars->shader);
+
 	// For each loaded game_object (TODO: implement in renderer.c)
 	for(size_t i = 0; i < evars->objectCount; i++)
 		game_object_draw(evars->objects[i], evars->shader);
@@ -161,6 +173,8 @@ static int engine_setup(void)
 		win->height = 600;
 		win->aspect_ratio = (float)win->width/win->height;
 		evars->window = win;
+
+	glm_perspective(glm_rad(45.0f), win->aspect_ratio, 0.1f, 100.0f, evars->projection_matrix);
 
 	// Init engine.c static variables
 	delta_time = (float *)&evars->deltaTime;
@@ -196,14 +210,19 @@ static int opengl_setup(void)
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 
 	// Enable depth testing
-	//glEnable(GL_DEPTH_TEST);
+	glEnable(GL_DEPTH_TEST);
+
+	// Disable cursor
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	/* Bind callback functions */
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	glfwSetKeyCallback(window, key_callback);
+	glfwSetCursorPosCallback(window, cursor_position_callback);
 
 	// TODO: shaders
 	evars->shader = shader_create("data/shaders/test.vs", "data/shaders/test.fs");
+	evars->camera = camera_create();
 
 	return 0;
 }
@@ -240,7 +259,23 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height)
 	win->width = width;
 	win->height = height;
 	win->aspect_ratio = (float)width/height;
+
+	// Update projection matrix
+	glm_perspective_resize(win->aspect_ratio, evars->projection_matrix);
 }
+
+static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
+{
+	static float lastX, lastY;
+	double xoffset = xpos - lastX;
+	double yoffset = lastY - ypos;
+
+	lastX = xpos;
+	lastY = ypos;
+
+	camera_process_mouse(evars->camera, xoffset, yoffset);
+}
+
 
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
@@ -250,21 +285,4 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action, int mod
 			glfwSetWindowShouldClose(window, 1);
 		break;
 	}
-}
-
-size_t game_object_push(game_object_t *g)
-{
-	size_t index = evars->objectCount;
-	evars->objectCount++;
-	evars->objects = realloc(evars->objects, evars->objectCount * sizeof(game_object_t));
-	evars->objects[index] = g;
-
-	return index;
-}
-
-void game_object_pop(size_t index)
-{
-	memcpy(evars->objects[index], evars->objects[evars->objectCount], sizeof(game_object_t));
-	evars->objectCount--;
-	evars->objects = realloc(evars->objects, evars->objectCount * sizeof(game_object_t));
 }

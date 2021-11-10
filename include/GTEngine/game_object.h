@@ -26,7 +26,7 @@ typedef struct game_object_t {
 
 	struct game_object_t *parent;
 	struct game_object_t *children;
-	size_t childrenNum;
+	size_t childNum;
 
 	mat4 model_matrix;
 	model_t *model;

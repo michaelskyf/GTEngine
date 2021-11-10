@@ -17,6 +17,7 @@
 
 #include "shader.h"
 #include "game_object.h"
+#include "camera.h"
 
 struct window_s {
 	unsigned short width, height;
@@ -30,9 +31,12 @@ typedef struct engine_variables_t {
 	const struct window_s *window;
 
 	shader_t *shader;
-
+	camera_t *camera;
 	game_object_t **objects;
 	size_t objectCount;
+
+	mat4 projection_matrix;
+
 } engine_variables_t;
 extern engine_variables_t *evars;
 

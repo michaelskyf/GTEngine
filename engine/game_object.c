@@ -21,19 +21,17 @@
 #include <GTEngine/engine.h>
 #include <glad/glad.h>
 #include <stdlib.h>
+#include <string.h>
 
 game_object_t *game_object_create(model_t *model)
 {
 	game_object_t *g = malloc(sizeof(game_object_t));
 	if(g)
 	{
-		g->childrenNum = 0;
+		g->childNum = 0;
 		g->enabled = 1;
 		g->parent = NULL;
 		g->model = model;
-
-		glm_mat4_identity(g->model_matrix);
-		glm_perspective(glm_rad(45.0f), evars->window->aspect_ratio, 0, 100, g->model_matrix);
 		glm_vec3_zero(g->velocity);
 	}
 	return g;
@@ -46,6 +44,22 @@ void game_object_destroy(game_object_t *g)
 
 void game_object_draw(game_object_t *g, shader_t *s)
 {
-	glUniformMatrix4fv(s->umPos, 1, GL_FALSE, *g->model_matrix);
 	model_draw(g->model, s);
+}
+
+size_t game_object_push(game_object_t *g)
+{
+	size_t index = evars->objectCount;
+	evars->objectCount++;
+	evars->objects = realloc(evars->objects, evars->objectCount * sizeof(game_object_t));
+	evars->objects[index] = g;
+
+	return index;
+}
+
+void game_object_pop(size_t index)
+{
+	memcpy(evars->objects[index], evars->objects[evars->objectCount], sizeof(game_object_t));
+	evars->objectCount--;
+	evars->objects = realloc(evars->objects, evars->objectCount * sizeof(game_object_t));
 }

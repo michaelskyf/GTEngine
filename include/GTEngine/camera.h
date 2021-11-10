@@ -21,28 +21,26 @@
 #include "game_object.h"
 
 typedef struct camera_t {
-	mat4 projection;
-	mat4 view;
+	mat4 view_matrix;
 
+	vec3 front;
 	vec3 right;
 	vec3 up;
 
-	// parent can be NULLL
-	game_object_t *parent;
+	vec3 position;
+	vec3 target;
+
+	double pitch;
+	double yaw;
+
 } camera_t;
 
 camera_t *camera_create(void);
 void camera_destroy(camera_t *);
 
+void camera_bind(camera_t *c, shader_t *s);
 // Useful for custom camera manipulation functions
 void camera_update(camera_t *);
-
-// camera manipulation functions
-void camera_move_by(camera_t *, vec3 vector);
-void camera_move_to(camera_t *, vec3 position);
-void camera_rotate_by(camera_t *, vec3 vector);
-void camera_rotate_to(camera_t *, vec3 rotation);
-
-void camera_lookat(camera_t *, vec3 position);
+void camera_process_mouse(camera_t *c, double xoffset, double yoffset);
 
 #endif

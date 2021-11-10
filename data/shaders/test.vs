@@ -10,7 +10,6 @@ varying vec3 Color;
 
 void main()
 {
-	//gl_Position = projection * vec4(vPos, 1.0);
-	gl_Position = model_matrix * vec4(vPos.x, vPos.y, vPos.z - 5.0, 1.0);
+	gl_Position = VP_matrix * vec4(vPos, 1.0);
 	Color = vPos;
 }
