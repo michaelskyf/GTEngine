@@ -24,6 +24,7 @@
 #include "cglm/vec3.h"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <math.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h> // For chdir
@@ -147,10 +148,11 @@ static void draw(void)
 	const float radius = 10.0f;
 	float camX = sin(glfwGetTime()) * radius;
 	float camZ = cos(glfwGetTime()) * radius;
+	float camY = cos(glfwGetTime()) * radius;
 
-	glm_vec3_copy((vec3){camX, 3, camZ}, evars->camera->position);
+	glm_vec3_copy((vec3){camX, camY, camZ}, evars->camera->position);
 
-	camera_lookat(evars->camera, (vec3){1,1,1});
+	camera_lookat(evars->camera, (vec3){0,0,0});
 
 	camera_bind(evars->camera, evars->shader);
 
@@ -214,7 +216,7 @@ static int opengl_setup(void)
 	glEnable(GL_DEPTH_TEST);
 
 	// Disable cursor
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	/* Bind callback functions */
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
@@ -276,7 +278,6 @@ static void cursor_position_callback(GLFWwindow* window, double xpos, double ypo
 
 	camera_process_mouse(evars->camera, xoffset, yoffset);
 }
-
 
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
