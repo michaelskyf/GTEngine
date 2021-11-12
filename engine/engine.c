@@ -148,8 +148,9 @@ static void draw(void)
 	float camX = sin(glfwGetTime()) * radius;
 	float camZ = cos(glfwGetTime()) * radius;
 
-	glm_vec3_copy((vec3){camX, 0, camZ}, evars->camera->position);
-	camera_update(evars->camera);
+	glm_vec3_copy((vec3){camX, 3, camZ}, evars->camera->position);
+
+	camera_lookat(evars->camera, (vec3){1,1,1});
 
 	camera_bind(evars->camera, evars->shader);
 
@@ -222,7 +223,7 @@ static int opengl_setup(void)
 
 	// TODO: shaders
 	evars->shader = shader_create("data/shaders/test.vs", "data/shaders/test.fs");
-	evars->camera = camera_create();
+	evars->camera = camera_create((vec3){0,0,0});
 
 	return 0;
 }

@@ -35,12 +35,13 @@ typedef struct camera_t {
 
 } camera_t;
 
-camera_t *camera_create(void);
+camera_t *camera_create(vec3 pos);
 void camera_destroy(camera_t *);
 
 void camera_bind(camera_t *c, shader_t *s);
 // Useful for custom camera manipulation functions
 void camera_update(camera_t *);
 void camera_process_mouse(camera_t *c, double xoffset, double yoffset);
+void camera_lookat(camera_t *, vec3 target);
 
 #endif

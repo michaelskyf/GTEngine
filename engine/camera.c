@@ -22,15 +22,17 @@
 #include <GTEngine/camera.h>
 #include <GTEngine/engine.h>
 #include <glad/glad.h>
+#include <math.h>
 #include <stdlib.h>
 
-camera_t *camera_create(void)
+camera_t *camera_create(vec3 pos)
 {
 	camera_t *c = malloc(sizeof(camera_t));
 	if(c)
 	{
 		c->pitch = 0.0f;
 		c->yaw = 0.0f;
+		glm_vec3_copy(pos, c->position);
 		camera_update(c);
 	}
 	return c;
@@ -43,7 +45,6 @@ void camera_destroy(camera_t *c)
 
 void camera_update(camera_t *c)
 {
-	printf("p: %f y: %f\n", c->pitch, c->yaw);
 	double yaw = glm_rad(c->yaw);
 	double pitch = glm_rad(c->pitch);
 
@@ -65,6 +66,16 @@ void camera_update(camera_t *c)
 	vec3 pf;
 	glm_vec3_add(c->position, c->front, pf);
 	glm_lookat(c->position, pf, c->up, c->view_matrix);
+}
+
+void camera_lookat(camera_t *c, vec3 target)
+{
+	vec3 help;
+	glm_vec3_sub(target, c->position, help);
+	c->yaw = glm_deg(atan2(help[2], help[0]));
+
+	c->pitch = glm_deg(atan2(help[1], sqrt(help[0] * help[0] + help[2] * help[2])));
+	camera_update(c);
 }
 
 void camera_process_mouse(camera_t *c, double xoffset, double yoffset)
