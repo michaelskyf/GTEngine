@@ -249,7 +249,7 @@ PROJECTINCLUDE	:= \
 
 PBUILD_AFLAGS	:=
 PBUILD_CXXFLAGS	:=
-PBUILD_C_CXX_FLAGS := -Wall -Werror -Wundef -fPIE -g -O0 \
+PBUILD_C_CXX_FLAGS := -Wall -Werror -Wundef -Wpedantic -fPIE -g -O0 \
 		      -Werror=return-type
 PBUILD_CFLAGS	:= $(PBUILD_C_CXX_FLAGS) \
 		   -Werror=strict-prototypes -Werror=implicit-function-declaration \

@@ -17,15 +17,15 @@
 
 #include <stdio.h>
 
-#define TERMINAL_COLOR_RED 	"\e[0;31m"
-#define TERMINAL_COLOR_GREEN 	"\e[0;32m"
-#define TERMINAL_COLOR_YELLOW 	"\e[0;33m"
-#define TERMINAL_COLOR_BLUE 	"\e[0;34m"
-#define TERMINAL_COLOR_PURPLE 	"\e[0;35m"
-#define TERMINAL_COLOR_CYAN 	"\e[0;36m"
-#define TERMINAL_COLOR_WHITE 	"\e[0;37m"
+#define TERMINAL_COLOR_RED 	"\033[0;31m"
+#define TERMINAL_COLOR_GREEN 	"\033[0;32m"
+#define TERMINAL_COLOR_YELLOW 	"\033[0;33m"
+#define TERMINAL_COLOR_BLUE 	"\033[0;34m"
+#define TERMINAL_COLOR_PURPLE 	"\033[0;35m"
+#define TERMINAL_COLOR_CYAN 	"\033[0;36m"
+#define TERMINAL_COLOR_WHITE 	"\033[0;37m"
 
-#define TERMINAL_COLOR_RESET	"\e[0m"
+#define TERMINAL_COLOR_RESET	"\033[0m"
 
 
 #define LOG(fmt, ...)  print_core(stdout, NULL, fmt "\n", ##__VA_ARGS__)
