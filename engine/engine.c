@@ -20,6 +20,7 @@
 */
 
 /* External headers */
+#include "cglm/affine.h"
 #include "cglm/clipspace/persp_rh_no.h"
 #include "cglm/vec3.h"
 #include <glad/glad.h>
@@ -177,7 +178,7 @@ static int engine_setup(void)
 		win->aspect_ratio = (float)win->width/win->height;
 		evars->window = win;
 
-	glm_perspective(glm_rad(45.0f), win->aspect_ratio, 0.1f, 100.0f, evars->projection_matrix);
+	glm_perspective(glm_rad(89.0f), win->aspect_ratio, 0.1f, 100.0f, evars->projection_matrix);
 
 	// Init engine.c static variables
 	delta_time = (float *)&evars->deltaTime;

@@ -33,7 +33,7 @@ typedef struct game_object_t {
 	_Bool enabled;
 } game_object_t;
 
-game_object_t *game_object_create(model_t *model);
+game_object_t *game_object_create(model_t *model, vec3 position);
 void game_object_destroy(game_object_t *);
 
 void game_object_draw(game_object_t *, shader_t *);

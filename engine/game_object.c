@@ -15,6 +15,7 @@
     along with GTEngine. If not, see <https://www.gnu.org/licenses/>.
 */
 #include "GTEngine/mesh.h"
+#include "cglm/affine.h"
 #include "cglm/mat4.h"
 #include "cglm/vec3.h"
 #include <GTEngine/game_object.h>
@@ -23,7 +24,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-game_object_t *game_object_create(model_t *model)
+game_object_t *game_object_create(model_t *model, vec3 position)
 {
 	game_object_t *g = malloc(sizeof(game_object_t));
 	if(g)
@@ -33,6 +34,8 @@ game_object_t *game_object_create(model_t *model)
 		g->parent = NULL;
 		g->model = model;
 		glm_vec3_zero(g->velocity);
+		glm_mat4_identity(g->model_matrix);
+		glm_translate_to(g->model_matrix, position, g->model_matrix);
 	}
 	return g;
 }
@@ -44,6 +47,7 @@ void game_object_destroy(game_object_t *g)
 
 void game_object_draw(game_object_t *g, shader_t *s)
 {
+	glad_glUniformMatrix4fv(s->umPos, 1, GL_FALSE, *g->model_matrix);
 	model_draw(g->model, s);
 }
 
