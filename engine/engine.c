@@ -20,9 +20,7 @@
 */
 
 /* External headers */
-#include "cglm/affine.h"
-#include "cglm/clipspace/persp_rh_no.h"
-#include "cglm/vec3.h"
+#include "GTEngine/vector.h"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <math.h>
@@ -51,14 +49,20 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
 static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
 
-/* Global variables */
-engine_variables_t *evars;
+/* Engine variables */
+struct gte_time _gte_time;
+struct gte_objects _gte_objects;
+struct gte_window _gte_window;
 
-/* Pointers to evars->* */
-static float *delta_time;
+/* Global variables */
+const struct gte_time * const gte_time = &_gte_time;
+const struct gte_objects * const gte_objects = &_gte_objects;
+const struct gte_window * const gte_window = &_gte_window;
 
 /* Local variables */
 static GLFWwindow *window;
+static shader_t *shader;
+static camera_t *camera;
 
 static const char *dirname(char *path)
 {
@@ -121,7 +125,7 @@ static void loop(void)
 	{
 		// Calculate delta-time
 		current_time = glfwGetTime();
-		*delta_time = current_time - last_time;
+		_gte_time.deltaTime = current_time - last_time;
 		last_time = current_time;
 
 		// Clear the back buffer
@@ -144,44 +148,30 @@ static void loop(void)
 static void draw(void)
 {
 	//LOG("FPS: %d", (int)(1/evars->deltaTime));
-	glUseProgram(evars->shader->id);
+	glUseProgram(shader->id);
 
-	const float radius = 10.0f;
-	float camX = sin(glfwGetTime()) * radius;
-	float camZ = cos(glfwGetTime()) * radius;
-	float camY = cos(glfwGetTime()) * radius;
+	camera_lookat(camera, (vec3){0,0,0});
 
-	glm_vec3_copy((vec3){camX, camY, camZ}, evars->camera->position);
-
-	camera_lookat(evars->camera, (vec3){0,0,0});
-
-	camera_bind(evars->camera, evars->shader);
+	camera_bind(camera, shader);
 
 	// For each loaded game_object (TODO: implement in renderer.c)
-	for(size_t i = 0; i < evars->objectCount; i++)
-		game_object_draw(evars->objects[i], evars->shader);
+	for(size_t i = 0; i < _gte_objects.objects->size; i++)
+		game_object_draw(vector_get(_gte_objects.objects, i), shader);
 }
 
 static int engine_setup(void)
 {
-	// Create and init evars
-	evars = malloc(sizeof(engine_variables_t));
+	/* Init _gte_* structs */
+	_gte_time.get_time = glfwGetTime;
+	_gte_time.deltaTime = 0;
 
-	evars->objects = malloc(0);
-	evars->objectCount = 0;
+	_gte_window.width = 800;
+	_gte_window.height = 600;
+	_gte_window.aspect_ratio = (double)_gte_window.width / _gte_window.height;
+	glm_perspective(glm_rad(89.0f), _gte_window.aspect_ratio, 0.1f, 100.0f, _gte_window.projection);
 
-	// Create and init window_s
-	struct window_s *win = malloc(sizeof(struct window_s));
-		// This values will get overwritten by framebuffer_size_callback
-		win->width = 800;
-		win->height = 600;
-		win->aspect_ratio = (float)win->width/win->height;
-		evars->window = win;
+	_gte_objects.objects = vector_create(0, sizeof(game_object_t), 2);
 
-	glm_perspective(glm_rad(89.0f), win->aspect_ratio, 0.1f, 100.0f, evars->projection_matrix);
-
-	// Init engine.c static variables
-	delta_time = (float *)&evars->deltaTime;
 	return 0;
 }
 
@@ -193,7 +183,7 @@ static int opengl_setup(void)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	window = glfwCreateWindow(evars->window->width, evars->window->height, "GLTest", NULL, NULL);
+	window = glfwCreateWindow(_gte_window.width, _gte_window.height, "GLTest", NULL, NULL);
 
 	if (!window)
 	{
@@ -217,7 +207,7 @@ static int opengl_setup(void)
 	glEnable(GL_DEPTH_TEST);
 
 	// Disable cursor
-	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	/* Bind callback functions */
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
@@ -225,23 +215,16 @@ static int opengl_setup(void)
 	glfwSetCursorPosCallback(window, cursor_position_callback);
 
 	// TODO: shaders
-	evars->shader = shader_create("data/shaders/test.vs", "data/shaders/test.fs");
-	evars->camera = camera_create((vec3){0,0,0});
+	shader = shader_create("data/shaders/test.vs", "data/shaders/test.fs");
+	camera = camera_create((vec3){0,0,0});
 
 	return 0;
 }
 
 static void engine_exit(void)
 {
-	// Free all game objects
-	for(size_t i = 0; i < evars->objectCount; i++)
-		game_object_destroy(evars->objects[i]);
-
-	// Destroy evars
-	free((void*)evars->window);
-	free(evars->objects);
-	shader_destroy(evars->shader);
-	free(evars);
+	// Destroy all game objects
+	vector_destroy(_gte_objects.objects);
 }
 
 static void opengl_exit(void)
@@ -251,7 +234,12 @@ static void opengl_exit(void)
 
 static void engine_update(void)
 {
+	const float radius = 10.0f;
+	float camX = sin(glfwGetTime()) * radius;
+	float camZ = cos(glfwGetTime()) * radius;
+	float camY = sin(glfwGetTime()) * radius;
 
+	glm_vec3_copy((vec3){camX, camY, camZ}, camera->position);
 }
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height)
@@ -259,13 +247,12 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height)
 	glViewport(0, 0, width, height);
 
 	// Update window struct
-	struct window_s *win = (struct window_s *)evars->window;
-	win->width = width;
-	win->height = height;
-	win->aspect_ratio = (float)width/height;
+	_gte_window.width = width;
+	_gte_window.height = height;
+	_gte_window.aspect_ratio = (float)width/height;
 
 	// Update projection matrix
-	glm_perspective_resize(win->aspect_ratio, evars->projection_matrix);
+	glm_perspective_resize(_gte_window.aspect_ratio, _gte_window.projection);
 }
 
 static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
@@ -277,7 +264,7 @@ static void cursor_position_callback(GLFWwindow* window, double xpos, double ypo
 	lastX = xpos;
 	lastY = ypos;
 
-	camera_process_mouse(evars->camera, xoffset, yoffset);
+	camera_process_mouse(camera, xoffset, yoffset);
 }
 
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)

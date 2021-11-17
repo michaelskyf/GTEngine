@@ -95,6 +95,6 @@ void camera_process_mouse(camera_t *c, double xoffset, double yoffset)
 void camera_bind(camera_t *c, shader_t *s)
 {
 	mat4 vp_matrix;
-	glm_mat4_mul(evars->projection_matrix, c->view_matrix, vp_matrix);
+	glm_mat4_mul((vec4*)gte_window->projection, c->view_matrix, vp_matrix);
 	glUniformMatrix4fv(s->uvpPos, 1, GL_FALSE, *vp_matrix);
 }

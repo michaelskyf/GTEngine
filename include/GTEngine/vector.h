@@ -14,34 +14,28 @@
     You should have received a copy of the GNU General Public License
     along with GTEngine. If not, see <https://www.gnu.org/licenses/>.
 */
-#include "cglm/vec3.h"
-#include <GTEngine/game_object.h>
-#include <GTEngine/engine.h>
-#include <glad/glad.h>
+#ifndef GTE_VECTOR_H
+#define GTE_VECTOR_H
+#include <sys/cdefs.h>
+#include <sys/types.h>
 
-game_object_t *game_object_create(model_t *model, vec3 position)
+typedef struct vector_t
 {
-	game_object_t *g = malloc(sizeof(game_object_t));
-	if(g)
-	{
-		g->childNum = 0;
-		g->enabled = 1;
-		g->parent = NULL;
-		g->model = model;
-		glm_vec3_zero(g->velocity);
-		glm_mat4_identity(g->model_matrix);
-		glm_translate_to(g->model_matrix, position, g->model_matrix);
-	}
-	return g;
-}
+	size_t size;
+	size_t item_size;
+	float growth_rate;
+	size_t capacity;
+	void *data;
+} vector_t;
 
-void game_object_destroy(game_object_t *g)
-{
-	free(g);
-}
+__attribute_warn_unused_result__
+vector_t *vector_create(size_t capacity, size_t item_size, size_t growth_rate);
+void vector_destroy(vector_t *);
 
-void game_object_draw(game_object_t *g, shader_t *s)
-{
-	glUniformMatrix4fv(s->umPos, 1, GL_FALSE, *g->model_matrix);
-	model_draw(g->model, s);
-}
+int vector_push(vector_t *, const void *);
+void vector_pop(vector_t *, void *);
+
+__attribute_warn_unused_result__
+void *vector_get(vector_t *, size_t index);
+
+#endif
