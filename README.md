@@ -1,9 +1,6 @@
 # GTEngine
 ## _OpenGL game engine written in C_
 
-GTEngine is written entirely C, but it can also compile and link C++.
-
-
 ## What works
 - Loading models
 
@@ -18,6 +15,10 @@ cd GTEngine
 make
 make run #test, debug
 ```
+
+## Supported languages
+ - C
+ - C++
 
 ## Supported graphics APIs
 - GLES 2.0

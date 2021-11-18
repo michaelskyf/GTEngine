@@ -35,6 +35,8 @@ typedef struct camera_t {
 
 } camera_t;
 
+
+__attribute_warn_unused_result__
 camera_t *camera_create(vec3 pos);
 void camera_destroy(camera_t *);
 

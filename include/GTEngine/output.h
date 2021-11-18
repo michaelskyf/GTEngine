@@ -11,11 +11,11 @@
     You should have received a copy of the GNU General Public License
     along with GTEngine. If not, see <https://www.gnu.org/licenses/>.
 */
-
 #ifndef GTE_OUTPUT_H
 #define GTE_OUTPUT_H
 
 #include <stdio.h>
+#include <sys/cdefs.h>
 
 #define TERMINAL_COLOR_RED 	"\033[0;31m"
 #define TERMINAL_COLOR_GREEN 	"\033[0;32m"
@@ -38,6 +38,7 @@
 
 int print_setup(void);
 
+__attribute__((format(printf, 3, 4)))
 int print_core(FILE *stream, const char *color, const char *fmt, ...);
 
 #endif

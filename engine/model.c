@@ -1,19 +1,19 @@
 /*
     This file is part of GTEngine.
+
     GTEngine is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
+
     GTEngine is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
+
     You should have received a copy of the GNU General Public License
     along with GTEngine. If not, see <https://www.gnu.org/licenses/>.
 */
-#include "GTEngine/mesh.h"
-#include "cglm/vec2.h"
-#include "cglm/vec3.h"
 #include <GTEngine/model.h>
 #include <GTEngine/output.h>
 #include <glad/glad.h>
@@ -216,15 +216,9 @@ static material_t *process_material(const struct aiMesh *mMesh)
 
 static int mesh_setup(mesh_t *m)
 {
-	// If no texture, warn the user
-	if(!m->material->tCount)
-		LOGW("Mesh using a material with no texture");
-
 	// Generate buffers
 	glGenBuffers(1, &m->vbo);
 	glGenBuffers(1, &m->ebo);
-
-	// Bind the buffers
 
 	// Setup buffers data
 	glBindBuffer(GL_ARRAY_BUFFER, m->vbo);

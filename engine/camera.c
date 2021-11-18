@@ -14,16 +14,9 @@
     You should have received a copy of the GNU General Public License
     along with GTEngine. If not, see <https://www.gnu.org/licenses/>.
 */
-#include "cglm/affine.h"
-#include "cglm/cam.h"
-#include "cglm/cglm.h"
-#include "cglm/util.h"
-#include "cglm/vec3.h"
 #include <GTEngine/camera.h>
 #include <GTEngine/engine.h>
 #include <glad/glad.h>
-#include <math.h>
-#include <stdlib.h>
 
 camera_t *camera_create(vec3 pos)
 {
