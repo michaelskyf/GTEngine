@@ -23,7 +23,7 @@
 struct gte_time
 {
 	double deltaTime;
-	double (*get_time)(void); // Time in seconds the from start of the program
+	double (*get_time)(void); // Time in seconds the from the start of the program
 } extern const * const gte_time;
 
 struct gte_window

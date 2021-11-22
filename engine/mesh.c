@@ -30,5 +30,9 @@ void mesh_draw(mesh_t *m, shader_t *s)
 	glEnableVertexAttribArray(0);
 
 	// Draw elements
-	glDrawElements(GL_TRIANGLES, m->indicesCount, GL_UNSIGNED_SHORT, 0);
+	glDrawElements(GL_TRIANGLES, m->indices->size, GL_UNSIGNED_SHORT, 0);
+
+	// Draw children
+	for(size_t i = 0; i < m->children->size; i++)
+		mesh_draw(vector_get(m->children, i), s);
 }

@@ -43,5 +43,4 @@ void game_exit(void)
 
 void game_update(void)
 {
-	glm_rotate(GO->model_matrix, 0.05, (vec3){0,1,0});
 }

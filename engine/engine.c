@@ -29,6 +29,7 @@
 #include <unistd.h> // For chdir
 
 /* Internal headers */
+#include <GTEngine/lib.h>
 #include <GTEngine/output.h>
 #include <GTEngine/camera.h>
 #include <GTEngine/game_object.h>
@@ -64,25 +65,19 @@ static GLFWwindow *window;
 static shader_t *shader;
 static camera_t *camera;
 
-static const char *dirname(char *path)
-{
-	char *base = strrchr(path, '/');
-	if(base)
-		*base='\0';
-	return path;
-}
-
 int main(int argc, char **argv)
 {
-	// Before we do any inits, we need to change working directory
-	// to the directory in which the main executable resides.
+	/*
+	  * Before we do any inits, we need to change working directory
+	  * to the directory in which the 'data' should exist
+	  * (dir in which the executable resides)
+	*/
 	chdir(dirname(*argv));
 	// Restore argv[0]
 	argv[0][strlen(*argv)] = '/';
 
 	/*
-	   Run setup funcions.
-	   If of the functions returns non-0, exit.
+	  * Functions that setup something
 	*/
 	int (* setup_func[])(void) = {
 		print_setup,
@@ -91,17 +86,39 @@ int main(int argc, char **argv)
 		game_setup,
 	};
 
+	// If engine is set-up, call engine_exit on error
+	_Bool engine_done = 0;
+	// The same goes for opengl
+	_Bool opengl_done = 0;
+
+	/*
+	  * Run setup funcions.
+	  * If any of the functions returns 1 (non-0), exit.
+	*/
 	for(unsigned int i = 0; i < sizeof(setup_func)/sizeof(*setup_func); i++)
 	{
 		if(setup_func[i]())
 		{
 			LOGE("Error while running setup function %d. Exiting.", i);
+
+			if(engine_done)
+				engine_exit();
+
+			if(opengl_done)
+				opengl_exit();
+
 			return -1;
 		}
+		if(setup_func[i] == engine_setup)
+			engine_done = 1;
+
+		if(setup_func[i] == opengl_setup)
+			opengl_done = 1;
 	}
 
-	// Everything is set-up,
-	// start render loop
+	/*
+	  * If everything is properly set-up, run the main loop
+	*/
 	loop();
 
 	// Clean-up then exit
@@ -114,10 +131,6 @@ int main(int argc, char **argv)
 
 static void loop(void)
 {
-	// Time-keeping variables
-	// We init last_time here, because
-	// otherwise delta_time would be really big
-	// on the first frame
 	float last_time = glfwGetTime();
 	float current_time;
 
@@ -135,7 +148,6 @@ static void loop(void)
 		engine_update();
 		// Update the game
 		game_update();
-
 		// Draw objects
 		draw();
 
@@ -147,7 +159,7 @@ static void loop(void)
 
 static void draw(void)
 {
-	//LOG("FPS: %d", (int)(1/evars->deltaTime));
+	// This is of course WiP
 	glUseProgram(shader->id);
 
 	camera_lookat(camera, (vec3){0,0,0});
@@ -207,14 +219,13 @@ static int opengl_setup(void)
 	glEnable(GL_DEPTH_TEST);
 
 	// Disable cursor
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	/* Bind callback functions */
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	glfwSetKeyCallback(window, key_callback);
 	glfwSetCursorPosCallback(window, cursor_position_callback);
 
-	// TODO: shaders
 	shader = shader_create("data/shaders/test.vs", "data/shaders/test.fs");
 	camera = camera_create((vec3){0,0,0});
 

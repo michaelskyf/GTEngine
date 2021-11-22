@@ -6,10 +6,10 @@ attribute vec2 tPos; // texture coordinates
 uniform mat4 VP_matrix;
 uniform mat4 model_matrix;
 
-varying vec3 Color;
+varying vec2 TexCoords;
 
 void main()
 {
 	gl_Position = VP_matrix * model_matrix * vec4(vPos, 1.0);
-	Color = vPos;
+	TexCoords = tPos;
 }

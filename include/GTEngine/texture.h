@@ -14,31 +14,14 @@
     You should have received a copy of the GNU General Public License
     along with GTEngine. If not, see <https://www.gnu.org/licenses/>.
 */
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-#include <glad/glad.h>
-#include <GTEngine/texture.h>
-#include <GTEngine/output.h>
-#include <GTEngine/lib.h>
+#ifndef GTE_TEXTURE_H
+#define GTE_TEXTURE_H
 
-texture_t *texture_load(const char *path)
-{
-	texture_t *t = malloc(sizeof(texture_t));
-	int width, height, nrChannels;
-	unsigned char *data = stbi_load(path, &width, &height, &nrChannels, 0);
+typedef struct texture_t {
+	unsigned int id;
+	const char *type;
+} texture_t;
 
-	if(data && t)
-	{
-		glGenTextures(1, &t->id);
+texture_t *texture_load(const char *path);
 
-		glBindTexture(GL_TEXTURE_2D, t->id);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-
-		stbi_image_free(data);
-	} else {
-		LOGE("Failed to load texture %s", basename(path));
-	}
-
-	return t;
-}
+#endif

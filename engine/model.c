@@ -14,8 +14,13 @@
     You should have received a copy of the GNU General Public License
     along with GTEngine. If not, see <https://www.gnu.org/licenses/>.
 */
+#include "GTEngine/mesh.h"
+#include "GTEngine/vector.h"
 #include <GTEngine/model.h>
+#include <GTEngine/texture.h>
+#include <GTEngine/lib.h>
 #include <GTEngine/output.h>
+#include <assimp/material.h>
 #include <glad/glad.h>
 #include <assimp/cimport.h>
 #include <assimp/mesh.h>
@@ -25,12 +30,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-static const char *basename(const char *path);
 // Returns mesh_t array of size node->mNumMeshes
 static mesh_t *process_meshes(const struct aiNode *node, const struct aiScene *scene);
-static void process_root_node(model_t *model, const struct aiScene *scene);
-static vertex_t *process_vertices(const struct aiMesh *mMesh);
-static unsigned short *process_indices(const struct aiMesh *mMesh);
+static mesh_t *process_node(const struct aiNode *node, const struct aiScene *scene);
+static vector_t *process_vertices(const struct aiMesh *mMesh);
+static vector_t *process_indices(const struct aiMesh *mMesh);
 static material_t *process_material(const struct aiMesh *mMesh);
 static int mesh_setup(mesh_t *m);
 
@@ -40,8 +44,7 @@ model_t *model_load(const char *path)
 	if(m)
 	{
 		// Init variables
-		m->meshCount = 0;
-		m->meshes = NULL;
+		m->mesh = NULL;
 		m->path = path;
 
 		// Check for file extension
@@ -70,8 +73,7 @@ model_t *model_load(const char *path)
 			model_destroy(m);
 			return NULL;
 		}
-		// Init meshes and meshCount
-		process_root_node(m, scene);
+		m->mesh = process_node(scene->mRootNode, scene);
 
 		// Destroy scene
 		aiReleaseImport(scene);
@@ -81,112 +83,96 @@ model_t *model_load(const char *path)
 
 void model_destroy(model_t *m)
 {
-	if(m->meshes)
-		free(m->meshes);
-	// TODO remove children
-	free(m);
 }
 
 void model_draw(model_t *m, shader_t *s)
 {
-	for(size_t i = 0; i < m->meshCount; i++)
-		mesh_draw(&m->meshes[i], s);
+	for(size_t i = 0; i < m->mesh->children->size; i++)
+		mesh_draw(vector_get(m->mesh->children, i), s);
 }
 
-static const char *basename(const char *path)
-/* Helper function for model_load */
+static mesh_t *process_node(const struct aiNode *node, const struct aiScene *scene)
 {
-	char *base = strrchr(path, '/');
-	return base ? base+1 : path;
-}
+	/*
+	   * Each node should correspond to a mesh
+	*/
 
-static void process_root_node(model_t *model, const struct aiScene *scene)
-{
-	const struct aiNode *root = scene->mRootNode;
-	size_t array_size = 0;
-	// For each child of the root node:
-	for(size_t i = 0; i < root->mNumChildren; i++)
+	// Init mesh
+	mesh_t *mesh = process_meshes(node, scene);
+
+
+	// Process children
+	vector_t *children = vector_create(node->mNumChildren, sizeof(mesh_t), 0);
+
+	for(size_t i = 0; i < children->capacity; i++)
 	{
-		// Count number of meshes
-		const struct aiNode *child = root->mChildren[i];
-		array_size += child->mNumMeshes;
-	}
+		const struct aiNode *child = node->mChildren[i];
 
-	mesh_t *mesh_array = malloc(array_size * sizeof(mesh_t));
-	size_t array_index = 0;
-	mesh_t *new_array;
-	// For each child of the root node:
-	for(size_t i = 0; i < root->mNumChildren; i++)
-	{
-		// Get meshes
-		const struct aiNode *child = root->mChildren[i];
-		new_array = process_meshes(child, scene);
-
-		// Copy meshes to mesh_array
-		memcpy(&mesh_array[array_index], new_array, child->mNumMeshes * sizeof(mesh_t));
-		array_index++;
-		free(new_array);
+		mesh_t *m = process_node(child, scene);
+		vector_push(children, m);
+		free(m);
 	}
-	// Set meshes and meshCount
-	model->meshes = mesh_array;
-	model->meshCount = array_size;
+	mesh->children = children;
+
+	return mesh;
 }
 
 static mesh_t *process_meshes(const struct aiNode *node, const struct aiScene *scene)
+/* Returns one mesh made of all of the node's meshes */
 {
-	// Create an array of meshes
-	size_t array_size = node->mNumMeshes;
-	mesh_t *mesh_array = malloc(array_size * sizeof(mesh_t));
+	vector_t *vertices = NULL;
+	vector_t *indices = NULL;
 
-	// For each mesh:
-	for(size_t i = 0; i < array_size; i++)
+	// Assign vertices and indices
+	for(size_t i = 0; i < node->mNumMeshes; i++)
 	{
-		mesh_t *mesh = &mesh_array[i];
-		const struct aiMesh *mMesh = scene->mMeshes[node->mMeshes[i]];
-		// Process vertices
-		mesh->vertices = process_vertices(mMesh);
-		mesh->verticesCount = mMesh->mNumVertices;
-		// Process indices
-		// Since we used 'aiProcess_Triangulate' flag, size of indices is equal to faces * 3
-		mesh->indices = process_indices(mMesh);
-		mesh->indicesCount = mMesh->mNumFaces * 3;
-		// Process material
-		mesh->material = process_material(mMesh);
-		//Finally, setup the mesh
-		mesh_setup(mesh);
+		struct aiMesh *mMesh = scene->mMeshes[node->mMeshes[i]];
+		indices = process_indices(mMesh);
+		vertices = process_vertices(mMesh);
 	}
-	return mesh_array;
+
+	// Finally, create the mesh
+	mesh_t *m = malloc(sizeof(mesh_t));
+	if(m)
+	{
+		m->vertices = vertices;
+		m->indices = indices;
+		m->material = NULL;
+
+		if(m->vertices && m->indices)
+			mesh_setup(m);
+	}
+	return m;
 }
 
-static vertex_t *process_vertices(const struct aiMesh *mMesh)
+static vector_t *process_vertices(const struct aiMesh *mMesh)
 {
-	// Create an array of vertices
-	size_t array_size = mMesh->mNumVertices;
-	vertex_t *vertex_array = malloc(array_size * sizeof(vertex_t));
+	vector_t *vertices = vector_create(mMesh->mNumVertices, sizeof(vertex_t), 0);
 
 	// For each vertex:
-	for(size_t i = 0; i < array_size; i++)
+	for(size_t i = 0; i < vertices->capacity; i++)
 	{
-		vertex_t *vertex = &vertex_array[i];
+		vertex_t vertex;
 		// Copy vertex positions
-		glm_vec3_copy(&mMesh->mVertices[i].x, vertex->position);
+		glm_vec3_copy(&mMesh->mVertices[i].x, vertex.position);
 		// Copy normals
-		glm_vec3_copy(&mMesh->mNormals[i].x, vertex->normals);
+		glm_vec3_copy(&mMesh->mNormals[i].x, vertex.normals);
 		// Copy texture coordinates if they exist
 		if(mMesh->mTextureCoords[0])
-			glm_vec2_copy(&mMesh->mTextureCoords[0][i].x, vertex->texCoords);
+			glm_vec2_copy(&mMesh->mTextureCoords[0][i].x, vertex.texCoords);
 		else
-			glm_vec2_zero(vertex->texCoords);
+			glm_vec2_zero(vertex.texCoords);
+
+		vector_push(vertices, &vertex);
 	}
-	return vertex_array;
+	return vertices;
 }
 
-static unsigned short *process_indices(const struct aiMesh *mMesh)
+static vector_t *process_indices(const struct aiMesh *mMesh)
 {
 	// Create an array of unsigned ints
 	// Since we used 'aiProcess_Triangulate' flag, size of indices is equal to faces * 3
-	size_t array_size = mMesh->mNumFaces * 3;
-	unsigned short *index_array = malloc(array_size * sizeof(unsigned int));
+	vector_t *indices = vector_create(mMesh->mNumFaces * 3, sizeof(unsigned short), 0);
 
 	// For each face:
 	for(size_t f = 0; f < mMesh->mNumFaces; f++)
@@ -194,11 +180,9 @@ static unsigned short *process_indices(const struct aiMesh *mMesh)
 		struct aiFace *face = &mMesh->mFaces[f];
 		// For each index:
 		for(size_t i = 0; i < face->mNumIndices; i++)
-		{
-			index_array[f*3+i] = face->mIndices[i];
-		}
+			vector_push(indices, &face->mIndices[i]);
 	}
-	return index_array;
+	return indices;
 }
 
 static material_t *process_material(const struct aiMesh *mMesh)
@@ -209,7 +193,6 @@ static material_t *process_material(const struct aiMesh *mMesh)
 	{
 		LOGW("Creating a dummy material");
 		material = malloc(sizeof(material_t));
-		material->tCount = 0;
 	}
 	return material;
 }
@@ -222,10 +205,10 @@ static int mesh_setup(mesh_t *m)
 
 	// Setup buffers data
 	glBindBuffer(GL_ARRAY_BUFFER, m->vbo);
-	glBufferData(GL_ARRAY_BUFFER, m->verticesCount * sizeof(vertex_t), m->vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, m->vertices->size * m->vertices->item_size, m->vertices->data, GL_STATIC_DRAW);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m->ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m->indicesCount * sizeof(*m->indices), m->indices, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m->indices->size * m->indices->item_size, m->indices->data, GL_STATIC_DRAW);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);

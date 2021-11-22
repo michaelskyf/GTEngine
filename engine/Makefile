@@ -6,3 +6,4 @@ obj-y += shader.o
 obj-y += model.o
 obj-y += camera.o
 obj-y += game_object.o
+obj-y += texture.o

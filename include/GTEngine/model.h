@@ -15,10 +15,10 @@
 #define GTE_MODEL_H
 
 #include "mesh.h"
+#include "vector.h"
 
-typedef struct {
-	mesh_t *meshes;
-	size_t meshCount;
+typedef struct model_t {
+	mesh_t *mesh;
 	const char *path;
 } model_t;
 
