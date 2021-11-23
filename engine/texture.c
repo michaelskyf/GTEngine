@@ -23,6 +23,7 @@
 
 texture_t *texture_load(const char *path)
 {
+	stbi_set_flip_vertically_on_load(1);
 	texture_t *t = malloc(sizeof(texture_t));
 	int width, height, nrChannels;
 	unsigned char *data = stbi_load(path, &width, &height, &nrChannels, 0);
@@ -32,8 +33,9 @@ texture_t *texture_load(const char *path)
 		glGenTextures(1, &t->id);
 
 		glBindTexture(GL_TEXTURE_2D, t->id);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
+		//glGenerateMipmap(GL_TEXTURE_2D);
 
 		stbi_image_free(data);
 	} else {

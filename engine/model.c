@@ -32,12 +32,13 @@
 #include <string.h>
 
 // Returns mesh_t array of size node->mNumMeshes
-static vector_t *process_meshes(const struct aiNode *node, const struct aiScene *scene);
-static node_t *process_node(const struct aiNode *node, const struct aiScene *scene);
+static vector_t *process_meshes(const struct aiNode *node, const struct aiScene *scene, const char *directory);
+static node_t *process_node(const struct aiNode *node, const struct aiScene *scene, const char *directory);
 static vector_t *process_vertices(const struct aiMesh *mMesh);
 static vector_t *process_indices(const struct aiMesh *mMesh);
-static material_t *process_material(const struct aiMaterial *mMat);
+static material_t *process_material(const struct aiMaterial *mMat, const char *directory);
 static int mesh_setup(mesh_t *m);
+static vector_t *material_texture_load(const struct aiMaterial *mMat, enum aiTextureType type, const char *typename, const char *directory);
 
 model_t *model_load(const char *path)
 {
@@ -66,15 +67,18 @@ model_t *model_load(const char *path)
 		}
 
 		// Load the model file
-		const struct aiScene *scene = aiImportFile(path, aiProcess_Triangulate | aiProcess_FlipUVs
-				| aiProcessPreset_TargetRealtime_Fast);
+		const struct aiScene *scene = aiImportFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
 		if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene ->mRootNode)
 		{
 			LOGE("Assimp failed to load %s", path);
 			model_destroy(m);
 			return NULL;
 		}
-		m->node = process_node(scene->mRootNode, scene);
+		m->path = path;
+		m->directory = malloc(strlen(path));
+		strcpy((char*)m->directory, path);
+		dirname((char*)m->directory);
+		m->node = process_node(scene->mRootNode, scene, m->directory);
 		m->node->parent = NULL;
 
 		// Destroy scene
@@ -104,12 +108,12 @@ void model_draw(model_t *m, shader_t *s)
 	}
 }
 
-static node_t *process_node(const struct aiNode *node, const struct aiScene *scene)
+static node_t *process_node(const struct aiNode *node, const struct aiScene *scene, const char *directory)
 {
 	node_t *n = malloc(sizeof(node_t));
 	if(n)
 	{
-		n->meshes = process_meshes(node, scene);
+		n->meshes = process_meshes(node, scene, directory);
 
 		if(node->mNumChildren > 0)
 			n->children = vector_create(node->mNumChildren, sizeof(node_t), 0);
@@ -118,7 +122,7 @@ static node_t *process_node(const struct aiNode *node, const struct aiScene *sce
 
 		for(size_t i = 0; i < node->mNumChildren; i++)
 		{
-			node_t *nchild = process_node(node->mChildren[i], scene);
+			node_t *nchild = process_node(node->mChildren[i], scene, directory);
 			nchild->parent = n;
 			vector_push(n->children, nchild);
 			free(nchild);
@@ -127,7 +131,7 @@ static node_t *process_node(const struct aiNode *node, const struct aiScene *sce
 	return n;
 }
 
-static vector_t *process_meshes(const struct aiNode *node, const struct aiScene *scene)
+static vector_t *process_meshes(const struct aiNode *node, const struct aiScene *scene, const char *directory)
 {
 	vector_t *meshes = vector_create(node->mNumMeshes, sizeof(mesh_t), 0);
 
@@ -140,7 +144,7 @@ static vector_t *process_meshes(const struct aiNode *node, const struct aiScene 
 
 		mesh->indices = process_indices(mMesh);
 		mesh->vertices = process_vertices(mMesh);
-		mesh->material = process_material(scene->mMaterials[mMesh->mMaterialIndex]);
+		mesh->material = process_material(scene->mMaterials[mMesh->mMaterialIndex], directory);
 		mesh_setup(mesh);
 	}
 	return meshes;
@@ -186,7 +190,7 @@ static vector_t *process_indices(const struct aiMesh *mMesh)
 	return indices;
 }
 
-static vector_t *material_texture_load(const struct aiMaterial *mMat, enum aiTextureType type, const char *typename)
+static vector_t *material_texture_load(const struct aiMaterial *mMat, enum aiTextureType type, const char *typename, const char *directory)
 {
 	size_t count = aiGetMaterialTextureCount(mMat, type);
 	vector_t *textures = vector_create(count, sizeof(texture_t), 0);
@@ -196,31 +200,40 @@ static vector_t *material_texture_load(const struct aiMaterial *mMat, enum aiTex
 		struct aiString path;
 		aiGetMaterialTexture(mMat, type, i, &path, NULL, NULL, NULL, NULL, NULL, NULL);
 
-		texture_t *tex = texture_load(path.data);
+		size_t size = strlen(directory) + strlen(path.data) + 2;
+		char *file_path = malloc(size);
+		strcpy(file_path, directory);
+		strcat(file_path, "/");
+		strcat(file_path, path.data);
+		LOG("%s", file_path);
+
+		texture_t *tex = texture_load(file_path);
 		tex->type = typename;
 		vector_push(textures, tex);
 		free(tex);
+		free(file_path);
 	}
 
 	return textures;
 }
 
-static material_t *process_material(const struct aiMaterial *mMat)
+static material_t *process_material(const struct aiMaterial *mMat, const char *directory)
 {
 	// Create a dummy material
 	material_t *material = malloc(sizeof(material_t));
-	if(!material)
+	if(material)
 	{
 		vector_t *textures = vector_create(0, sizeof(texture_t), 0);
 
-		vector_t *diffuse = material_texture_load(mMat, aiTextureType_DIFFUSE, "texture_diffuse");
-		vector_t *specular = material_texture_load(mMat, aiTextureType_SPECULAR, "texture_specular");
+		vector_t *diffuse = material_texture_load(mMat, aiTextureType_DIFFUSE, "texture_diffuse", directory);
+//		vector_t *specular = material_texture_load(mMat, aiTextureType_SPECULAR, "texture_specular", directory);
 
-		vector_join(textures, diffuse);
-		vector_join(textures, specular);
+//		vector_join(textures, diffuse);
+		vector_push(textures, diffuse);
+//		vector_join(textures, specular);
 
 		vector_destroy(diffuse);
-		vector_destroy(specular);
+//		vector_destroy(specular);
 
 		material->textures = textures;
 	}

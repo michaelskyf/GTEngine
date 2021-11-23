@@ -27,6 +27,7 @@ typedef struct node {
 typedef struct model_t {
 	node_t *node;
 	const char *path;
+	const char *directory;
 } model_t;
 
 __attribute_warn_unused_result__
