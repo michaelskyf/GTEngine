@@ -17,8 +17,15 @@
 #include "mesh.h"
 #include "vector.h"
 
+typedef struct node {
+	vector_t *meshes;
+
+	const struct node *parent;
+	vector_t *children;
+} node_t;
+
 typedef struct model_t {
-	mesh_t *mesh;
+	node_t *node;
 	const char *path;
 } model_t;
 

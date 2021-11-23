@@ -75,3 +75,23 @@ void *vector_get(vector_t *v, size_t index)
 	assert(index >= 0 && index <= v->size);
 	return (char*)v->data+index*v->item_size;
 }
+
+int vector_join(vector_t *dest, vector_t *src)
+{
+	assert(dest->item_size == src->item_size);
+
+	if(dest->capacity < dest->size + src->size)
+	{
+		size_t new_capacity = dest->size + src->size;
+		void *new_data = realloc(dest->data, new_capacity * dest->item_size);
+
+		if(!new_data)
+			return -1;
+
+		dest->data = new_data;
+		dest->capacity = new_capacity;
+	}
+	memcpy(&dest->data[dest->size], src->data, src->size);
+
+	return 0;
+}

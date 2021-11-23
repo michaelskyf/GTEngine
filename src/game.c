@@ -19,8 +19,6 @@
 #include <GTEngine/game_object.h>
 #include <GTEngine/output.h>
 #include <GTEngine/engine.h>
-// For testing only
-#include <GTEngine/model.h>
 
 model_t *model;
 shader_t *shader;
@@ -29,7 +27,7 @@ game_object_t *GO;
 int game_setup(void)
 {
 	struct gte_objects *objects = (struct gte_objects*)gte_objects;
-	model = model_load("data/backpack.obj");
+	model = model_load("data/objects/backpack.obj");
 	GO = game_object_create(model, (vec3){0,0,0});
 	vector_push(objects->objects, GO);
 

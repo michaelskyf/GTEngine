@@ -37,5 +37,6 @@ void vector_pop(vector_t *, void *);
 
 __attribute_warn_unused_result__
 void *vector_get(vector_t *, size_t index);
+int vector_join(vector_t *dest, vector_t *src);
 
 #endif

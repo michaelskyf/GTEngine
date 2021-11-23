@@ -37,9 +37,6 @@ typedef struct mesh_t {
 	vector_t *indices;
 	material_t *material;
 
-	struct mesh_t *parent;
-	vector_t *children;
-
 	unsigned int vbo, ebo;
 } mesh_t;
 

@@ -27,6 +27,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h> // For chdir
+#include <time.h> // For benchmarking
 
 /* Internal headers */
 #include <GTEngine/lib.h>
@@ -67,6 +68,8 @@ static camera_t *camera;
 
 int main(int argc, char **argv)
 {
+	// Time for measuring init
+	double startTime = (double)clock()/CLOCKS_PER_SEC;
 	/*
 	  * Before we do any inits, we need to change working directory
 	  * to the directory in which the 'data' should exist
@@ -103,10 +106,8 @@ int main(int argc, char **argv)
 
 			if(engine_done)
 				engine_exit();
-
 			if(opengl_done)
 				opengl_exit();
-
 			return -1;
 		}
 		if(setup_func[i] == engine_setup)
@@ -115,6 +116,11 @@ int main(int argc, char **argv)
 		if(setup_func[i] == opengl_setup)
 			opengl_done = 1;
 	}
+
+
+	double endTime = (double)clock()/CLOCKS_PER_SEC;
+
+	LOGI("Init took %f seconds", endTime - startTime);
 
 	/*
 	  * If everything is properly set-up, run the main loop

@@ -21,6 +21,7 @@
 #include <GTEngine/lib.h>
 #include <GTEngine/output.h>
 #include <assimp/material.h>
+#include <assimp/types.h>
 #include <glad/glad.h>
 #include <assimp/cimport.h>
 #include <assimp/mesh.h>
@@ -31,11 +32,11 @@
 #include <string.h>
 
 // Returns mesh_t array of size node->mNumMeshes
-static mesh_t *process_meshes(const struct aiNode *node, const struct aiScene *scene);
-static mesh_t *process_node(const struct aiNode *node, const struct aiScene *scene);
+static vector_t *process_meshes(const struct aiNode *node, const struct aiScene *scene);
+static node_t *process_node(const struct aiNode *node, const struct aiScene *scene);
 static vector_t *process_vertices(const struct aiMesh *mMesh);
 static vector_t *process_indices(const struct aiMesh *mMesh);
-static material_t *process_material(const struct aiMesh *mMesh);
+static material_t *process_material(const struct aiMaterial *mMat);
 static int mesh_setup(mesh_t *m);
 
 model_t *model_load(const char *path)
@@ -44,7 +45,7 @@ model_t *model_load(const char *path)
 	if(m)
 	{
 		// Init variables
-		m->mesh = NULL;
+		m->node = NULL;
 		m->path = path;
 
 		// Check for file extension
@@ -73,7 +74,8 @@ model_t *model_load(const char *path)
 			model_destroy(m);
 			return NULL;
 		}
-		m->mesh = process_node(scene->mRootNode, scene);
+		m->node = process_node(scene->mRootNode, scene);
+		m->node->parent = NULL;
 
 		// Destroy scene
 		aiReleaseImport(scene);
@@ -83,66 +85,65 @@ model_t *model_load(const char *path)
 
 void model_destroy(model_t *m)
 {
+	free(m);
 }
 
 void model_draw(model_t *m, shader_t *s)
 {
-	for(size_t i = 0; i < m->mesh->children->size; i++)
-		mesh_draw(vector_get(m->mesh->children, i), s);
-}
+	for(size_t i = 0; i < m->node->meshes->size; i++)
+		mesh_draw(vector_get(m->node->meshes, i), s);
 
-static mesh_t *process_node(const struct aiNode *node, const struct aiScene *scene)
-{
-	/*
-	   * Each node should correspond to a mesh
-	*/
+	if(!m->node->children)
+		return;
 
-	// Init mesh
-	mesh_t *mesh = process_meshes(node, scene);
-
-
-	// Process children
-	vector_t *children = vector_create(node->mNumChildren, sizeof(mesh_t), 0);
-
-	for(size_t i = 0; i < children->capacity; i++)
+	for(size_t i = 0; i < m->node->children->size; i++)
 	{
-		const struct aiNode *child = node->mChildren[i];
-
-		mesh_t *m = process_node(child, scene);
-		vector_push(children, m);
-		free(m);
+		node_t *child = vector_get(m->node->children, i);
+		for(size_t j = 0; j < child->meshes->size; j++)
+			mesh_draw(vector_get(child->meshes, j), s);
 	}
-	mesh->children = children;
-
-	return mesh;
 }
 
-static mesh_t *process_meshes(const struct aiNode *node, const struct aiScene *scene)
-/* Returns one mesh made of all of the node's meshes */
+static node_t *process_node(const struct aiNode *node, const struct aiScene *scene)
 {
-	vector_t *vertices = NULL;
-	vector_t *indices = NULL;
+	node_t *n = malloc(sizeof(node_t));
+	if(n)
+	{
+		n->meshes = process_meshes(node, scene);
+
+		if(node->mNumChildren > 0)
+			n->children = vector_create(node->mNumChildren, sizeof(node_t), 0);
+		else
+			n->children = NULL;
+
+		for(size_t i = 0; i < node->mNumChildren; i++)
+		{
+			node_t *nchild = process_node(node->mChildren[i], scene);
+			nchild->parent = n;
+			vector_push(n->children, nchild);
+			free(nchild);
+		}
+	}
+	return n;
+}
+
+static vector_t *process_meshes(const struct aiNode *node, const struct aiScene *scene)
+{
+	vector_t *meshes = vector_create(node->mNumMeshes, sizeof(mesh_t), 0);
 
 	// Assign vertices and indices
 	for(size_t i = 0; i < node->mNumMeshes; i++)
 	{
+		mesh_t *mesh = vector_get(meshes, i);
+		meshes->size++;
 		struct aiMesh *mMesh = scene->mMeshes[node->mMeshes[i]];
-		indices = process_indices(mMesh);
-		vertices = process_vertices(mMesh);
-	}
 
-	// Finally, create the mesh
-	mesh_t *m = malloc(sizeof(mesh_t));
-	if(m)
-	{
-		m->vertices = vertices;
-		m->indices = indices;
-		m->material = NULL;
-
-		if(m->vertices && m->indices)
-			mesh_setup(m);
+		mesh->indices = process_indices(mMesh);
+		mesh->vertices = process_vertices(mMesh);
+		mesh->material = process_material(scene->mMaterials[mMesh->mMaterialIndex]);
+		mesh_setup(mesh);
 	}
-	return m;
+	return meshes;
 }
 
 static vector_t *process_vertices(const struct aiMesh *mMesh)
@@ -185,14 +186,43 @@ static vector_t *process_indices(const struct aiMesh *mMesh)
 	return indices;
 }
 
-static material_t *process_material(const struct aiMesh *mMesh)
+static vector_t *material_texture_load(const struct aiMaterial *mMat, enum aiTextureType type, const char *typename)
+{
+	size_t count = aiGetMaterialTextureCount(mMat, type);
+	vector_t *textures = vector_create(count, sizeof(texture_t), 0);
+
+	for(size_t i = 0; i < count; i++)
+	{
+		struct aiString path;
+		aiGetMaterialTexture(mMat, type, i, &path, NULL, NULL, NULL, NULL, NULL, NULL);
+
+		texture_t *tex = texture_load(path.data);
+		tex->type = typename;
+		vector_push(textures, tex);
+		free(tex);
+	}
+
+	return textures;
+}
+
+static material_t *process_material(const struct aiMaterial *mMat)
 {
 	// Create a dummy material
-	static material_t *material;
+	material_t *material = malloc(sizeof(material_t));
 	if(!material)
 	{
-		LOGW("Creating a dummy material");
-		material = malloc(sizeof(material_t));
+		vector_t *textures = vector_create(0, sizeof(texture_t), 0);
+
+		vector_t *diffuse = material_texture_load(mMat, aiTextureType_DIFFUSE, "texture_diffuse");
+		vector_t *specular = material_texture_load(mMat, aiTextureType_SPECULAR, "texture_specular");
+
+		vector_join(textures, diffuse);
+		vector_join(textures, specular);
+
+		vector_destroy(diffuse);
+		vector_destroy(specular);
+
+		material->textures = textures;
 	}
 	return material;
 }
