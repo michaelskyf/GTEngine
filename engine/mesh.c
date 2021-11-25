@@ -37,6 +37,7 @@ void mesh_draw(mesh_t *m, shader_t *s)
 	texture_t *tex = vector_get(m->material->textures, 0);
 	glBindTexture(GL_TEXTURE_2D, tex->id);
 	glUniform1i(diffPos, 0);
+
 	// Draw elements
 	glDrawElements(GL_TRIANGLES, m->indices->size, GL_UNSIGNED_SHORT, 0);
 

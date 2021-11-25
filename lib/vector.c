@@ -21,6 +21,8 @@
 
 vector_t *vector_create(size_t capacity, size_t item_size, size_t growth_rate)
 {
+	assert(capacity >= 0 && item_size >= 0 && growth_rate >= 0);
+
 	vector_t *v = malloc(sizeof(vector_t));
 	if(v)
 	{
@@ -31,14 +33,10 @@ vector_t *vector_create(size_t capacity, size_t item_size, size_t growth_rate)
 			return NULL;
 		}
 
-		if(growth_rate == 0)
-			v->growth_rate = 1.6f;
-		else
-			v->growth_rate = growth_rate;
-
 		v->size = 0;
 		v->capacity = capacity;
 		v->item_size = item_size;
+		v->growth_rate = 1.6f; //growth_rate;
 	}
 	return v;
 }
@@ -91,7 +89,8 @@ int vector_join(vector_t *dest, vector_t *src)
 		dest->data = new_data;
 		dest->capacity = new_capacity;
 	}
-	memcpy(&dest->data[dest->size], src->data, src->size);
+	memcpy(vector_get(dest, dest->size), src->data, src->size * src->item_size);
+	dest->size += src->size;
 
 	return 0;
 }

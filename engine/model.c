@@ -75,7 +75,7 @@ model_t *model_load(const char *path)
 			return NULL;
 		}
 		m->path = path;
-		m->directory = malloc(strlen(path));
+		m->directory = malloc(strlen(path) + 1);
 		strcpy((char*)m->directory, path);
 		dirname((char*)m->directory);
 		m->node = process_node(scene->mRootNode, scene, m->directory);
@@ -200,40 +200,40 @@ static vector_t *material_texture_load(const struct aiMaterial *mMat, enum aiTex
 		struct aiString path;
 		aiGetMaterialTexture(mMat, type, i, &path, NULL, NULL, NULL, NULL, NULL, NULL);
 
-		size_t size = strlen(directory) + strlen(path.data) + 2;
-		char *file_path = malloc(size);
+		char *file_path = malloc(strlen(directory) + strlen(path.data) + 2);
 		strcpy(file_path, directory);
 		strcat(file_path, "/");
 		strcat(file_path, path.data);
-		LOG("%s", file_path);
 
 		texture_t *tex = texture_load(file_path);
-		tex->type = typename;
-		vector_push(textures, tex);
-		free(tex);
+		if(tex)
+		{
+			tex->type = typename;
+			vector_push(textures, tex);
+			free(tex);
+		}
 		free(file_path);
 	}
-
 	return textures;
 }
 
 static material_t *process_material(const struct aiMaterial *mMat, const char *directory)
 {
-	// Create a dummy material
-	material_t *material = malloc(sizeof(material_t));
+
+	static material_t *material;
+	if(material)
+		return material;
+	material = malloc(sizeof(material_t));
+
 	if(material)
 	{
 		vector_t *textures = vector_create(0, sizeof(texture_t), 0);
 
 		vector_t *diffuse = material_texture_load(mMat, aiTextureType_DIFFUSE, "texture_diffuse", directory);
-//		vector_t *specular = material_texture_load(mMat, aiTextureType_SPECULAR, "texture_specular", directory);
 
-//		vector_join(textures, diffuse);
-		vector_push(textures, diffuse);
-//		vector_join(textures, specular);
+		vector_join(textures, diffuse);
 
 		vector_destroy(diffuse);
-//		vector_destroy(specular);
 
 		material->textures = textures;
 	}
