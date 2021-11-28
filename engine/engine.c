@@ -268,10 +268,7 @@ static void engine_update(void)
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height)
 {
-	float xscale, yscale;
-	glfwGetWindowContentScale(window, &xscale, &yscale);
-	glViewport(0, 0, width * xscale, height * yscale);
-	LOG("%f %f", xscale, yscale);
+	glViewport(0, 0, width, height);
 
 	// Update window struct
 	_gte_window.width = width;
