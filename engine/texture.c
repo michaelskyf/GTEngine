@@ -18,7 +18,6 @@
 #include "stb_image.h"
 #include <glad/glad.h>
 #include <GTEngine/texture.h>
-#include <GTEngine/output.h>
 
 texture_t *texture_load(const char *path)
 {
@@ -40,9 +39,5 @@ texture_t *texture_load(const char *path)
 		}
 		stbi_image_free(data);
 	}
-
-	if(!t)
-		LOGE("Failed to load texture %s", path);
-
 	return t;
 }

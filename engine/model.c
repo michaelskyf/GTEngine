@@ -211,6 +211,8 @@ static vector_t *material_texture_load(const struct aiMaterial *mMat, enum aiTex
 			tex->type = typename;
 			vector_push(textures, tex);
 			free(tex);
+		} else {
+			LOGE("Failed to load texture \"%s\"", file_path);
 		}
 		free(file_path);
 	}

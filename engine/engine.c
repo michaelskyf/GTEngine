@@ -186,7 +186,7 @@ static int engine_setup(void)
 	_gte_window.width = 800;
 	_gte_window.height = 600;
 	_gte_window.aspect_ratio = (double)_gte_window.width / _gte_window.height;
-	glm_perspective(glm_rad(89.0f), _gte_window.aspect_ratio, 0.1f, 100.0f, _gte_window.projection);
+	glm_perspective(glm_rad(45.0f), _gte_window.aspect_ratio, 0.1f, 100.0f, _gte_window.projection);
 
 	_gte_objects.objects = vector_create(0, sizeof(game_object_t), 2);
 
@@ -268,7 +268,10 @@ static void engine_update(void)
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height)
 {
-	glViewport(0, 0, width, height);
+	float xscale, yscale;
+	glfwGetWindowContentScale(window, &xscale, &yscale);
+	glViewport(0, 0, width * xscale, height * yscale);
+	LOG("%f %f", xscale, yscale);
 
 	// Update window struct
 	_gte_window.width = width;
