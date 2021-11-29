@@ -30,7 +30,7 @@ project_link()
 
 		info LINK ${1}
 
-		${LD} ${PBUILD_LDFLAGS} -o ${1} ${lds} ${objects}
+		${LD} -o ${1} ${lds} ${objects} ${PBUILD_LDFLAGS}
 }
 
 # Delete output files in case of error

@@ -20,8 +20,8 @@
 */
 
 /* External headers */
-#include "GTEngine/vector.h"
 #include <glad/glad.h>
+#define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 #include <math.h>
 #include <stdlib.h>
@@ -30,6 +30,7 @@
 #include <time.h> // For benchmarking
 
 /* Internal headers */
+#include <GTEngine/vector.h>
 #include <GTEngine/lib.h>
 #include <GTEngine/output.h>
 #include <GTEngine/camera.h>
