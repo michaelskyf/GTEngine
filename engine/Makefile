@@ -7,3 +7,6 @@ obj-y += model.o
 obj-y += camera.o
 obj-y += game_object.o
 obj-y += texture.o
+ifeq ($(CC),clang)
+ccflags-y := -Wno-gnu-zero-variadic-macro-arguments
+endif

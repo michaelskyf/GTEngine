@@ -37,6 +37,7 @@ int game_setup(void)
 void game_exit(void)
 {
 
+	LOG("bye");
 }
 
 void game_update(void)

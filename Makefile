@@ -230,13 +230,18 @@ PBUILD_HOSTLDFLAGS  := $(HOSTLDFLAGS)
 PBUILD_HOSTLDLIBS   := $(HOSTLDLIBS)
 
 # Make variables (CC, etc...)
-CXX		= $(CROSS_COMPILE)g++
 CPP		= $(CC) -E
-CC		= $(CROSS_COMPILE)gcc
+ifneq ($(CLANG),)
+CC		= clang
+CXX		= clang++
 LD		= $(CC)
+else
+CC		= $(CROSS_COMPILE)gcc
+CXX		= $(CROSS_COMPILE)g++
+LD		= $(CC)
+endif
 AR		= $(CROSS_COMPILE)ar
 NM		= $(CROSS_COMPILE)nm
-
 YACC		= yacc
 AWK		= awk
 PERL		= perl
