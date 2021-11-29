@@ -36,7 +36,7 @@ vector_t *vector_create(size_t capacity, size_t item_size, size_t growth_rate)
 		v->size = 0;
 		v->capacity = capacity;
 		v->item_size = item_size;
-		v->growth_rate = 1.6f; //growth_rate;
+		v->growth_rate = growth_rate;
 	}
 	return v;
 }
