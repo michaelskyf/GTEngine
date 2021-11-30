@@ -28,14 +28,14 @@ typedef struct vector_t
 	void *data;
 } vector_t;
 
-__attribute_warn_unused_result__
+__attribute__((warn_unused_result))
 vector_t *vector_create(size_t capacity, size_t item_size, size_t growth_rate);
 void vector_destroy(vector_t *);
 
 int vector_push(vector_t *, const void *);
 void vector_pop(vector_t *, void *);
 
-__attribute_warn_unused_result__
+__attribute__((warn_unused_result))
 void *vector_get(vector_t *, size_t index);
 int vector_join(vector_t *dest, vector_t *src);
 

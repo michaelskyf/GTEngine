@@ -13,7 +13,7 @@
 */
 #ifndef GTE_FILEIO_H
 #define GTE_FILEIO_H
-#include <aio.h>
+#include <sys/types.h>
 
 char *file_read(const char *);
 // Returns number of characters written

@@ -30,7 +30,7 @@ typedef struct model_t {
 	const char *directory;
 } model_t;
 
-__attribute_warn_unused_result__
+__attribute__((warn_unused_result))
 model_t *model_load(const char *path);
 void model_destroy(model_t *);
 void model_draw(model_t *, shader_t *);
