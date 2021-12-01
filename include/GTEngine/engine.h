@@ -30,6 +30,7 @@ struct gte_window
 {
 	unsigned short width, height;
 	double aspect_ratio;
+	_Bool cursor_enabled;
 	mat4 projection;
 } extern const * const gte_window;
 

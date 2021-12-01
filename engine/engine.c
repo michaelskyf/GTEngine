@@ -1,8 +1,4 @@
 /*
-  * This is the main file of the engine
-  * It contains main() function as well as
-  * a few setup functions
-
     This file is part of GTEngine.
 
     GTEngine is free software: you can redistribute it and/or modify
@@ -69,20 +65,16 @@ static camera_t *camera;
 
 int main(int argc, char **argv)
 {
-	// Time for measuring init
+	// For measuring init time
 	double startTime = (double)clock()/CLOCKS_PER_SEC;
 	/*
 	  * Before we do any inits, we need to change working directory
-	  * to the directory in which the 'data' should exist
-	  * (dir in which the executable resides)
+	  * to the directory in which the 'data' resides (same as executable)
 	*/
 	chdir(dirname(*argv));
 	// Restore argv[0]
 	argv[0][strlen(*argv)] = '/';
 
-	/*
-	  * Functions that setup something
-	*/
 	int (* setup_func[])(void) = {
 		print_setup,
 		engine_setup,
@@ -95,10 +87,7 @@ int main(int argc, char **argv)
 	// The same goes for opengl
 	_Bool opengl_done = 0;
 
-	/*
-	  * Run setup funcions.
-	  * If any of the functions returns 1 (non-0), exit.
-	*/
+	// Run setup functions and exit on error
 	for(unsigned int i = 0; i < sizeof(setup_func)/sizeof(*setup_func); i++)
 	{
 		if(setup_func[i]())
@@ -233,13 +222,14 @@ static int opengl_setup(void)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	// Disable cursor
-	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	/* Bind callback functions */
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	glfwSetKeyCallback(window, key_callback);
 	glfwSetCursorPosCallback(window, cursor_position_callback);
 
+	//
 	shader = shader_create("data/shaders/test.vs", "data/shaders/test.fs");
 	camera = camera_create((vec3){0,0,0});
 
@@ -293,11 +283,34 @@ static void cursor_position_callback(GLFWwindow* window, double xpos, double ypo
 }
 
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
+/* Used for user interface */
 {
+	static char lastKey;
+	static float lastTime;
+
+	if(gte_time->get_time() - lastTime > 0.5f)
+		lastKey = -1;
+
+	if(key == lastKey)
+		return;
+
 	switch(key)
 	{
 		case 'Q':
 			glfwSetWindowShouldClose(window, 1);
 		break;
+
+		case 'C':
+			if(gte_window->cursor_enabled)
+			{
+				glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+				_gte_window.cursor_enabled = 0;
+			} else {
+				glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+				_gte_window.cursor_enabled = 1;
+			}
+		break;
 	}
+	lastKey = key;
+	lastTime = gte_time->get_time();
 }
