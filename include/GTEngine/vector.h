@@ -16,7 +16,6 @@
 */
 #ifndef GTE_VECTOR_H
 #define GTE_VECTOR_H
-#include <sys/cdefs.h>
 #include <sys/types.h>
 
 typedef struct vector_t

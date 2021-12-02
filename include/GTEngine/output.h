@@ -15,7 +15,6 @@
 #define GTE_OUTPUT_H
 
 #include <stdio.h>
-#include <sys/cdefs.h>
 
 #define TERMINAL_COLOR_RED 	"\033[0;31m"
 #define TERMINAL_COLOR_GREEN 	"\033[0;32m"
