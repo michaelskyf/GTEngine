@@ -10,6 +10,7 @@ At the moment Windows/Wine build is not supported
 Install [glfw](https://github.com/glfw/glfw) and [assimp](https://github.com/assimp/assimp)
 
 - Debian/Ubuntu: libglfw-dev libassimp-dev
+- Alpine/PostmarketOS: glfw-dev assimp-dev musl-dev
 - Arch: glfw assimp
 
 Compile and run
