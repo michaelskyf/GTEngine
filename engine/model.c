@@ -51,17 +51,11 @@ model_t *model_load(const char *path)
 
 		// Check for file extension
 		const char *extension = strrchr(basename(path), '.');
-		if(!extension)
-		{
-			LOGE("No extension found in %s", path);
-			model_destroy(m);
-			return NULL;
-		}
 
 		// Validate the extension
-		if(!aiIsExtensionSupported(extension))
+		if(!extension || !aiIsExtensionSupported(extension))
 		{
-			LOGE("File extension '%s' not supported by Assmip", extension);
+			LOGE("File extension '%s' not supported by Assmip (\"%s\")", extension, path);
 			model_destroy(m);
 			return NULL;
 		}
@@ -70,7 +64,7 @@ model_t *model_load(const char *path)
 		const struct aiScene *scene = aiImportFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcessPreset_TargetRealtime_Fast);
 		if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene ->mRootNode)
 		{
-			LOGE("Assimp failed to load %s", path);
+			LOGE("Failed to load object \"%s\"", path);
 			model_destroy(m);
 			return NULL;
 		}

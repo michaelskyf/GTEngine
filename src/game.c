@@ -28,8 +28,10 @@ int game_setup(void)
 {
 	struct gte_objects *objects = (struct gte_objects*)gte_objects;
 	model = model_load("data/objects/backpack.obj");
-	GO = game_object_create(model, (vec3){0,0,0});
-	vector_push(objects->objects, GO);
+	if(model){
+		GO = game_object_create(model, (vec3){0,0,0});
+		vector_push(objects->objects, GO);
+	}
 
 	return 0;
 }
