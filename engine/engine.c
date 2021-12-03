@@ -55,7 +55,7 @@ struct gte_window _gte_window;
 
 /* Global variables */
 const struct gte_time * const gte_time = &_gte_time;
-const struct gte_objects * const gte_objects = &_gte_objects;
+struct gte_objects * const gte_objects = &_gte_objects;
 const struct gte_window * const gte_window = &_gte_window;
 
 /* Local variables */

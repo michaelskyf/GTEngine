@@ -38,7 +38,7 @@ struct gte_objects
 {
 	vector_t *objects;
 	vector_t *cameras;
-} extern const * const gte_objects;
+} extern * const gte_objects;
 
 struct gte_graphics
 {
