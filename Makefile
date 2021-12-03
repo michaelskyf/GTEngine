@@ -261,7 +261,7 @@ PBUILD_CFLAGS	:= $(PBUILD_C_CXX_FLAGS) \
 		   -Werror=implicit-int \
 		   -std=gnu99
 PBUILD_CXXFLAGS	:= $(PBUILD_C_CXX_FLAGS)
-PBUILD_LDFLAGS	:= -lGL -lglfw -lassimp -ldl -lm -pthread
+PBUILD_LDFLAGS	:= -lGL -lglfw -lassimp -ldl -lm -pthread -lstdc++
 
 export CONFIG_SHELL BASH HOSTCC PBUILD_HOSTCFLAGS CROSS_COMPILE LD CC CXX
 export CPP AR YACC AWK PERL PYTHON3 MAKE HOSTCXX
