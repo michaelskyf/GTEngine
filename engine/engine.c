@@ -55,8 +55,8 @@ struct gte_window _gte_window;
 
 /* Global variables */
 const struct gte_time * const gte_time = &_gte_time;
-struct gte_objects * const gte_objects = &_gte_objects;
 const struct gte_window * const gte_window = &_gte_window;
+struct gte_objects * const gte_objects = &_gte_objects;
 
 /* Local variables */
 static GLFWwindow *window;
@@ -112,9 +112,7 @@ int main(int argc, char **argv)
 
 	LOGI("Init took %f seconds", endTime - startTime);
 
-	/*
-	  * If everything is properly set-up, run the main loop
-	*/
+	// If everything is properly set-up, run the main loop
 	loop();
 
 	// Clean-up then exit
@@ -158,13 +156,16 @@ static void draw(void)
 	// This is of course WiP
 	glUseProgram(shader->id);
 
-	camera_lookat(camera, (vec3){0,0,0});
+//	camera_lookat(camera, (vec3){0,0,0});
 
+	camera_update(camera);
 	camera_bind(camera, shader);
 
-	// For each loaded game_object (TODO: implement in renderer.c)
 	for(size_t i = 0; i < _gte_objects.objects->size; i++)
+	{
+		game_object_lookat(vector_get(_gte_objects.objects, i), camera->position);
 		game_object_draw(vector_get(_gte_objects.objects, i), shader);
+	}
 }
 
 static int engine_setup(void)
@@ -212,7 +213,6 @@ static int opengl_setup(void)
 
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 
-	// Enable depth testing
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_TEXTURE_2D);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -230,7 +230,7 @@ static int opengl_setup(void)
 	glfwSetKeyCallback(window, key_callback);
 	glfwSetCursorPosCallback(window, cursor_position_callback);
 
-	//
+	// Create shader and camera
 	shader = shader_create("data/shaders/test.vs", "data/shaders/test.fs");
 	camera = camera_create((vec3){0,0,0});
 

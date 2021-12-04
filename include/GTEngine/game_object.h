@@ -20,16 +20,26 @@
 #include <cglm/types.h>
 #include "shader.h"
 #include "model.h"
+#include "vector.h"
 
 typedef struct game_object_t {
+	mat4 model_matrix;
+
 	vec3 velocity;
+	vec3 position;
+	vec3 front;
+	vec3 right;
+	vec3 up;
+	vec3 direction;
+
+	double pitch;
+	double yaw;
 
 	struct game_object_t *parent;
-	struct game_object_t *children;
-	size_t childNum;
+	vector_t *children;
 
-	mat4 model_matrix;
 	model_t *model;
+
 	_Bool enabled;
 } game_object_t;
 
@@ -38,5 +48,7 @@ game_object_t *game_object_create(model_t *model, vec3 position);
 void game_object_destroy(game_object_t *);
 
 void game_object_draw(game_object_t *, shader_t *);
+
+void game_object_lookat(game_object_t *, vec3 target);
 
 #endif
