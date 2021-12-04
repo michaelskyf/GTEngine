@@ -18,6 +18,8 @@
 #include <GTEngine/engine.h>
 #include <glad/glad.h>
 
+static void camera_update(camera_t *c);
+
 camera_t *camera_create(vec3 pos)
 {
 	camera_t *c = malloc(sizeof(camera_t));
@@ -26,7 +28,6 @@ camera_t *camera_create(vec3 pos)
 		c->pitch = 0.0f;
 		c->yaw = 0.0f;
 		glm_vec3_copy(pos, c->position);
-		camera_update(c);
 	}
 	return c;
 }
@@ -36,7 +37,7 @@ void camera_destroy(camera_t *c)
 	free(c);
 }
 
-void camera_update(camera_t *c)
+static void camera_update(camera_t *c)
 {
 	double yaw = glm_rad(c->yaw);
 	double pitch = glm_rad(c->pitch);
@@ -68,7 +69,6 @@ void camera_lookat(camera_t *c, vec3 target)
 	c->yaw = glm_deg(atan2(help[2], help[0]));
 
 	c->pitch = glm_deg(atan2(help[1], sqrt(help[0] * help[0] + help[2] * help[2])));
-	camera_update(c);
 }
 
 void camera_process_mouse(camera_t *c, double xoffset, double yoffset)
@@ -81,12 +81,11 @@ void camera_process_mouse(camera_t *c, double xoffset, double yoffset)
 		c->pitch = 89.0f;
 	if(c->pitch < -89.0f)
 		c->pitch = -89.0f;
-
-	camera_update(c);
 }
 
 void camera_bind(camera_t *c, shader_t *s)
 {
+	camera_update(c);
 	mat4 vp_matrix;
 	glm_mat4_mul((vec4*)gte_window->projection, c->view_matrix, vp_matrix);
 	glUniformMatrix4fv(s->uvpPos, 1, GL_FALSE, *vp_matrix);

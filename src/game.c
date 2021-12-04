@@ -28,22 +28,15 @@ int game_setup(void)
 {
 	model = model_load("data/objects/backpack.obj");
 	if(model){
-		GO = game_object_create(model, (vec3){0,0,0});
+		GO = game_object_create(model, (vec3){0,0,0}, (vec3){2,1,1});
 		vector_push(gte_objects->objects, GO);
 	}
-	model = model_load("data/objects/backpack.obj");
 	if(model){
-		GO = game_object_create(model, (vec3){18,0,0});
+		GO = game_object_create(model, (vec3){5,3,1}, (vec3){1,2,1});
 		vector_push(gte_objects->objects, GO);
 	}
-	model = model_load("data/objects/backpack.obj");
 	if(model){
-		GO = game_object_create(model, (vec3){0,0,3});
-		vector_push(gte_objects->objects, GO);
-	}
-	model = model_load("data/objects/backpack.obj");
-	if(model){
-		GO = game_object_create(model, (vec3){0,-10,0});
+		GO = game_object_create(model, (vec3){-5,3,-1}, (vec3){1,1,2});
 		vector_push(gte_objects->objects, GO);
 	}
 
@@ -53,7 +46,6 @@ int game_setup(void)
 void game_exit(void)
 {
 
-	LOG("bye");
 }
 
 void game_update(void)

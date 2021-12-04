@@ -16,6 +16,7 @@
 */
 
 /* External headers */
+#include "cglm/util.h"
 #include <glad/glad.h>
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
@@ -112,6 +113,9 @@ int main(int argc, char **argv)
 
 	LOGI("Init took %f seconds", endTime - startTime);
 
+	// Disable cursor
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
 	// If everything is properly set-up, run the main loop
 	loop();
 
@@ -125,13 +129,13 @@ int main(int argc, char **argv)
 
 static void loop(void)
 {
-	float last_time = glfwGetTime();
+	float last_time = gte_time->get_time();
 	float current_time;
 
 	while(!glfwWindowShouldClose(window))
 	{
 		// Calculate delta-time
-		current_time = glfwGetTime();
+		current_time = gte_time->get_time();
 		_gte_time.deltaTime = current_time - last_time;
 		last_time = current_time;
 
@@ -153,12 +157,17 @@ static void loop(void)
 
 static void draw(void)
 {
-	// This is of course WiP
+	const float radius = 15.0f;
+	float camX = sin(glfwGetTime()) * radius;
+	float camZ = cos(glfwGetTime()) * radius;
+	float camY = sin(glfwGetTime()) * radius;
+
+	glm_vec3_copy((vec3){camX, camY, camZ}, camera->position);
+
 	glUseProgram(shader->id);
 
-//	camera_lookat(camera, (vec3){0,0,0});
+	camera_lookat(camera, (vec3){0,0,0});
 
-	camera_update(camera);
 	camera_bind(camera, shader);
 
 	for(size_t i = 0; i < _gte_objects.objects->size; i++)
@@ -222,9 +231,6 @@ static int opengl_setup(void)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	// Disable cursor
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
 	/* Bind callback functions */
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	glfwSetKeyCallback(window, key_callback);
@@ -250,12 +256,6 @@ static void opengl_exit(void)
 
 static void engine_update(void)
 {
-	const float radius = 5.0f;
-	float camX = sin(glfwGetTime()) * radius;
-	float camZ = cos(glfwGetTime()) * radius;
-	float camY = sin(glfwGetTime()) * radius;
-
-	glm_vec3_copy((vec3){camX, camY, camZ}, camera->position);
 }
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height)

@@ -15,6 +15,8 @@
     along with GTEngine. If not, see <https://www.gnu.org/licenses/>.
 */
 #include "GTEngine/vector.h"
+#include "cglm/affine-mat.h"
+#include "cglm/affine.h"
 #include "cglm/cam.h"
 #include "cglm/io.h"
 #include "cglm/mat4.h"
@@ -22,10 +24,9 @@
 #include <GTEngine/game_object.h>
 #include <GTEngine/engine.h>
 #include <glad/glad.h>
+#include <math.h>
 
-void game_object_update(game_object_t *g, vec3 target);
-
-game_object_t *game_object_create(model_t *model, vec3 position)
+game_object_t *game_object_create(model_t *model, vec3 position, vec3 scale)
 {
 	game_object_t *g = malloc(sizeof(game_object_t));
 	if(g)
@@ -34,9 +35,9 @@ game_object_t *game_object_create(model_t *model, vec3 position)
 		g->enabled = 1;
 		g->parent = NULL;
 		g->model = model;
-		glm_vec3_zero(g->velocity);
-		glm_vec3_copy(position, g->position);
 		glm_mat4_identity(g->model_matrix);
+		glm_translate(g->model_matrix, position);
+		glm_scale(g->model_matrix, scale);
 	}
 	return g;
 }
@@ -54,49 +55,24 @@ void game_object_draw(game_object_t *g, shader_t *s)
 
 void game_object_lookat(game_object_t *g, vec3 target)
 {
-	glm_vec3_sub(target, g->position, g->direction);
-	glm_normalize(g->direction);
+	vec3 scale;
+	vec4 position;
+	mat4 rotation;
 
-	if(fabs(g->direction[0]) < 0.00001 && fabs(g->direction[2]) < 0.00001)
-	{
-		if(g->direction[1] > 0)
-		{
-			g->up[0] = 0;
-			g->up[1] = 0;
-			g->up[2] = -1;
-		} else {
-			g->up[0] = 0;
-			g->up[1] = 0;
-			g->up[2] = 1;
+	glm_decompose(g->model_matrix, position, rotation, scale);
 
-		}
-	} else {
-		g->up[0] = 0;
-		g->up[1] = 1;
-		g->up[2] = 0;
-
-	}
-	glm_normalize(g->up);
-
-	game_object_update(g, target);
-
+	glm_mat4_identity(g->model_matrix);
+	glm_lookat(position, target, (vec3){0,1,0}, g->model_matrix);
+	glm_mat4_inv(g->model_matrix, g->model_matrix);
+	glm_scale(g->model_matrix, scale);
 }
 
-void game_object_update(game_object_t *g, vec3 target)
+void game_object_rotate(game_object_t *g, float angle, vec3 axis)
 {
-	glm_cross(g->up, g->direction, g->right);
-	glm_normalize(g->right);
+	glm_rotate(g->model_matrix, angle, axis);
+}
 
-	glm_cross(g->direction, g->right, g->up);
-	glm_normalize(g->up);
-
-	mat4 m;
-	glm_mat4_identity(m);
-
-	glm_vec3_copy(g->right, m[0]);
-	glm_vec3_copy(g->up, m[1]);
-	glm_vec3_copy(g->direction, m[2]);
-	glm_vec3_copy(g->position, m[3]);
-
-	glm_mat4_copy(m, g->model_matrix);
+void game_object_rotate_make(game_object_t *g, float angle, vec3 axis)
+{
+	glm_rotate_make(g->model_matrix, angle, axis);
 }
