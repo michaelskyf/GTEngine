@@ -15,6 +15,7 @@
     along with GTEngine. If not, see <https://www.gnu.org/licenses/>.
 */
 #include "GTEngine/mesh.h"
+#include "GTEngine/shader.h"
 #include "GTEngine/vector.h"
 #include <GTEngine/model.h>
 #include <GTEngine/texture.h>
@@ -86,20 +87,21 @@ void model_destroy(model_t *m)
 	free(m);
 }
 
-void model_draw(model_t *m, shader_t *s)
+void node_draw(node_t *n, shader_t *s)
 {
-	for(size_t i = 0; i < m->node->meshes->size; i++)
-		mesh_draw(vector_get(m->node->meshes, i), s);
+	for(size_t i = 0; i < n->meshes->size; i++)
+		mesh_draw(vector_get(n->meshes, i), s);
 
-	if(!m->node->children)
+	if(!n->children)
 		return;
 
-	for(size_t i = 0; i < m->node->children->size; i++)
-	{
-		node_t *child = vector_get(m->node->children, i);
-		for(size_t j = 0; j < child->meshes->size; j++)
-			mesh_draw(vector_get(child->meshes, j), s);
-	}
+	for(size_t i = 0; i < n->children->size; i++)
+		node_draw(vector_get(n->children, i), s);
+}
+
+void model_draw(model_t *m, shader_t *s)
+{
+	node_draw(m->node, s);
 }
 
 static node_t *process_node(const struct aiNode *node, const struct aiScene *scene, const char *directory)

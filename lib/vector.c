@@ -21,8 +21,6 @@
 
 vector_t *vector_create(size_t capacity, size_t item_size, size_t growth_rate)
 {
-	assert(capacity >= 0 && item_size >= 0 && growth_rate >= 0);
-
 	vector_t *v = malloc(sizeof(vector_t));
 	if(v)
 	{
@@ -70,7 +68,7 @@ void vector_pop(vector_t *, void *);
 
 void *vector_get(vector_t *v, size_t index)
 {
-	assert(index >= 0 && index <= v->size);
+	assert(index <= v->size);
 	return (char*)v->data+index*v->item_size;
 }
 

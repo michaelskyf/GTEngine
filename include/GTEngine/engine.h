@@ -20,30 +20,30 @@
 #include <cglm/types.h>
 #include "vector.h"
 
-struct gte_time
+extern struct gte_time
 {
 	double deltaTime;
 	double (*get_time)(void); // Time in seconds the from the start of the program
-} extern const * const gte_time;
+} const * const gte_time;
 
-struct gte_window
+extern struct gte_window
 {
 	unsigned short width, height;
 	double aspect_ratio;
 	_Bool cursor_enabled;
 	mat4 projection;
-} extern const * const gte_window;
+} const * const gte_window;
 
-struct gte_objects
+extern struct gte_objects
 {
 	vector_t *objects;
 	vector_t *cameras;
-} extern * const gte_objects;
+} * const gte_objects;
 
-struct gte_graphics
+extern struct gte_graphics
 {
 	vector_t *models;
 	vector_t *textures;
-} extern const * const gte_graphics;
+} const * const gte_graphics;
 
 #endif

@@ -1,6 +1,7 @@
 -I
 include
 -Wall
+-Wextra
 -Wundef
 -Werror=return-type
 -Werror=strict-prototypes

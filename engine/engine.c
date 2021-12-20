@@ -172,7 +172,7 @@ static void draw(void)
 
 	for(size_t i = 0; i < _gte_objects.objects->size; i++)
 	{
-		game_object_lookat(vector_get(_gte_objects.objects, i), camera->position);
+		game_object_lookat(vector_get(_gte_objects.objects, i), (vec3){1,0,0});
 		game_object_draw(vector_get(_gte_objects.objects, i), shader);
 	}
 }
