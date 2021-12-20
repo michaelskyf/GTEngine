@@ -47,7 +47,7 @@ texture_t *texture_load(const char *path)
 	return t;
 }
 
-texture_t *texture_load_rgba(const unsigned char *img, size_t w, size_t h)
+texture_t *texture_load_memory(const unsigned char *img, size_t w, size_t h)
 {
 	texture_t *t = NULL;
 	int width, height, nrChannels;

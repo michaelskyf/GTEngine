@@ -27,6 +27,6 @@ typedef struct texture_t {
 __attribute__((warn_unused_result))
 texture_t *texture_load(const char *path);
 __attribute__((warn_unused_result))
-texture_t *texture_load_rgba(const unsigned char *data, size_t width, size_t height);
+texture_t *texture_load_memory(const unsigned char *data, size_t width, size_t height);
 
 #endif

@@ -203,7 +203,7 @@ static vector_t *material_texture_load(const struct aiMaterial *mMat, enum aiTex
 			if(!t->mHeight)
 				t->mHeight = 1;
 
-			texture_t *tex = texture_load_rgba((unsigned char*)t->pcData, t->mWidth, t->mHeight);
+			texture_t *tex = texture_load_memory((unsigned char*)t->pcData, t->mWidth, t->mHeight);
 			vector_push(textures, tex);
 			free(tex);
 
