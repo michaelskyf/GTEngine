@@ -26,9 +26,9 @@ game_object_t *GO;
 
 int game_setup(void)
 {
-	model = model_load("data/objects/backpack/backpack.obj");
+	model = model_load("data/objects/Earth_1_12756.glb");
 	if(model){
-		GO = game_object_create(model, (vec3){0,0,0}, (vec3){5,5,5});
+		GO = game_object_create(model, (vec3){0,0,0}, (vec3){0.01,0.01,0.01});
 		vector_push(gte_objects->objects, GO);
 	}
 

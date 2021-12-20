@@ -22,6 +22,7 @@
 #include <GTEngine/lib.h>
 #include <GTEngine/output.h>
 #include <assimp/material.h>
+#include <assimp/texture.h>
 #include <assimp/types.h>
 #include <glad/glad.h>
 #include <assimp/cimport.h>
@@ -37,9 +38,9 @@ static vector_t *process_meshes(const struct aiNode *node, const struct aiScene 
 static node_t *process_node(const struct aiNode *node, const struct aiScene *scene, const char *directory);
 static vector_t *process_vertices(const struct aiMesh *mMesh);
 static vector_t *process_indices(const struct aiMesh *mMesh);
-static material_t *process_material(const struct aiMaterial *mMat, const char *directory);
+static material_t *process_material(const struct aiMaterial *mMat, const char *directory, const struct aiScene *scene);
 static int mesh_setup(mesh_t *m);
-static vector_t *material_texture_load(const struct aiMaterial *mMat, enum aiTextureType type, const char *typename, const char *directory);
+static vector_t *material_texture_load(const struct aiMaterial *mMat, enum aiTextureType type, const char *typename, const char *directory, const struct aiScene *scene);
 
 model_t *model_load(const char *path)
 {
@@ -140,7 +141,7 @@ static vector_t *process_meshes(const struct aiNode *node, const struct aiScene 
 
 		mesh->indices = process_indices(mMesh);
 		mesh->vertices = process_vertices(mMesh);
-		mesh->material = process_material(scene->mMaterials[mMesh->mMaterialIndex], directory);
+		mesh->material = process_material(scene->mMaterials[mMesh->mMaterialIndex], directory, scene);
 		mesh_setup(mesh);
 	}
 	return meshes;
@@ -186,7 +187,7 @@ static vector_t *process_indices(const struct aiMesh *mMesh)
 	return indices;
 }
 
-static vector_t *material_texture_load(const struct aiMaterial *mMat, enum aiTextureType type, const char *typename, const char *directory)
+static vector_t *material_texture_load(const struct aiMaterial *mMat, enum aiTextureType type, const char *typename, const char *directory, const struct aiScene *scene)
 {
 	size_t count = aiGetMaterialTextureCount(mMat, type);
 	vector_t *textures = vector_create(count, sizeof(texture_t), 0);
@@ -196,26 +197,38 @@ static vector_t *material_texture_load(const struct aiMaterial *mMat, enum aiTex
 		struct aiString path;
 		aiGetMaterialTexture(mMat, type, i, &path, NULL, NULL, NULL, NULL, NULL, NULL);
 
-		char *file_path = malloc(strlen(directory) + strlen(path.data) + 2);
-		strcpy(file_path, directory);
-		strcat(file_path, "/");
-		strcat(file_path, path.data);
-
-		texture_t *tex = texture_load(file_path);
-		if(tex)
+		if(!strcmp(path.data, "*0"))
 		{
-			tex->type = typename;
+			struct aiTexture *t = scene->mTextures[i];
+			if(!t->mHeight)
+				t->mHeight = 1;
+
+			texture_t *tex = texture_load_rgba((unsigned char*)t->pcData, t->mWidth, t->mHeight);
 			vector_push(textures, tex);
 			free(tex);
+
 		} else {
-			LOGE("Failed to load texture \"%s\"", file_path);
+			char *file_path = malloc(strlen(directory) + strlen(path.data) + 2);
+			strcpy(file_path, directory);
+			strcat(file_path, "/");
+			strcat(file_path, path.data);
+
+			texture_t *tex = texture_load(file_path);
+			if(tex)
+			{
+				tex->type = typename;
+				vector_push(textures, tex);
+				free(tex);
+			} else {
+				LOGE("Failed to load texture \"%s\"", file_path);
+			}
+			free(file_path);
 		}
-		free(file_path);
 	}
 	return textures;
 }
 
-static material_t *process_material(const struct aiMaterial *mMat, const char *directory)
+static material_t *process_material(const struct aiMaterial *mMat, const char *directory, const struct aiScene *scene)
 {
 
 	static material_t *material;
@@ -227,7 +240,7 @@ static material_t *process_material(const struct aiMaterial *mMat, const char *d
 	{
 		vector_t *textures = vector_create(0, sizeof(texture_t), 0);
 
-		vector_t *diffuse = material_texture_load(mMat, aiTextureType_DIFFUSE, "texture_diffuse", directory);
+		vector_t *diffuse = material_texture_load(mMat, aiTextureType_DIFFUSE, "texture_diffuse", directory, scene);
 
 		vector_join(textures, diffuse);
 

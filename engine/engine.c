@@ -45,8 +45,8 @@ static void loop(void);
 static void draw(void);
 
 /* Callback functions */
-void framebuffer_size_callback(GLFWwindow *window, int width, int height);
-void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
+static void framebuffer_size_callback(GLFWwindow *window, int width, int height);
+static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
 static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
 
 /* Engine variables */
@@ -220,7 +220,7 @@ static int opengl_setup(void)
 		return -1;
 	}
 
-	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+	glClearColor(0.1f, 0.2f, 0.3f, 1.0f);
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_TEXTURE_2D);
@@ -258,7 +258,7 @@ static void engine_update(void)
 {
 }
 
-void framebuffer_size_callback(GLFWwindow *window, int width, int height)
+static void framebuffer_size_callback(GLFWwindow *window, int width, int height)
 {
 	glViewport(0, 0, width, height);
 
@@ -283,7 +283,7 @@ static void cursor_position_callback(GLFWwindow* window, double xpos, double ypo
 	camera_process_mouse(camera, xoffset, yoffset);
 }
 
-void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
+static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
 /* Used for user interface */
 {
 	static char lastKey;

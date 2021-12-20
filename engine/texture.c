@@ -34,10 +34,43 @@ texture_t *texture_load(const char *path)
 			glGenTextures(1, &t->id);
 
 			glBindTexture(GL_TEXTURE_2D, t->id);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+
+			if(nrChannels == 3)
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+			else if(nrChannels == 4)
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+
 			glGenerateMipmap(GL_TEXTURE_2D);
 		}
 		stbi_image_free(data);
 	}
+	return t;
+}
+
+texture_t *texture_load_rgba(const unsigned char *img, size_t w, size_t h)
+{
+	texture_t *t = NULL;
+	int width, height, nrChannels;
+	unsigned char *data = stbi_load_from_memory(img, w * h, &width, &height, &nrChannels, 0);
+
+	if(data)
+	{
+		t = malloc(sizeof(texture_t));
+		if(t)
+		{
+			glGenTextures(1, &t->id);
+
+			glBindTexture(GL_TEXTURE_2D, t->id);
+
+			if(nrChannels == 3)
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+			else if(nrChannels == 4)
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+
+			glGenerateMipmap(GL_TEXTURE_2D);
+		}
+		stbi_image_free(data);
+	}
+
 	return t;
 }

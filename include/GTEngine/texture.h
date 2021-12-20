@@ -17,11 +17,16 @@
 #ifndef GTE_TEXTURE_H
 #define GTE_TEXTURE_H
 
+#include <sys/types.h>
+
 typedef struct texture_t {
 	unsigned int id;
 	const char *type;
 } texture_t;
 
+__attribute__((warn_unused_result))
 texture_t *texture_load(const char *path);
+__attribute__((warn_unused_result))
+texture_t *texture_load_rgba(const unsigned char *data, size_t width, size_t height);
 
 #endif

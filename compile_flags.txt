@@ -7,3 +7,4 @@ include
 -Werror=strict-prototypes
 -Werror=implicit-function-declaration
 -Werror=implicit-int
+-Wno-unused-parameter
