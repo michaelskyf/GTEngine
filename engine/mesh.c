@@ -14,13 +14,12 @@
 #include "GTEngine/texture.h"
 #include "GTEngine/vector.h"
 #include <GTEngine/mesh.h>
+#include <GTEngine/model.h>
 #include <glad/glad.h>
 #include <GTEngine/output.h>
 
 void mesh_draw(mesh_t *m, shader_t *s)
 {
-	// Bind diffuse TODO: in more organized way
-
 	// Bind buffers
 	glBindBuffer(GL_ARRAY_BUFFER, m->vbo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m->ebo);
@@ -43,4 +42,21 @@ void mesh_draw(mesh_t *m, shader_t *s)
 
 	// Clean-up
 	glActiveTexture(GL_TEXTURE0);
+}
+
+void mesh_destroy(mesh_t *m)
+{
+	vector_destroy(m->vertices);
+	vector_destroy(m->indices);
+
+	glDeleteBuffers(1, &m->ebo);
+	glDeleteBuffers(1, &m->vbo);
+
+	free(m);
+}
+
+void material_destroy(material_t *m)
+{
+	vector_destroy(m->textures);
+	free(m);
 }

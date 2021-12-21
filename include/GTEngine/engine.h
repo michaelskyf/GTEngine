@@ -44,6 +44,6 @@ extern struct gte_graphics
 {
 	vector_t *models;
 	vector_t *textures;
-} const * const gte_graphics;
+} * const gte_graphics;
 
 #endif

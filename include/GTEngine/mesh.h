@@ -43,4 +43,6 @@ typedef struct mesh_t {
 void mesh_destroy(mesh_t *);
 void mesh_draw(mesh_t *, shader_t *);
 
+void material_destroy(material_t *m);
+
 #endif

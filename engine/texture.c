@@ -18,6 +18,7 @@
 #include "stb_image.h"
 #include <glad/glad.h>
 #include <GTEngine/texture.h>
+#include <GTEngine/output.h>
 
 texture_t *texture_load(const char *path)
 {
@@ -34,6 +35,10 @@ texture_t *texture_load(const char *path)
 			glGenTextures(1, &t->id);
 
 			glBindTexture(GL_TEXTURE_2D, t->id);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 			if(nrChannels == 3)
 				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
@@ -41,6 +46,7 @@ texture_t *texture_load(const char *path)
 				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
 			glGenerateMipmap(GL_TEXTURE_2D);
+			LOGGLE();
 		}
 		stbi_image_free(data);
 	}
@@ -61,6 +67,10 @@ texture_t *texture_load_memory(const unsigned char *img, size_t w, size_t h)
 			glGenTextures(1, &t->id);
 
 			glBindTexture(GL_TEXTURE_2D, t->id);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 			if(nrChannels == 3)
 				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);

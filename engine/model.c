@@ -17,6 +17,7 @@
 #include "GTEngine/mesh.h"
 #include "GTEngine/shader.h"
 #include "GTEngine/vector.h"
+#include <GTEngine/engine.h>
 #include <GTEngine/model.h>
 #include <GTEngine/texture.h>
 #include <GTEngine/lib.h>
@@ -41,6 +42,7 @@ static vector_t *process_indices(const struct aiMesh *mMesh);
 static material_t *process_material(const struct aiMaterial *mMat, const char *directory, const struct aiScene *scene);
 static int mesh_setup(mesh_t *m);
 static vector_t *material_texture_load(const struct aiMaterial *mMat, enum aiTextureType type, const char *typename, const char *directory, const struct aiScene *scene);
+void node_free(node_t *n);
 
 model_t *model_load(const char *path)
 {
@@ -85,7 +87,20 @@ model_t *model_load(const char *path)
 
 void model_destroy(model_t *m)
 {
+	node_free(m->node);
+	free((char*)m->directory);
 	free(m);
+}
+
+void node_free(node_t *n)
+{
+	for(size_t i = 0; i < n->children->size; i++)
+		node_free(vector_get(n->children, i));
+	for(size_t i = 0; i < n->meshes->size; i++)
+		mesh_destroy(vector_get(n->meshes, i));
+
+
+	free(n);
 }
 
 void node_draw(node_t *n, shader_t *s)
@@ -213,29 +228,37 @@ static vector_t *material_texture_load(const struct aiMaterial *mMat, enum aiTex
 			strcat(file_path, "/");
 			strcat(file_path, path.data);
 
+			for(unsigned int y = 0; y < gte_graphics->textures->size; y++)
+			{
+				texture_t *t = vector_get(gte_graphics->textures, y);
+				if(!strcmp(t->type, typename) && !strcmp(t->name, file_path))
+				{
+					vector_push(textures, t);
+					free(file_path);
+					goto next;
+				}
+			}
+
 			texture_t *tex = texture_load(file_path);
 			if(tex)
 			{
 				tex->type = typename;
+				tex->name = file_path;
 				vector_push(textures, tex);
+				vector_push(gte_graphics->textures, tex);
 				free(tex);
 			} else {
 				LOGE("Failed to load texture \"%s\"", file_path);
 			}
-			free(file_path);
 		}
+next:;
 	}
 	return textures;
 }
 
 static material_t *process_material(const struct aiMaterial *mMat, const char *directory, const struct aiScene *scene)
 {
-
-	static material_t *material;
-	if(material)
-		return material;
-	material = malloc(sizeof(material_t));
-
+	material_t *material = malloc(sizeof(material_t));
 	if(material)
 	{
 		vector_t *textures = vector_create(0, sizeof(texture_t), 0);

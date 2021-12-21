@@ -15,7 +15,9 @@
     along with GTEngine. If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include <GLES2/gl2.h>
 #include <GTEngine/output.h>
+#include <glad/glad.h>
 #include <unistd.h>
 #include <stdarg.h>
 #include <string.h>
@@ -93,4 +95,16 @@ int print_core(FILE *stream, const char *color, const char *fmt, ...)
 	}
 
 	return ret;
+}
+
+int print_opengl_error(void)
+{
+	GLenum e;
+	int flag = 0;
+	while((e = glGetError()) != GL_NO_ERROR)
+	{
+		LOGE("OpenGL: %#05x", e);
+		flag++;
+	}
+	return flag;
 }

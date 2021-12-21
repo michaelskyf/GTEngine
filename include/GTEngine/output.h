@@ -34,10 +34,12 @@
 
 #define LOGW(fmt, ...) print_core(stdout, TERMINAL_COLOR_YELLOW, "[WARN] " fmt "\n", ##__VA_ARGS__)
 #define LOGE(fmt, ...) print_core(stderr, TERMINAL_COLOR_RED, "[ERR] %s(): " fmt "\n", __func__, ##__VA_ARGS__)
+#define LOGGLE() if(print_opengl_error()){LOGD("");}
 
 int print_setup(void);
 
 __attribute__((format(printf, 3, 4)))
 int print_core(FILE *stream, const char *color, const char *fmt, ...);
+int print_opengl_error(void);
 
 #endif

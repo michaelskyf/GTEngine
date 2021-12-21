@@ -22,6 +22,7 @@
 typedef struct texture_t {
 	unsigned int id;
 	const char *type;
+	const char *name;
 } texture_t;
 
 __attribute__((warn_unused_result))

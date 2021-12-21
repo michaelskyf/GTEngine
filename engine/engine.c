@@ -16,6 +16,7 @@
 */
 
 /* External headers */
+#include "GTEngine/texture.h"
 #include "cglm/util.h"
 #include <glad/glad.h>
 #define GLFW_INCLUDE_NONE
@@ -53,11 +54,13 @@ static void cursor_position_callback(GLFWwindow* window, double xpos, double ypo
 struct gte_time _gte_time;
 struct gte_objects _gte_objects;
 struct gte_window _gte_window;
+struct gte_graphics _gte_graphics;
 
 /* Global variables */
 const struct gte_time * const gte_time = &_gte_time;
 const struct gte_window * const gte_window = &_gte_window;
 struct gte_objects * const gte_objects = &_gte_objects;
+struct gte_graphics * const gte_graphics = &_gte_graphics;
 
 /* Local variables */
 static GLFWwindow *window;
@@ -190,6 +193,8 @@ static int engine_setup(void)
 
 	_gte_objects.objects = vector_create(0, sizeof(game_object_t), 2);
 
+	_gte_graphics.textures = vector_create(0, sizeof(texture_t), 0);
+
 	return 0;
 }
 
@@ -224,12 +229,6 @@ static int opengl_setup(void)
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_TEXTURE_2D);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	/* Bind callback functions */
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
