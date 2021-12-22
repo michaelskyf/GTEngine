@@ -20,34 +20,18 @@
 #include <GTEngine/texture.h>
 #include <GTEngine/output.h>
 
+static texture_t *texture_create(unsigned char *data, size_t width, size_t height, int channels);
+
 texture_t *texture_load(const char *path)
 {
 	stbi_set_flip_vertically_on_load(1);
 	texture_t *t = NULL;
-	int width, height, nrChannels;
-	unsigned char *data = stbi_load(path, &width, &height, &nrChannels, 0);
+	int width, height, channels;
+	unsigned char *data = stbi_load(path, &width, &height, &channels, 0);
 
 	if(data)
 	{
-		t = malloc(sizeof(texture_t));
-		if(t)
-		{
-			glGenTextures(1, &t->id);
-
-			glBindTexture(GL_TEXTURE_2D, t->id);
-			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-			if(nrChannels == 3)
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-			else if(nrChannels == 4)
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-
-			glGenerateMipmap(GL_TEXTURE_2D);
-			print_opengl_errors("at %s:%d->%s()\n", __FILE__, __LINE__, __func__);
-		}
+		t = texture_create(data, width, height, channels);
 		stbi_image_free(data);
 	}
 	return t;
@@ -56,12 +40,20 @@ texture_t *texture_load(const char *path)
 texture_t *texture_load_memory(const unsigned char *img, size_t w, size_t h)
 {
 	texture_t *t = NULL;
-	int width, height, nrChannels;
-	unsigned char *data = stbi_load_from_memory(img, w * h, &width, &height, &nrChannels, 0);
+	int width, height, channels;
+	unsigned char *data = stbi_load_from_memory(img, w * h, &width, &height, &channels, 0);
 
 	if(data)
 	{
-		t = malloc(sizeof(texture_t));
+		t = texture_create(data, width, height, channels);
+		stbi_image_free(data);
+	}
+	return t;
+}
+
+static texture_t *texture_create(unsigned char *data, size_t width, size_t height, int channels)
+{
+		texture_t *t = malloc(sizeof(texture_t));
 		if(t)
 		{
 			glGenTextures(1, &t->id);
@@ -72,15 +64,14 @@ texture_t *texture_load_memory(const unsigned char *img, size_t w, size_t h)
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-			if(nrChannels == 3)
+			if(channels == 3)
 				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-			else if(nrChannels == 4)
+			else if(channels == 4)
 				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
 			glGenerateMipmap(GL_TEXTURE_2D);
-		}
-		stbi_image_free(data);
-	}
 
-	return t;
+			print_opengl_errors("at %s:%d->%s()\n", __FILE__, __LINE__, __func__);
+		}
+		return t;
 }
