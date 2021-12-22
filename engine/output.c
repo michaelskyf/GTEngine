@@ -37,27 +37,33 @@ int print_core(FILE *stream, const char *color, const char *fmt, va_list args)
 {
 	int ret;
 
-	char buffer[2048];
-	vsnprintf(buffer, sizeof(buffer), fmt, args);
+	if((stream == stdout && !is_tty_stdout) || (stream == stderr && !is_tty_stderr))
+	{
+		ret = vfprintf(stream, fmt, args);
+	}
+	else
+	{
+		char buffer[2048];
+		vsnprintf(buffer, sizeof(buffer), fmt, args);
 
-	ret = fprintf(stream, "%s%s%s", color, buffer, TERMINAL_COLOR_RESET);
-
+		ret = fprintf(stream, "%s%s%s", color, buffer, TERMINAL_COLOR_RESET);
+	}
 	return ret;
 }
 
 int vprint_log(const char *fmt, va_list args)
 {
-	return print_core(stderr, TERMINAL_COLOR_RESET, fmt, args);
+	return print_core(stdout, TERMINAL_COLOR_RESET, fmt, args);
 }
 
 int vprint_info(const char *fmt, va_list args)
 {
-	return print_core(stderr, TERMINAL_COLOR_BLUE, fmt, args);
+	return print_core(stdout, TERMINAL_COLOR_BLUE, fmt, args);
 }
 
 int vprint_debug(const char *fmt, va_list args)
 {
-	return print_core(stderr, TERMINAL_COLOR_GREEN, fmt, args);
+	return print_core(stdout, TERMINAL_COLOR_GREEN, fmt, args);
 }
 
 int vprint_warning(const char *fmt, va_list args)

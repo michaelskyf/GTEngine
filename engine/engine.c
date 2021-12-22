@@ -239,6 +239,8 @@ static int opengl_setup(void)
 	shader = shader_create("data/shaders/test.vs", "data/shaders/test.fs");
 	camera = camera_create((vec3){0,0,0});
 
+	print_opengl_errors("at %s:%d->%s()\n", __FILE__, __LINE__, __func__);
+
 	return 0;
 }
 
