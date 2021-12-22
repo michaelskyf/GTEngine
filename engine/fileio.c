@@ -29,7 +29,7 @@ char *file_read(const char *path)
 
 	if(!fp)
 	{
-		LOGE("Failed to open %s for reading(%d): %s", path, errno, strerror(errno));
+		print_error("Failed to open %s for reading(%d): %s\n", path, errno, strerror(errno));
 		return NULL;
 	}
 
@@ -46,7 +46,7 @@ char *file_read(const char *path)
 
 	if (fsize != read)
 	{
-		LOGE("Failed to read %s", path);
+		print_error("Failed to read %s\n", path);
 		free(file);
 		return NULL;
 	}
@@ -62,7 +62,7 @@ size_t file_write(const char *path, const char *content)
 
 	if(!fp)
 	{
-		LOGE("Failed to open %s for writing(%d): %s", path, errno, strerror(errno));
+		print_error("Failed to open %s for writing(%d): %s\n", path, errno, strerror(errno));
 		return -1;
 	}
 
@@ -72,7 +72,7 @@ size_t file_write(const char *path, const char *content)
 
 	if(written != fsize)
 	{
-		LOGE("Failed to write to %s", path);
+		print_error("Failed to write to %s\n", path);
 		return -1;
 	}
 

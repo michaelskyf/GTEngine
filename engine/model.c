@@ -59,7 +59,7 @@ model_t *model_load(const char *path)
 		// Validate the extension
 		if(!extension || !aiIsExtensionSupported(extension))
 		{
-			LOGE("File extension '%s' not supported by Assmip (\"%s\")", extension, path);
+			print_error("File extension '%s' not supported by Assmip (\"%s\")\n", extension, path);
 			model_destroy(m);
 			return NULL;
 		}
@@ -68,7 +68,7 @@ model_t *model_load(const char *path)
 		const struct aiScene *scene = aiImportFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcessPreset_TargetRealtime_Fast);
 		if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene ->mRootNode)
 		{
-			LOGE("Failed to load object \"%s\"", path);
+			print_error("Failed to load object \"%s\"\n", path);
 			model_destroy(m);
 			return NULL;
 		}
@@ -248,7 +248,7 @@ static vector_t *material_texture_load(const struct aiMaterial *mMat, enum aiTex
 				vector_push(gte_graphics->textures, tex);
 				free(tex);
 			} else {
-				LOGE("Failed to load texture \"%s\"", file_path);
+				print_error("Failed to load texture \"%s\"\n", file_path);
 			}
 		}
 next:;

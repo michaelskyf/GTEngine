@@ -96,7 +96,7 @@ int main(int argc, char **argv)
 	{
 		if(setup_func[i]())
 		{
-			LOGE("Error while running setup function %d. Exiting.", i);
+			print_error("Error while running setup function %d. Exiting.\n", i);
 
 			if(engine_done)
 				engine_exit();
@@ -114,7 +114,7 @@ int main(int argc, char **argv)
 
 	double endTime = (double)clock()/CLOCKS_PER_SEC;
 
-	LOGI("Init took %f seconds", endTime - startTime);
+	print_info("Init took %f seconds\n", endTime - startTime);
 
 	// Disable cursor
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -211,7 +211,7 @@ static int opengl_setup(void)
 
 	if (!window)
 	{
-		LOGE("Failed to create GLFW window");
+		print_error("Failed to create GLFW window\n");
 		glfwTerminate();
 		return -1;
 	}
@@ -220,7 +220,7 @@ static int opengl_setup(void)
 
 	if (!gladLoadGLES2Loader((GLADloadproc)glfwGetProcAddress))
 	{
-		LOGE("Failed to initialize GLAD");
+		print_error("Failed to initialize GLAD\n");
 		glfwTerminate();
 		return -1;
 	}

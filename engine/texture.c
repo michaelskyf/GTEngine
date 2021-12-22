@@ -46,7 +46,7 @@ texture_t *texture_load(const char *path)
 				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
 			glGenerateMipmap(GL_TEXTURE_2D);
-			LOGGLE();
+			print_opengl_errors("at %s:%d->%s()\n", __FILE__, __LINE__, __func__);
 		}
 		stbi_image_free(data);
 	}

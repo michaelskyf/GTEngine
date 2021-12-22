@@ -27,19 +27,20 @@
 #define TERMINAL_COLOR_RESET	"\033[0m"
 
 
-#define LOG(fmt, ...)  print_core(stdout, NULL, fmt "\n", ##__VA_ARGS__)
-
-#define LOGI(fmt, ...) print_core(stdout, TERMINAL_COLOR_BLUE, "[INF] " fmt "\n", ##__VA_ARGS__)
-#define LOGD(fmt, ...) print_core(stdout, TERMINAL_COLOR_GREEN, "[DBG] %s:%d->%s() " fmt "\n", __FILE__, __LINE__, __func__, ##__VA_ARGS__)
-
-#define LOGW(fmt, ...) print_core(stdout, TERMINAL_COLOR_YELLOW, "[WARN] " fmt "\n", ##__VA_ARGS__)
-#define LOGE(fmt, ...) print_core(stderr, TERMINAL_COLOR_RED, "[ERR] %s(): " fmt "\n", __func__, ##__VA_ARGS__)
-#define LOGGLE() if(print_opengl_error()){LOGD("");}
-
 int print_setup(void);
 
-__attribute__((format(printf, 3, 4)))
-int print_core(FILE *stream, const char *color, const char *fmt, ...);
-int print_opengl_error(void);
+int print_core(FILE *stream, const char *color, const char *fmt, va_list args);
+__attribute__((format(printf, 1, 2)))
+int print_log(const char *fmt, ...);
+__attribute__((format(printf, 1, 2)))
+int print_info(const char *fmt, ...);
+__attribute__((format(printf, 1, 2)))
+int print_debug(const char *fmt, ...);
+__attribute__((format(printf, 1, 2)))
+int print_warning(const char *fmt, ...);
+__attribute__((format(printf, 1, 2)))
+int print_error(const char *fmt, ...);
+__attribute__((format(printf, 1, 2)))
+int print_opengl_errors(const char *fmt, ...);
 
 #endif
