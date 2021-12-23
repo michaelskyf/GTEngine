@@ -68,7 +68,7 @@ model_t *model_load(const char *path)
 		const struct aiScene *scene = aiImportFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcessPreset_TargetRealtime_Fast);
 		if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene ->mRootNode)
 		{
-			print_error("Failed to load object \"%s\"\n", path);
+			print_error("Failed to load object \"%s\": %s\n", path, aiGetErrorString());
 			free(m);
 			return NULL;
 		}
