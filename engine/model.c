@@ -60,7 +60,7 @@ model_t *model_load(const char *path)
 		if(!extension || !aiIsExtensionSupported(extension))
 		{
 			print_error("File extension '%s' not supported by Assmip (\"%s\")\n", extension, path);
-			model_destroy(m);
+			free(m);
 			return NULL;
 		}
 
@@ -69,7 +69,7 @@ model_t *model_load(const char *path)
 		if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene ->mRootNode)
 		{
 			print_error("Failed to load object \"%s\"\n", path);
-			model_destroy(m);
+			free(m);
 			return NULL;
 		}
 		m->path = path;
