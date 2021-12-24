@@ -256,8 +256,7 @@ PBUILD_AFLAGS	:=
 PBUILD_CXXFLAGS	:=
 PBUILD_C_CXX_FLAGS := -Werror -Wall -Wextra -Wundef -Wpedantic -fPIE -g -O0 \
 		      -Werror=return-type \
-		      -Wno-unused-parameter \
-		      -Wno-variadic-macros
+		      -Wno-unused-parameter
 PBUILD_CFLAGS	:= $(PBUILD_C_CXX_FLAGS) \
 		   -Werror=strict-prototypes -Werror=implicit-function-declaration \
 		   -Werror=implicit-int \
