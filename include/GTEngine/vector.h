@@ -32,6 +32,7 @@ vector_t *vector_create(size_t capacity, size_t item_size, size_t growth_rate);
 void vector_destroy(vector_t *);
 
 int vector_push(vector_t *, const void *);
+int vector_push_empty(vector_t *);
 void vector_pop(vector_t *, void *);
 
 __attribute__((warn_unused_result))

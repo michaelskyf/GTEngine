@@ -46,9 +46,12 @@ void node_free(node_t *n);
 
 model_t *model_load(const char *path)
 {
-	model_t *m = malloc(sizeof(model_t));
-	if(m)
+	int index = vector_push_empty(gte_graphics->models);
+	model_t *m = NULL;
+
+	if(index >= 0)
 	{
+		m = vector_get(gte_graphics->models, index);
 		// Init variables
 		m->node = NULL;
 		m->path = path;
@@ -214,13 +217,25 @@ static vector_t *material_texture_load(const struct aiMaterial *mMat, enum aiTex
 
 		if(!strcmp(path.data, "*0"))
 		{
+			for(unsigned int y = 0; y < gte_graphics->textures->size; y++)
+			{
+				texture_t *t = vector_get(gte_graphics->textures, y);
+				if(!strcmp(t->type, typename) && !strcmp(t->name, scene->mTextures[i]->mFilename.data))
+				{
+					vector_push(textures, t);
+					goto next;
+				}
+			}
+
 			struct aiTexture *t = scene->mTextures[i];
 			if(!t->mHeight)
 				t->mHeight = 1;
 
 			texture_t *tex = texture_load_memory((unsigned char*)t->pcData, t->mWidth, t->mHeight);
+			tex->type = typename;
+			tex->name = t->mFilename.data;
 			vector_push(textures, tex);
-			free(tex);
+			print_warning("Support for embedded textures is experimental\n");
 
 		} else {
 			char *file_path = malloc(strlen(directory) + strlen(path.data) + 2);
@@ -245,10 +260,9 @@ static vector_t *material_texture_load(const struct aiMaterial *mMat, enum aiTex
 				tex->type = typename;
 				tex->name = file_path;
 				vector_push(textures, tex);
-				vector_push(gte_graphics->textures, tex);
-				free(tex);
 			} else {
 				print_error("Failed to load texture \"%s\"\n", file_path);
+				free(file_path);
 			}
 		}
 next:;

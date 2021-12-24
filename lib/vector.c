@@ -60,8 +60,23 @@ int vector_push(vector_t *v, const void *i)
 	}
 
 	memcpy((char*)v->data + v->size * v->item_size, i, v->item_size);
-	v->size++;
-	return v->size;
+	return v->size++;
+}
+
+int vector_push_empty(vector_t *v)
+{
+	if(v->size == v->capacity)
+	{
+		size_t new_capacity = v->size * v->growth_rate + 1;
+		void *new_data = realloc(v->data, new_capacity * v->item_size);
+
+		if(!new_data)
+			return -1;
+
+		v->data = new_data;
+		v->capacity = new_capacity;
+	}
+	return v->size++;
 }
 
 void vector_pop(vector_t *, void *);

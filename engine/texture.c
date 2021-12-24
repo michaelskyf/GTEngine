@@ -18,6 +18,8 @@
 #include "stb_image.h"
 #include <glad/glad.h>
 #include <GTEngine/texture.h>
+#include <GTEngine/vector.h>
+#include <GTEngine/engine.h>
 #include <GTEngine/output.h>
 
 static texture_t *texture_create(unsigned char *data, size_t width, size_t height, int channels);
@@ -53,9 +55,12 @@ texture_t *texture_load_memory(const unsigned char *img, size_t w, size_t h)
 
 static texture_t *texture_create(unsigned char *data, size_t width, size_t height, int channels)
 {
-		texture_t *t = malloc(sizeof(texture_t));
-		if(t)
+		int index = vector_push_empty(gte_graphics->textures);
+		texture_t *t = NULL;
+
+		if(index >= 0)
 		{
+			t = vector_get(gte_graphics->textures, index);
 			glGenTextures(1, &t->id);
 
 			glBindTexture(GL_TEXTURE_2D, t->id);

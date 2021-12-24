@@ -28,9 +28,12 @@
 
 game_object_t *game_object_create(model_t *model, vec3 position, vec3 scale)
 {
-	game_object_t *g = malloc(sizeof(game_object_t));
-	if(g)
+	int index = vector_push_empty(gte_objects->objects);
+	game_object_t *g = NULL;
+
+	if(index >= 0)
 	{
+		g = vector_get(gte_objects->objects, index);
 		g->children = vector_create(0, sizeof(game_object_t), 0);
 		g->enabled = 1;
 		g->parent = NULL;
@@ -44,7 +47,7 @@ game_object_t *game_object_create(model_t *model, vec3 position, vec3 scale)
 
 void game_object_destroy(game_object_t *g)
 {
-	free(g);
+	vector_destroy(g->children);
 }
 
 void game_object_draw(game_object_t *g, shader_t *s)

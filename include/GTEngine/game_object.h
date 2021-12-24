@@ -33,7 +33,6 @@ typedef struct game_object_t {
 	_Bool enabled;
 } game_object_t;
 
-__attribute__((warn_unused_result))
 game_object_t *game_object_create(model_t *model, vec3 position, vec3 scale);
 void game_object_destroy(game_object_t *);
 

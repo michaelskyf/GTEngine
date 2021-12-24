@@ -16,6 +16,7 @@
 */
 
 /* External headers */
+#include "GTEngine/model.h"
 #include "GTEngine/texture.h"
 #include "cglm/util.h"
 #include <glad/glad.h>
@@ -194,6 +195,7 @@ static int engine_setup(void)
 	_gte_objects.objects = vector_create(0, sizeof(game_object_t), 2);
 
 	_gte_graphics.textures = vector_create(0, sizeof(texture_t), 0);
+	_gte_graphics.models = vector_create(0, sizeof(model_t), 0);
 
 	return 0;
 }
@@ -246,6 +248,8 @@ static int opengl_setup(void)
 static void engine_exit(void)
 {
 	// Destroy all game objects
+	for(size_t i = 0; i < _gte_objects.objects->size; i++)
+		game_object_destroy(vector_get(_gte_objects.objects, i));
 	vector_destroy(_gte_objects.objects);
 }
 
