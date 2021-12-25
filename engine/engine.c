@@ -52,10 +52,10 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action, 
 static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
 
 /* Engine variables */
-struct gte_time _gte_time;
-struct gte_objects _gte_objects;
-struct gte_window _gte_window;
-struct gte_graphics _gte_graphics;
+static struct gte_time _gte_time;
+static struct gte_objects _gte_objects;
+static struct gte_window _gte_window;
+static struct gte_graphics _gte_graphics;
 
 /* Global variables */
 const struct gte_time * const gte_time = &_gte_time;
