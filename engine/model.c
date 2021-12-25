@@ -233,9 +233,11 @@ static vector_t *material_texture_load(const struct aiMaterial *mMat, enum aiTex
 
 			texture_t *tex = texture_load_memory((unsigned char*)t->pcData, t->mWidth, t->mHeight);
 			tex->type = typename;
-			tex->name = t->mFilename.data;
+			tex->name = malloc(strlen(t->mFilename.data) + strlen(directory) + 2);
+			strcpy((char*)tex->name, directory);
+			strcpy((char*)tex->name + strlen(directory), "/");
+			strcpy((char*)tex->name + strlen(directory) + 1, t->mFilename.data);
 			vector_push(textures, tex);
-			print_warning("Support for embedded textures is experimental\n");
 
 		} else {
 			char *file_path = malloc(strlen(directory) + strlen(path.data) + 2);
