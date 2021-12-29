@@ -20,6 +20,7 @@
 #include "GTEngine/texture.h"
 #include "cglm/util.h"
 #include <glad/glad.h>
+#include <stdarg.h>
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 #include <math.h>
@@ -31,7 +32,7 @@
 /* Internal headers */
 #include <GTEngine/vector.h>
 #include <GTEngine/lib.h>
-#include <GTEngine/output.h>
+#include <selog/selog.h>
 #include <GTEngine/camera.h>
 #include <GTEngine/game_object.h>
 #include <GTEngine/engine.h>
@@ -70,6 +71,8 @@ static camera_t *camera;
 
 int main(int argc, char **argv)
 {
+	log_setup_default();
+
 	// For measuring init time
 	double startTime = (double)clock()/CLOCKS_PER_SEC;
 	/*
@@ -81,7 +84,6 @@ int main(int argc, char **argv)
 	argv[0][strlen(*argv)] = '/';
 
 	int (* setup_func[])(void) = {
-		print_setup,
 		engine_setup,
 		opengl_setup,
 		game_setup,
@@ -97,7 +99,7 @@ int main(int argc, char **argv)
 	{
 		if(setup_func[i]())
 		{
-			print_error("Error while running setup function %d. Exiting.\n", i);
+			log_error("Error while running setup function %d. Exiting.", i);
 
 			if(engine_done)
 				engine_exit();
@@ -115,7 +117,7 @@ int main(int argc, char **argv)
 
 	double endTime = (double)clock()/CLOCKS_PER_SEC;
 
-	print_info("Init took %f seconds\n", endTime - startTime);
+	log_info("Init took %f seconds", endTime - startTime);
 
 	// Disable cursor
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -213,7 +215,7 @@ static int opengl_setup(void)
 
 	if (!window)
 	{
-		print_error("Failed to create GLFW window\n");
+		log_error("Failed to create GLFW window");
 		glfwTerminate();
 		return -1;
 	}
@@ -222,7 +224,7 @@ static int opengl_setup(void)
 
 	if (!gladLoadGLES2Loader((GLADloadproc)glfwGetProcAddress))
 	{
-		print_error("Failed to initialize GLAD\n");
+		log_error("Failed to initialize GLAD");
 		glfwTerminate();
 		return -1;
 	}
@@ -240,7 +242,7 @@ static int opengl_setup(void)
 	shader = shader_create("data/shaders/test.vs", "data/shaders/test.fs");
 	camera = camera_create((vec3){0,0,0});
 
-	print_opengl_errors("at %s:%d->%s()\n", __FILE__, __LINE__, __func__);
+	log_opengl_errors();
 
 	return 0;
 }
@@ -256,6 +258,13 @@ static void engine_exit(void)
 static void opengl_exit(void)
 {
 	glfwTerminate();
+}
+
+void _log_opengl_errors(const char *file, int line, const char *function)
+{
+	GLenum e;
+	while((e = glGetError() != GL_NO_ERROR))
+		_log(LOG_ERROR, file, line, function, "OpenGL error (%#05x)", e);
 }
 
 static void engine_update(void)

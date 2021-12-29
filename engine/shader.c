@@ -14,7 +14,7 @@
 
 #include <GTEngine/shader.h>
 #include <GTEngine/fileio.h>
-#include <GTEngine/output.h>
+#include <selog/selog.h>
 #include <glad/glad.h>
 
 #include <stdlib.h>
@@ -32,14 +32,14 @@ shader_t *shader_create(const char *v_path, const char *f_path)
 		// Shader stuff
 		if(shader_piece_create(&vertex, v_path, GL_VERTEX_SHADER))
 		{
-			print_error("Failed to create vertex shader\n");
+			log_error("Failed to create vertex shader");
 			free(shader);
 			return NULL;
 		}
 
 		if(shader_piece_create(&fragment, f_path, GL_FRAGMENT_SHADER))
 		{
-			print_error("Failed to create fragment shader\n");
+			log_error("Failed to create fragment shader");
 			glDeleteShader(vertex);
 			free(shader);
 			return NULL;
@@ -49,7 +49,7 @@ shader_t *shader_create(const char *v_path, const char *f_path)
 
 		if(!shader->id)
 		{
-			print_error("Failed to create shader program\n");
+			log_error("Failed to create shader program");
 			glDeleteShader(vertex);
 			glDeleteShader(fragment);
 			free(shader);
@@ -71,7 +71,7 @@ shader_t *shader_create(const char *v_path, const char *f_path)
 		{
 			char infolog[1024];
 			glGetShaderInfoLog(shader->id, 1024, NULL, infolog);
-			print_error("Shader program compilation failed:\n%s\n", infolog);
+			log_error("Shader program compilation failed:\n%s", infolog);
 			glDeleteProgram(shader->id);
 			free(shader);
 			return NULL;
@@ -124,7 +124,7 @@ static int shader_piece_create(unsigned int *shader, const char *path, int type)
 	{
 		char infolog[1024];
 		glGetShaderInfoLog(*shader, 1024, NULL, infolog);
-		print_error("Shader compilation failed (%s):\n%s\n", path, infolog);
+		log_error("Shader compilation failed (%s):\n%s", path, infolog);
 		return -1;
 	}
 

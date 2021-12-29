@@ -1,8 +1,8 @@
--I
-include
+-Iinclude
 -Wall
 -Wextra
 -Wundef
+-Wpedantic
 -Werror=return-type
 -Werror=strict-prototypes
 -Werror=implicit-function-declaration

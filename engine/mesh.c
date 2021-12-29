@@ -16,7 +16,7 @@
 #include <GTEngine/mesh.h>
 #include <GTEngine/model.h>
 #include <glad/glad.h>
-#include <GTEngine/output.h>
+#include <selog/selog.h>
 
 void mesh_draw(mesh_t *m, shader_t *s)
 {

@@ -20,7 +20,7 @@
 #include <GTEngine/texture.h>
 #include <GTEngine/vector.h>
 #include <GTEngine/engine.h>
-#include <GTEngine/output.h>
+#include <selog/selog.h>
 
 static texture_t *texture_create(unsigned char *data, size_t width, size_t height, int channels);
 
@@ -76,7 +76,7 @@ static texture_t *texture_create(unsigned char *data, size_t width, size_t heigh
 
 			glGenerateMipmap(GL_TEXTURE_2D);
 
-			print_opengl_errors("at %s:%d->%s()\n", __FILE__, __LINE__, __func__);
+			log_opengl_errors();
 		}
 		return t;
 }

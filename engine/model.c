@@ -21,7 +21,7 @@
 #include <GTEngine/model.h>
 #include <GTEngine/texture.h>
 #include <GTEngine/lib.h>
-#include <GTEngine/output.h>
+#include <selog/selog.h>
 #include <assimp/material.h>
 #include <assimp/texture.h>
 #include <assimp/types.h>
@@ -62,7 +62,7 @@ model_t *model_load(const char *path)
 		// Validate the extension
 		if(!extension || !aiIsExtensionSupported(extension))
 		{
-			print_error("File extension '%s' not supported by Assmip (\"%s\")\n", extension, path);
+			log_error("File extension '%s' not supported by Assmip (\"%s\")", extension, path);
 			free(m);
 			return NULL;
 		}
@@ -71,7 +71,7 @@ model_t *model_load(const char *path)
 		const struct aiScene *scene = aiImportFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcessPreset_TargetRealtime_Fast);
 		if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene ->mRootNode)
 		{
-			print_error("Failed to load object \"%s\": %s\n", path, aiGetErrorString());
+			log_error("Failed to load object \"%s\": %s", path, aiGetErrorString());
 			free(m);
 			return NULL;
 		}
@@ -263,7 +263,7 @@ static vector_t *material_texture_load(const struct aiMaterial *mMat, enum aiTex
 				tex->name = file_path;
 				vector_push(textures, tex);
 			} else {
-				print_error("Failed to load texture \"%s\"\n", file_path);
+				log_error("Failed to load texture \"%s\"", file_path);
 				free(file_path);
 			}
 		}

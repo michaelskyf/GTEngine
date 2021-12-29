@@ -1,0 +1,3 @@
+[submodule "lib/selog"]
+	path = lib/selog
+	url = https://github.com/michaelskyf/selog

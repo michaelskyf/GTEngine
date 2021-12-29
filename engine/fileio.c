@@ -15,7 +15,7 @@
     along with GTEngine. If not, see <https://www.gnu.org/licenses/>.
 */
 #include <GTEngine/fileio.h>
-#include <GTEngine/output.h>
+#include <selog/selog.h>
 
 #include <stdlib.h>
 #include <string.h>
@@ -29,7 +29,7 @@ char *file_read(const char *path)
 
 	if(!fp)
 	{
-		print_error("Failed to open %s for reading(%d): %s\n", path, errno, strerror(errno));
+		log_error("Failed to open %s for reading(%d): %s", path, errno, strerror(errno));
 		return NULL;
 	}
 
@@ -46,7 +46,7 @@ char *file_read(const char *path)
 
 	if (fsize != read)
 	{
-		print_error("Failed to read %s\n", path);
+		log_error("Failed to read %s", path);
 		free(file);
 		return NULL;
 	}
@@ -62,7 +62,7 @@ size_t file_write(const char *path, const char *content)
 
 	if(!fp)
 	{
-		print_error("Failed to open %s for writing(%d): %s\n", path, errno, strerror(errno));
+		log_error("Failed to open %s for writing(%d): %s", path, errno, strerror(errno));
 		return -1;
 	}
 
@@ -72,7 +72,7 @@ size_t file_write(const char *path, const char *content)
 
 	if(written != fsize)
 	{
-		print_error("Failed to write to %s\n", path);
+		log_error("Failed to write to %s", path);
 		return -1;
 	}
 

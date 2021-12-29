@@ -46,4 +46,7 @@ extern struct gte_graphics
 	vector_t *textures;
 } * const gte_graphics;
 
+#define log_opengl_errors() _log_opengl_errors(__FILE__, __LINE__, __func__)
+void _log_opengl_errors(const char *file, int line, const char *function);
+
 #endif
