@@ -13,8 +13,12 @@ Install [glfw](https://github.com/glfw/glfw) and [assimp](https://github.com/ass
 - Alpine/PostmarketOS: glfw-dev assimp-dev musl-dev
 - Arch: glfw assimp
 
-Compile and run
+Clone the repository
+```
+git clone --recurse-submodules --remote-submodules https://github.com/michaelskyf/GTEngine.git
+```
 
+Compile and run
 ```
 make
 make run
