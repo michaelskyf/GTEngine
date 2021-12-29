@@ -71,7 +71,7 @@ static camera_t *camera;
 
 int main(int argc, char **argv)
 {
-	log_setup_default();
+	selog_setup_default();
 
 	// For measuring init time
 	double startTime = (double)clock()/CLOCKS_PER_SEC;
@@ -264,7 +264,7 @@ void _log_opengl_errors(const char *file, int line, const char *function)
 {
 	GLenum e;
 	while((e = glGetError() != GL_NO_ERROR))
-		_log(LOG_ERROR, file, line, function, "OpenGL error (%#05x)", e);
+		selog_printf(SELOG_ERROR, file, line, function, "OpenGL error (%#05x)", e);
 }
 
 static void engine_update(void)
