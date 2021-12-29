@@ -1,10 +1,7 @@
 -Iinclude
+-Ilib
 -Wall
 -Wextra
 -Wundef
 -Wpedantic
--Werror=return-type
--Werror=strict-prototypes
--Werror=implicit-function-declaration
--Werror=implicit-int
 -Wno-unused-parameter

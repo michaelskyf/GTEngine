@@ -249,6 +249,7 @@ PYTHON3		= python3
 BASH		= bash
 
 PROJECTINCLUDE	:= \
+		   -I$(srctree)/lib \
 		   -I$(srctree)/include \
 		   -I$(objtree)/include \
 
