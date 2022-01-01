@@ -220,7 +220,7 @@ static vector_t *material_texture_load(const struct aiMaterial *mMat, enum aiTex
 			for(unsigned int y = 0; y < gte_graphics->textures->size; y++)
 			{
 				texture_t *t = vector_get(gte_graphics->textures, y);
-				if(!strcmp(t->type, typename) && !strcmp(t->name, scene->mTextures[i]->mFilename.data))
+				if(!strcmp(t->type, typename) && !strncmp(t->name, scene->mTextures[i]->mFilename.data, scene->mTextures[i]->mFilename.length))
 				{
 					vector_push(textures, t);
 					goto next;
@@ -236,7 +236,7 @@ static vector_t *material_texture_load(const struct aiMaterial *mMat, enum aiTex
 			tex->name = malloc(strlen(t->mFilename.data) + strlen(directory) + 2);
 			strcpy((char*)tex->name, directory);
 			strcpy((char*)tex->name + strlen(directory), "/");
-			strcpy((char*)tex->name + strlen(directory) + 1, t->mFilename.data);
+			strncpy((char*)tex->name + strlen(directory) + 1, t->mFilename.data, t->mFilename.length);
 			vector_push(textures, tex);
 
 		} else {
