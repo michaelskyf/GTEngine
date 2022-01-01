@@ -17,6 +17,10 @@ Clone the repository
 ```
 git clone --recurse-submodules --remote-submodules https://github.com/michaelskyf/GTEngine.git
 ```
+If cloned withuout `--recurse-submodules --remote-submodules` run
+```
+git submodule update --init
+```
 
 Compile and run
 ```
