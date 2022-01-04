@@ -17,7 +17,7 @@
 #include <GTEngine/vector.h>
 #include <GTEngine/shader.h>
 #include <GTEngine/game_object.h>
-#include <selog/selog.h>
+#include <lib/selog.h>
 #include <GTEngine/engine.h>
 
 int game_setup(void)

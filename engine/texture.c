@@ -20,7 +20,7 @@
 #include <GTEngine/texture.h>
 #include <GTEngine/vector.h>
 #include <GTEngine/engine.h>
-#include <selog/selog.h>
+#include <lib/selog.h>
 
 static texture_t *texture_create(unsigned char *data, size_t width, size_t height, int channels);
 

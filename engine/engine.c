@@ -32,7 +32,7 @@
 /* Internal headers */
 #include <GTEngine/vector.h>
 #include <GTEngine/lib.h>
-#include <selog/selog.h>
+#include <lib/selog.h>
 #include <GTEngine/camera.h>
 #include <GTEngine/game_object.h>
 #include <GTEngine/engine.h>
@@ -264,7 +264,7 @@ void _log_opengl_errors(const char *file, int line, const char *function)
 {
 	GLenum e;
 	while((e = glGetError() != GL_NO_ERROR))
-		selog_printf(SELOG_ERROR, file, line, function, "OpenGL error (%#05x)", e);
+		selog_logf(selog_loglevel_error, file, line, function, "OpenGL error (%#05x)", e);
 }
 
 static void engine_update(void)

@@ -14,7 +14,7 @@
 
 #include <GTEngine/shader.h>
 #include <GTEngine/fileio.h>
-#include <selog/selog.h>
+#include <lib/selog.h>
 #include <glad/glad.h>
 
 #include <stdlib.h>

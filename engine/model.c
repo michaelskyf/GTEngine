@@ -21,7 +21,7 @@
 #include <GTEngine/model.h>
 #include <GTEngine/texture.h>
 #include <GTEngine/lib.h>
-#include <selog/selog.h>
+#include <lib/selog.h>
 #include <assimp/material.h>
 #include <assimp/texture.h>
 #include <assimp/types.h>

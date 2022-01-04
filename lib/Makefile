@@ -3,4 +3,4 @@ CFLAGS_REMOVE_glad.o = -Wpedantic
 
 lib-y += vector.o
 lib-y += lib.o
-lib-y += selog/selog.o
+obj-y := selog/src/

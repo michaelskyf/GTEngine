@@ -15,7 +15,7 @@
     along with GTEngine. If not, see <https://www.gnu.org/licenses/>.
 */
 #include <GTEngine/fileio.h>
-#include <selog/selog.h>
+#include <lib/selog.h>
 
 #include <stdlib.h>
 #include <string.h>
