@@ -1,6 +1,8 @@
 # GTEngine
 ## _OpenGL game engine written in C_
 
+<img alt="Gif" src="https://raw.githubusercontent.com/michaelskyf/GTEngine/master/.github/images/GTEngine.gif" width="60%" />
+
 ## What works
 - Loading models with textures
 
